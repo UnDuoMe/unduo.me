@@ -1,0 +1,21 @@
+{
+  "name": "@-/me.unduo.configs.ai-replies",
+  "private": true,
+  "type": "module",
+  "imports": {
+    "#capture": "./capture.ts",
+    "#chrome": "./chrome.ts",
+    "#crop": "./crop.ts",
+    "#sites": "./sites.ts",
+    "#tree": "./tree.ts"
+  },
+  "exports": {
+    ".": "./+server.ts"
+  },
+  "dependencies": {
+    "@-/me.unduo.components.home": "workspace:*"
+  },
+  "devDependencies": {
+    "vite-plus": "catalog:"
+  }
+}

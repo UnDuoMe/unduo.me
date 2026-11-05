@@ -15,6 +15,7 @@
         "@-/me.unduo.components.setup": "workspace:*",
         "@-/me.unduo.components.stepper": "workspace:*",
         "@-/me.unduo.components.university-picker": "workspace:*",
+        "@-/me.unduo.configs.ai-replies": "workspace:*",
         "@-/me.unduo.configs.dev": "workspace:*",
         "@-/me.unduo.configs.e2e": "workspace:*",
         "@-/me.unduo.configs.git": "workspace:*",
@@ -233,6 +234,15 @@
         "@-/me.unduo.lib.universities": "workspace:*",
       },
     },
+    "packages/me/unduo/configs/ai-replies": {
+      "name": "@-/me.unduo.configs.ai-replies",
+      "dependencies": {
+        "@-/me.unduo.components.home": "workspace:*",
+      },
+      "devDependencies": {
+        "vite-plus": "catalog:",
+      },
+    },
     "packages/me/unduo/configs/dev": {
       "name": "@-/me.unduo.configs.dev",
       "bin": {
@@ -395,6 +405,8 @@
     "@-/me.unduo.components.stepper.entities": ["@-/me.unduo.components.stepper.entities@workspace:packages/me/unduo/components/stepper/+entities"],
 
     "@-/me.unduo.components.university-picker": ["@-/me.unduo.components.university-picker@workspace:packages/me/unduo/components/university-picker"],
+
+    "@-/me.unduo.configs.ai-replies": ["@-/me.unduo.configs.ai-replies@workspace:packages/me/unduo/configs/ai-replies"],
 
     "@-/me.unduo.configs.dev": ["@-/me.unduo.configs.dev@workspace:packages/me/unduo/configs/dev"],
 

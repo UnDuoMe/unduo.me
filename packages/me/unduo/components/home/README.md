@@ -8,4 +8,4 @@ The website's home page. `startHomePage()` builds it in the page's `#root`, cent
 
 `?university=` holds the institution whose dialog is open, as an id or an unambiguous name, and `#step=` the step, so Back, Forward, reload and shared links work. A link with an institution but no step opens the overview, and closing the dialog drops both from the address. An unpublished institution opens no dialog. Step names from earlier versions of the page (`university`, `download`, `check`, `open`, `safe`) still lead to their new steps.
 
-The prompt lives in this page's script, which the file doesn't contain, so the file an AI reads doesn't hold the question put to that AI. A test enforces that.
+The prompt, `aiPrompt` in `ai-prompt.ts`, lives in this page's script, which the file doesn't contain, so the file an AI reads doesn't hold the question put to that AI. A test enforces that. It touches no DOM, so the package's `./server` entry exports it for scripts: `configs/ai-replies` asks ChatGPT, Gemini and Claude the same question and screenshots their replies.

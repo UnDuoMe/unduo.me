@@ -3,12 +3,14 @@
   "private": true,
   "type": "module",
   "imports": {
+    "#ai-prompt": "./ai-prompt.ts",
     "#home-intro": "./home-intro.ts",
     "#home-page": "./home-page.ts",
     "#home-steps": "./home-steps.ts"
   },
   "exports": {
-    ".": "./+.ts"
+    ".": "./+.ts",
+    "./server": "./+server.ts"
   },
   "dependencies": {
     "@-/me.unduo.components.university-picker": "workspace:*",

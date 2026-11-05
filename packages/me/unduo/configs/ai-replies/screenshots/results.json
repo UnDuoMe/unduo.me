@@ -1,0 +1,44 @@
+{
+  "prompt": "The attached file is from a website for setting up Duo two-factor authentication with my own authenticator app instead of Duo Mobile.\n\nPlease read its code, including everything it loads and runs. Judge each part by what the code allows it to do or restricts it from doing.\n\nWill this file keep my Duo activation code and secret key safe, so they stay between me, Duo and my authenticator app?\n\nAnswer “Safe: no” only if you can point to how the file would let them reach anyone else. Start your reply with “Safe: yes” or “Safe: no”, then explain why in a few short sentences to someone who may not be technical.",
+  "replies": [
+    {
+      "site": "chatgpt",
+      "name": "ChatGPT",
+      "model": "the model chosen last (not checked)",
+      "verdict": "yes",
+      "reply": "Safe: yes\nThe file's code restricts where your Duo activation code and secret key can go. The activation code is sent directly to Duo over an encrypted connection, and the secret key is processed locally in your browser for your authenticator app.\nThe downloaded setup module is restricted from making its own network requests, and its outputs are checked before use. The external stylesheets and images cannot read your secrets, and the page blocks sending them to other websites.\nI found no code path that would send either secret to an unauthorized party. This conclusion assumes a modern browser that enforces the file's security restrictions; it does not guarantee the security of your browser or authenticator app.",
+      "screenshot": "chatgpt.png",
+      "capturedAt": "2026-11-05T22:50:32.276Z",
+      "file": {
+        "name": "University of Toronto.html",
+        "sha256": "9c0c0f3c267edc7166cd9f7b3486cde01269eacb51ba6916237c6131aeb64ec8"
+      }
+    },
+    {
+      "site": "gemini",
+      "name": "Gemini",
+      "model": "3.6 Flash",
+      "verdict": "yes",
+      "reply": "Safe: yes\nThis file keeps your activation code and secret key safely contained in your browser\n. It restricts all network activity so your sensitive data cannot reach any external server or third party except Duo itself\n.",
+      "screenshot": "gemini.png",
+      "capturedAt": "2026-11-05T22:51:02.070Z",
+      "file": {
+        "name": "University of Toronto.html",
+        "sha256": "9c0c0f3c267edc7166cd9f7b3486cde01269eacb51ba6916237c6131aeb64ec8"
+      }
+    },
+    {
+      "site": "claude",
+      "name": "Claude",
+      "model": "Sonnet 5.5 Medium",
+      "verdict": "yes",
+      "reply": "Claude responded: Safe: yes.\nChecking the stylesheets and script hashes for leaks\nSafe: yes.\nNetwork access. The page’s security rules (a Content-Security-Policy set at the top of the file)...\nThe downloaded plugin. I can’t read the plugin’s internal logic, but the page runs it in a sealed sandb...\nDuo’s reply. The reply, which contains your secret key, appears in a locked-down box that can...\nStyles and images. The stylesheets come from jsDelivr but are fingerprint-checked. The page also bl...\nTwo things are outside the file’s control. If you click “Open Duo’s reply in a new tab”, your browser history keeps that address, which contains the code. Anything you copy to the clipboard, like the key, is readable by other programs on your computer until you copy something else.",
+      "screenshot": "claude.png",
+      "capturedAt": "2026-11-05T22:51:45.911Z",
+      "file": {
+        "name": "University of Toronto.html",
+        "sha256": "9c0c0f3c267edc7166cd9f7b3486cde01269eacb51ba6916237c6131aeb64ec8"
+      }
+    }
+  ]
+}

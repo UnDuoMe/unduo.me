@@ -1,16 +1,6 @@
 import type { University } from "@-/me.unduo.data.universities.entities";
 import { a, button, div, label, p, span, strong, textarea } from "@-/me.unduo.lib.dom";
-
-/**
- * The prompt to put to an AI. It lives in the home page's script, which the file
- * doesn't contain, so the file an AI reads doesn't hold the question put to that AI.
- */
-const question = [
-  "The attached file is from a website for setting up Duo two-factor authentication with my own authenticator app instead of Duo Mobile.",
-  "Please read its code, including everything it loads and runs. Judge each part by what the code allows it to do or restricts it from doing.",
-  "Will this file keep my Duo activation code and secret key safe, so they stay between me, Duo and my authenticator app?",
-  'Answer "Safe: no" only if you can point to how the file would let them reach anyone else. Start your reply with "Safe: yes" or "Safe: no", then explain why in a few short sentences to someone who may not be technical.',
-].join("\n\n");
+import { aiPrompt } from "#ai-prompt";
 
 const assistants = [
   { name: "ChatGPT", href: "https://chatgpt.com/" },
@@ -30,7 +20,7 @@ export function verifyStep(school: University) {
   const copyFailed = van.state(false);
   const copy = async () => {
     try {
-      await navigator.clipboard.writeText(question);
+      await navigator.clipboard.writeText(aiPrompt);
       copyFailed.val = false;
       copied.val = true;
       setTimeout(() => {
@@ -69,7 +59,7 @@ export function verifyStep(school: University) {
         spellcheck: false,
         onfocus: (event: FocusEvent) => (event.target as HTMLTextAreaElement).select(),
       },
-      question,
+      aiPrompt,
     ),
     div(
       { class: "question-actions" },

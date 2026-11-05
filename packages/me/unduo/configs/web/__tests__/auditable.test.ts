@@ -1043,8 +1043,13 @@ describe.runIf(enabled)("browser", { timeout: 180_000 }, () => {
         ["Open Gemini", "https://gemini.google.com/"],
       ].map((link) => [...link, "noopener noreferrer"]),
     );
-    expect(evaluate("document.querySelector('#ai-question').value")).toMatch(
-      /^The attached file is from a website for setting up Duo two-factor authentication[^]*Start your reply with "Safe: yes" or "Safe: no"/,
+    expect(evaluate("document.querySelector('#ai-question').value")).toBe(
+      [
+        "The attached file is from a website for setting up Duo two-factor authentication with my own authenticator app instead of Duo Mobile.",
+        "Please read its code, including everything it loads and runs. Judge each part by what the code allows it to do or restricts it from doing.",
+        "Will this file keep my Duo activation code and secret key safe, so they stay between me, Duo and my authenticator app?",
+        "Answer “Safe: no” only if you can point to how the file would let them reach anyone else. Start your reply with “Safe: yes” or “Safe: no”, then explain why in a few short sentences to someone who may not be technical.",
+      ].join("\n\n"),
     );
     click("button", "Copy prompt");
     browser(

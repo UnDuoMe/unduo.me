@@ -1,6 +1,6 @@
 <!doctype html>
 <html lang="en">
-  <head><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'sha256-dZu710qV7pUozk9WNNw7Nr449YAqE6wv/arVKnsnH/Y=' 'sha256-rDViW+6/Y7rHDJl9Oo3FoWkg4gpoghxybxJrxvhqnDI='; script-src-attr 'none'; style-src-elem https://cdn.jsdelivr.net/npm/uikit@3.25.29/dist/css/uikit.min.css https://cdn.jsdelivr.net/gh/UnDuoMe/unduo.me@aa835fd25e9150ecdc2fb128cf9eed408a10a0a0/setup-styles.mY_Vxe-5.css; style-src-attr 'none'; img-src data:; font-src data:; connect-src 'none'; form-action https://*.duosecurity.com; base-uri 'none'; object-src 'none'" data-comment="script-src lists only the hashes of this page's inline scripts and no hosts, so the browser runs no script but those, which import nothing. No source allows inline handlers or eval. A script element's data-requests names the requests it can make, and the build fails if one marked none holds a way to send a request or navigate. Fetches may reach only the files in connect-src, and forms only Duo. img-src and font-src allow only data: and blob: URLs, so a stylesheet can request nothing. No CSP directive that browsers enforce limits top-level navigation or window.open, so only this page's own scripts can use them.">
+  <head><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'sha256-dZu710qV7pUozk9WNNw7Nr449YAqE6wv/arVKnsnH/Y=' 'sha256-3VSPCovRJU0CZhr+IGRhxHcc320v++yPRLIsPx3/fDw='; script-src-attr 'none'; style-src-elem https://cdn.jsdelivr.net/npm/uikit@3.25.29/dist/css/uikit.min.css https://cdn.jsdelivr.net/gh/UnDuoMe/unduo.me@aa835fd25e9150ecdc2fb128cf9eed408a10a0a0/setup-styles.mY_Vxe-5.css; style-src-attr 'none'; img-src data:; font-src data:; connect-src 'none'; form-action https://*.duosecurity.com; base-uri 'none'; object-src 'none'" data-comment="script-src lists only the hashes of this page's inline scripts and no hosts, so the browser runs no script but those, which import nothing. No source allows inline handlers or eval. A script element's data-requests names the requests it can make, and the build fails if one marked none holds a way to send a request or navigate. Fetches may reach only the files in connect-src, and forms only Duo. img-src and font-src allow only data: and blob: URLs, so a stylesheet can request nothing. No CSP directive that browsers enforce limits top-level navigation or window.open, so only this page's own scripts can use them.">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="referrer" content="no-referrer">
@@ -396,14 +396,17 @@ function overviewStep() {
 	return div(h3({ class: "home-heading" }, "How UnDuo Works:"), ol({ class: "instructions" }, steps$1.map((text) => li({ class: "instruction" }, text))), p({ class: "home-secure" }, "UnDuo is fully secure. Don't take our word for it. On the next step, you'll get to check for yourself (or with the help of AI)."));
 }
 /**
-* The prompt to put to an AI. It lives in the home page's script, which the file
-* doesn't contain, so the file an AI reads doesn't hold the question put to that AI.
+* The prompt the home page gives a student to put to an AI with the downloaded
+* file. It lives in the home page's script, which the file doesn't contain, so
+* the file an AI reads doesn't hold the question put to that AI. Nothing here
+* touches the DOM, so scripts can import it through the package's `./server`
+* entry, as `configs/ai-replies` does to ask the AIs the same question.
 */
-var question = [
+var aiPrompt = [
 	"The attached file is from a website for setting up Duo two-factor authentication with my own authenticator app instead of Duo Mobile.",
 	"Please read its code, including everything it loads and runs. Judge each part by what the code allows it to do or restricts it from doing.",
 	"Will this file keep my Duo activation code and secret key safe, so they stay between me, Duo and my authenticator app?",
-	"Answer \"Safe: no\" only if you can point to how the file would let them reach anyone else. Start your reply with \"Safe: yes\" or \"Safe: no\", then explain why in a few short sentences to someone who may not be technical."
+	"Answer “Safe: no” only if you can point to how the file would let them reach anyone else. Start your reply with “Safe: yes” or “Safe: no”, then explain why in a few short sentences to someone who may not be technical."
 ].join("\n\n");
 var assistants = [
 	{
@@ -430,7 +433,7 @@ function verifyStep(school) {
 	const copyFailed = van.state(false);
 	const copy = async () => {
 		try {
-			await navigator.clipboard.writeText(question);
+			await navigator.clipboard.writeText(aiPrompt);
 			copyFailed.val = false;
 			copied.val = true;
 			setTimeout(() => {
@@ -454,7 +457,7 @@ function verifyStep(school) {
 		readOnly: true,
 		spellcheck: false,
 		onfocus: (event) => event.target.select()
-	}, question), div({ class: "question-actions" }, button({
+	}, aiPrompt), div({ class: "question-actions" }, button({
 		type: "button",
 		class: "uk-button uk-button-default btn",
 		onclick: copy
