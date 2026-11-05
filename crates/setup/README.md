@@ -2,13 +2,14 @@
 
 The logic of unduo's web setup, four steps, compiled to a WebAssembly
 [Extism](https://extism.org) plugin. The page's JavaScript only performs browser
-I/O; everything it shows and every URL it builds comes from here. The plugin
-keeps the page's state in its own memory between calls.
+I/O; everything it shows and every link it builds comes from here. The plugin
+reads the step from the address the page opened with, and nothing writes it. The
+plugin keeps the page's state in its own memory between calls.
 
 | Module          | Does                                                                          |
 | --------------- | ----------------------------------------------------------------------------- |
 | `core.rs`       | The step state machine and scan loop: browser events in, view and effects out |
-| `state.rs`      | The URL hash (step and code type only), validated field by field              |
+| `state.rs`      | Reads the URL hash (step and code type only), validated field by field        |
 | `activation.rs` | Duo activation links, QR image addresses and `CODE-BASE64HOST` values         |
 | `response.rs`   | Duo's pasted reply and errors, the base32 secret and the `otpauth://` link    |
 | `request.rs`    | The Duo Mobile activation URL; the host adds the device fields and its key    |
@@ -23,8 +24,8 @@ and errors (`alloc`, `input_length`, `input_load_u8`, `input_load_u64`,
 functions, no WASI and no allowed hosts, and the browser's `fetch` checks its
 SHA-256 before the page compiles it. One guard in
 `packages/me/unduo/components/setup/plugin/setup-plugin.ts` checks every output
-and stops the page unless the URL hash, the Duo form and the authenticator link
-match strict rules.
+and stops the page unless the Duo form and the authenticator link match strict
+rules.
 
 ## Build
 

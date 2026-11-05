@@ -612,8 +612,10 @@ describe.runIf(enabled)("browser", { timeout: 180_000 }, () => {
     browser("open", `${urlForFlow}?type=totp`);
     browser("set", "media", "light", "reduced-motion");
     waitForHeading("Open your Duo device portal");
+    // The page drops the query once as it opens, and never changes its address after that.
     expect(evaluate("location.search")).toBe("");
-    expect(evaluate("location.hash")).toBe("#type=totp");
+    expect(evaluate("location.hash")).toBe("");
+    const entries = evaluate("history.length");
     expect(evaluate("!!document.querySelector('a[download]')")).toBe(false);
     expect(evaluate("document.querySelectorAll('#setup-progress li').length")).toBe(4);
     expect(
@@ -750,18 +752,19 @@ describe.runIf(enabled)("browser", { timeout: 180_000 }, () => {
     expect(evaluate("new FormData(document.querySelector('form')).get('pubkey')")).toMatch(
       /^-----BEGIN PUBLIC KEY-----\n(?:[A-Za-z0-9+/]{64}\n)+[A-Za-z0-9+/=]{1,64}\n-----END PUBLIC KEY-----\n$/,
     );
-    expect(evaluate(query)).toBe("step=activate&type=totp");
+    expect(evaluate(query), "The step never reaches the address").toBe("");
+    expect(evaluate("history.length"), "Setup adds no history entries").toBe(entries);
     expect(evaluate(keepsSecretsInMemory)).toBe(true);
     expect(evaluate(guardsLeaving)).toBe(true);
     expect(
       evaluate("document.querySelector('#duo-reply')?.getClientRects().length ?? 0"),
       "Reply controls stay hidden until submission",
     ).toBe(0);
-    // A refresh discards the activation, so its address opens the portal.
+    // A refresh discards the activation and opens the portal.
     browser("reload");
     waitForHeading("Open your Duo device portal");
     expect(evaluate("document.querySelectorAll('form').length")).toBe(0);
-    expect(evaluate(query)).toBe("type=totp");
+    expect(evaluate(query)).toBe("");
     expect(evaluate(guardsLeaving)).toBe(false);
     click("button", "I'm signed in");
     waitForHeading("Copy the activation QR code");
@@ -813,14 +816,11 @@ describe.runIf(enabled)("browser", { timeout: 180_000 }, () => {
       `document.querySelector('img[alt*="authenticator QR code"]')?.naturalWidth > 0`,
     );
     click("radio", "Time-based");
-    browser("wait", "--fn", `${query} === 'step=add&type=totp'`);
+    browser("wait", "--fn", "document.querySelector('input[value=totp]').checked");
     expect(evaluate(keepsSecretsInMemory)).toBe(true);
     expectQrMatchesLink();
-    browser("back");
-    waitForHeading("Activate with Duo");
-    browser("forward");
-    waitForHeading("Add it to your authenticator");
-    expect(evaluate("document.querySelector('input[value=totp]').checked")).toBe(true);
+    expect(evaluate(query), "Neither the step nor the code type reaches the address").toBe("");
+    expect(evaluate("history.length"), "Setup adds no history entries").toBe(entries);
     click("button", "Show");
     expect(
       evaluate("document.querySelector('[role=group][aria-label=\"Setup key\"] code').textContent"),
@@ -831,11 +831,7 @@ describe.runIf(enabled)("browser", { timeout: 180_000 }, () => {
     expect(evaluate("document.querySelectorAll('form').length")).toBe(0);
     expect(evaluate(query)).toBe("");
     expect(evaluate(guardsLeaving)).toBe(false);
-    browser("back");
-    waitForHeading("Open your Duo device portal");
-    expect(evaluate(query), "Unavailable steps must be corrected after reset").not.toContain(
-      "step=add",
-    );
+    expect(evaluate("history.length"), "Setup adds no history entries").toBe(entries);
 
     // Refreshing at the last step clears the key, and its address cannot restore it.
     // Start a fresh page before reusing the synthetic fixture from the first flow.
@@ -1172,7 +1168,7 @@ describe.runIf(enabled)("browser", { timeout: 180_000 }, () => {
     expect(evaluate("location.hash")).toBe("");
     click("button", "I'm signed in");
     waitForHeading("Copy the activation QR code");
-    expect(evaluate("location.hash")).toBe("#step=qr");
+    expect(evaluate("location.hash")).toBe("");
     expect(browser("errors")).toBe("");
   });
 

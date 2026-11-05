@@ -44,8 +44,6 @@ export type SetupEvent =
 
 /** The closed list of things the plugin can ask the host to do. */
 export type SetupEffect =
-  /** Replace the URL's query and hash. The hash holds only the step and code type; `push` adds a history entry. */
-  | { type: "writeHash"; hash: string; push: boolean }
   /** Generate the form's key pair, then send `prepared`. */
   | { type: "prepare"; value: string }
   /** Read the QR codes in the image from the last `input`, then send `decoded`. */

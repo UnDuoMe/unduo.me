@@ -1,7 +1,8 @@
-//! The URL hash holds public navigation only, form-encoded like a query:
-//! `#step=add&type=totp`. The activation value and key are a [`Session`] that
-//! lives in the plugin model, which the host keeps in memory. They never reach
-//! the address, history state or browser storage.
+//! An address the page opens with may name a step and code type, form-encoded
+//! like a query: `#step=add&type=totp`. The plugin only reads it, and the page
+//! never changes its address after opening. The activation value and key are a
+//! [`Session`] in the plugin model, which the host keeps in memory. They never
+//! reach the address, history state or browser storage.
 
 use crate::response::Account;
 use serde::{Deserialize, Serialize};
@@ -55,18 +56,6 @@ pub fn validate_search(data: &Map<String, Value>) -> Search {
     Search { step, totp }
 }
 
-/// The hash for the public fields, or "" when there is nothing to keep.
-pub fn encode_hash(search: &Search) -> String {
-    let fields = serde_json::to_value(search).unwrap_or_default();
-    let mut query = url::form_urlencoded::Serializer::new(String::new());
-    for (key, value) in fields.as_object().into_iter().flatten() {
-        if let Some(value) = value.as_str() {
-            query.append_pair(key, value);
-        }
-    }
-    query.finish()
-}
-
 /// Hashes and queries are untrusted input: keep only valid public fields. Reads
 /// `#step=…`, `?step=…` and the legacy `#/?step=…`; anything else, including
 /// the earlier base64 hashes, yields no fields.
@@ -84,22 +73,18 @@ mod tests {
     use super::*;
 
     #[test]
-    fn round_trips_public_fields() {
+    fn reads_public_fields() {
         let search = Search {
             step: Some(Step::Activate),
             totp: Some(Totp::Totp),
         };
-        let hash = encode_hash(&search);
-        assert_eq!(hash, "step=activate&type=totp");
-        assert_eq!(parse_search(&format!("#{hash}")), search);
-        assert_eq!(encode_hash(&Search::default()), "");
+        assert_eq!(parse_search("#step=activate&type=totp"), search);
     }
 
     #[test]
     fn drops_invalid_fields() {
         let crafted = "#step=nope&type=hotp&university=UofT&value=X&secret=Y";
         assert_eq!(parse_search(crafted), Search::default());
-        assert_eq!(encode_hash(&parse_search(crafted)), "");
         // A base64 hash from before this format, carrying a session, keeps nothing.
         let old = "eyJ2ZXJzaW9uIjoxLCJzZWFyY2giOnsic3RlcCI6InFyIn0sInNlc3Npb24iOnt9fQ==";
         for hash in ["", "#", "!!!", old] {

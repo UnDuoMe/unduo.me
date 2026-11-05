@@ -1,6 +1,6 @@
 <!doctype html>
 <html lang="en">
-  <head><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'sha256-dZu710qV7pUozk9WNNw7Nr449YAqE6wv/arVKnsnH/Y=' 'sha256-wB9gqfP4SzTICVjeOth0PNykB2p6klNUxpvBW8jH9DQ=' 'sha256-Rk8KnOZTGvkeJSeVJ5U/VJH8a5z6WToFyDV7exdMWPg=' 'sha256-+zz3cn8WILZ8oEAOa7o6XmLdViAiRcGjyDhQ7zjVthU=' 'sha256-I5akYBsSGWDpk3ViKw3OXZQPyfzHNieWdaUgmmQ3AwM=' 'sha256-tvRKZkuBdgfoDhn00mhSTBSJTYZUjAOYTLb3k06myL4=' 'wasm-unsafe-eval'; script-src-attr 'none'; style-src-elem https://cdn.jsdelivr.net/npm/uikit@3.25.29/dist/css/uikit.min.css https://cdn.jsdelivr.net/gh/UnDuoMe/unduo.me@92ecfff684bdeb996aa0c4d10d3f1b321ce1bb64/setup-styles.mY_Vxe-5.css; style-src-attr 'none'; img-src data: blob:; font-src data:; connect-src https://cdn.jsdelivr.net/gh/UnDuoMe/unduo.me@92ecfff684bdeb996aa0c4d10d3f1b321ce1bb64/setup.mFhZmTms.wasm https://cdn.jsdelivr.net/gh/UnDuoMe/unduo.me@92ecfff684bdeb996aa0c4d10d3f1b321ce1bb64/setup-1-add-device.HfrEhtPk.webp https://cdn.jsdelivr.net/gh/UnDuoMe/unduo.me@92ecfff684bdeb996aa0c4d10d3f1b321ce1bb64/setup-2-tablet.qSlLoa3c.webp https://cdn.jsdelivr.net/gh/UnDuoMe/unduo.me@92ecfff684bdeb996aa0c4d10d3f1b321ce1bb64/setup-3-android.F5QoYAql.webp https://cdn.jsdelivr.net/gh/UnDuoMe/unduo.me@92ecfff684bdeb996aa0c4d10d3f1b321ce1bb64/setup-4-duo-installed.gRuBBlLy.webp https://cdn.jsdelivr.net/gh/UnDuoMe/unduo.me@92ecfff684bdeb996aa0c4d10d3f1b321ce1bb64/setup-5-copy-qr-url.0e4hdp7M.webp; form-action https://*.duosecurity.com; frame-src https://*.duosecurity.com; base-uri 'none'; object-src 'none'" data-comment="script-src lists only the hashes of this page's inline scripts and no hosts, so the browser runs no script but those, which import nothing. No source allows inline handlers or eval. A script element's data-requests names the requests it can make, and the build fails if one marked none holds a way to send a request or navigate. 'wasm-unsafe-eval' allows compiling WebAssembly only. Once the page accepts a Duo form, its script adds a second policy, form-action and frame-src https://api-XXXXXXXX.duosecurity.com for that form's host, and browsers enforce both. The script builds one frame, duo-reply, with the sandbox attribute, no permissions and no src. Only the Duo form loads anything in it, and scripts can't run there or read it from this page: you copy Duo's reply out of it by hand. A second button with formTarget _blank sends the same form to a new tab instead, if you choose it. Fetches may reach only the files in connect-src, and forms only Duo. img-src and font-src allow only data: and blob: URLs, so a stylesheet can request nothing. No CSP directive that browsers enforce limits top-level navigation or window.open, so only this page's own scripts can use them.">
+  <head><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'sha256-dZu710qV7pUozk9WNNw7Nr449YAqE6wv/arVKnsnH/Y=' 'sha256-kLMNJgNabUkiMYJCy6uUnLFnn320T6JYyw6Trq7WbYw=' 'sha256-Rk8KnOZTGvkeJSeVJ5U/VJH8a5z6WToFyDV7exdMWPg=' 'sha256-jAseAqN+nSLMNpPbRY0pu7cs/2oVOUL9e9phkKxIElw=' 'sha256-I5akYBsSGWDpk3ViKw3OXZQPyfzHNieWdaUgmmQ3AwM=' 'sha256-GVXNyxQzib3oDayT8jS8k15yQ8B+YhTETrv2X+oRiWw=' 'wasm-unsafe-eval'; script-src-attr 'none'; style-src-elem https://cdn.jsdelivr.net/npm/uikit@3.25.29/dist/css/uikit.min.css https://cdn.jsdelivr.net/gh/UnDuoMe/unduo.me@aa835fd25e9150ecdc2fb128cf9eed408a10a0a0/setup-styles.mY_Vxe-5.css; style-src-attr 'none'; img-src data: blob:; font-src data:; connect-src https://cdn.jsdelivr.net/gh/UnDuoMe/unduo.me@aa835fd25e9150ecdc2fb128cf9eed408a10a0a0/setup.9c6cpcDL.wasm https://cdn.jsdelivr.net/gh/UnDuoMe/unduo.me@aa835fd25e9150ecdc2fb128cf9eed408a10a0a0/setup-1-add-device.HfrEhtPk.webp https://cdn.jsdelivr.net/gh/UnDuoMe/unduo.me@aa835fd25e9150ecdc2fb128cf9eed408a10a0a0/setup-2-tablet.qSlLoa3c.webp https://cdn.jsdelivr.net/gh/UnDuoMe/unduo.me@aa835fd25e9150ecdc2fb128cf9eed408a10a0a0/setup-3-android.F5QoYAql.webp https://cdn.jsdelivr.net/gh/UnDuoMe/unduo.me@aa835fd25e9150ecdc2fb128cf9eed408a10a0a0/setup-4-duo-installed.gRuBBlLy.webp https://cdn.jsdelivr.net/gh/UnDuoMe/unduo.me@aa835fd25e9150ecdc2fb128cf9eed408a10a0a0/setup-5-copy-qr-url.0e4hdp7M.webp; form-action https://*.duosecurity.com; frame-src https://*.duosecurity.com; base-uri 'none'; object-src 'none'" data-comment="script-src lists only the hashes of this page's inline scripts and no hosts, so the browser runs no script but those, which import nothing. No source allows inline handlers or eval. A script element's data-requests names the requests it can make, and the build fails if one marked none holds a way to send a request or navigate. 'wasm-unsafe-eval' allows compiling WebAssembly only. Once the page accepts a Duo form, its script adds a second policy, form-action and frame-src https://api-XXXXXXXX.duosecurity.com for that form's host, and browsers enforce both. The script builds one frame, duo-reply, with the sandbox attribute, no permissions and no src. Only the Duo form loads anything in it, and scripts can't run there or read it from this page: you copy Duo's reply out of it by hand. A second button with formTarget _blank sends the same form to a new tab instead, if you choose it. Fetches may reach only the files in connect-src, and forms only Duo. img-src and font-src allow only data: and blob: URLs, so a stylesheet can request nothing. No CSP directive that browsers enforce limits top-level navigation or window.open, so only this page's own scripts can use them.">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="referrer" content="no-referrer">
@@ -19,34 +19,34 @@
       data-integrity-file="/dist/css/uikit.min.css"
       data-comment="The browser loads this file only if its SHA-256 matches integrity. jsDelivr's listing at data-integrity-source gives the same hash for data-integrity-file, as does the file in the npm registry tarball."
     />
-    <link rel="stylesheet" data-vendor="app" href="https://cdn.jsdelivr.net/gh/UnDuoMe/unduo.me@92ecfff684bdeb996aa0c4d10d3f1b321ce1bb64/setup-styles.mY_Vxe-5.css" integrity="sha256-mY/Vxe+5/sNAc2mwNqhP8WUziUiWoXFu/3+EzUPNaxs=" crossorigin="anonymous" referrerpolicy="no-referrer" data-integrity-source="https://data.jsdelivr.com/v1/packages/gh/UnDuoMe/unduo.me@92ecfff684bdeb996aa0c4d10d3f1b321ce1bb64?structure=flat" data-integrity-file="/setup-styles.mY_Vxe-5.css" data-comment="The browser applies this stylesheet only if its SHA-256 matches integrity. jsDelivr's listing at data-integrity-source, a commit of github.com/UnDuoMe/unduo.me, gives the same hash for data-integrity-file.">
+    <link rel="stylesheet" data-vendor="app" href="https://cdn.jsdelivr.net/gh/UnDuoMe/unduo.me@aa835fd25e9150ecdc2fb128cf9eed408a10a0a0/setup-styles.mY_Vxe-5.css" integrity="sha256-mY/Vxe+5/sNAc2mwNqhP8WUziUiWoXFu/3+EzUPNaxs=" crossorigin="anonymous" referrerpolicy="no-referrer" data-integrity-source="https://data.jsdelivr.com/v1/packages/gh/UnDuoMe/unduo.me@aa835fd25e9150ecdc2fb128cf9eed408a10a0a0?structure=flat" data-integrity-file="/setup-styles.mY_Vxe-5.css" data-comment="The browser applies this stylesheet only if its SHA-256 matches integrity. jsDelivr's listing at data-integrity-source, a commit of github.com/UnDuoMe/unduo.me, gives the same hash for data-integrity-file.">
   </head>
   <body class="page-body">
-    <div id="root" data-plugin-url="https://cdn.jsdelivr.net/gh/UnDuoMe/unduo.me@92ecfff684bdeb996aa0c4d10d3f1b321ce1bb64/setup.mFhZmTms.wasm" data-plugin-integrity="sha256-mFhZmTmsl9LL2SaNpvIh6mlQIqlLjJFK5YhzkoVSDoU=" data-integrity-source="https://data.jsdelivr.com/v1/packages/gh/UnDuoMe/unduo.me@92ecfff684bdeb996aa0c4d10d3f1b321ce1bb64?structure=flat" data-integrity-file="/setup.mFhZmTms.wasm" data-comment="The page treats the WebAssembly module at data-plugin-url as untrusted code and runs any module the same way, whatever its bytes. loadSetupPlugin() refuses a module unless it imports exactly alloc, input_length, input_load_u8, input_load_u64, store_u8, store_u64, output_set and error_set, which kernel(), in the script below, implements, and exports exactly memory and update. A WebAssembly module computes on its own memory and can reach anything else only through its imports, and these only copy one call's input in and its output or error out. So the module acts only through its output, and the script decides what that output can do. The module runs the setup steps. It receives events as JSON and never pixels: readQrCodes(), in the script, reads QR codes from images and screen frames, and the module gets only their text. check() validates each of its outputs against the Output schema before the page uses it. Its output reaches only text on the page and in the text field, the URL hash, the Duo form's URL and the otpauth:// link. The page shows only the titles, labels and messages listed in pageTexts in the script, and text built from what you pasted: the organization name and setup key from Duo's reply, Duo's reason when it refuses, from a pasted reply that says it failed, and your pasted text in the text field. The URL hash may hold only the step and code type, and may change at most twice per thing you do. The Duo form's URL, the only output sent to a server, is an api-XXXXXXXX.duosecurity.com host, the same for the whole page load, with a 5 to 128 character activation code in its path, and fromInput() requires that code and host in text the page read: pasted text or HTML, or the text readQrCodes() read from a QR code. The otpauth:// link becomes a QR code, a link and clipboard text when you ask, and fromReply() requires the text its secret encodes, and its organization name, to appear in text you pasted, where Duo's reply arrives. Calls run on the page's thread, so the page can't stop a call that never returns; limits apply once it returns. So whatever its bytes compute, the module can only choose among this page's own steps and messages, leave setup unfinished or hang the tab. Its bytes decide only whether setup works. They are built from crates/setup in github.com/UnDuoMe/unduo.me; the browser fetches them only if their SHA-256 matches data-plugin-integrity, the hash jsDelivr's listing at data-integrity-source gives for data-integrity-file; and GitHub's artifact attestation for this file names the commit and workflow run that built it: gh attestation verify FILE --repo UnDuoMe/unduo.me."><div id="setup" data-school-name="University of Toronto" data-portal-url="https://enroll.utormfa.utoronto.ca/" data-source-url="https://security.utoronto.ca/wp-content/uploads/2024/07/UTORMFA-Info-Sessions-Presentation.pdf"></div>
+    <div id="root" data-plugin-url="https://cdn.jsdelivr.net/gh/UnDuoMe/unduo.me@aa835fd25e9150ecdc2fb128cf9eed408a10a0a0/setup.9c6cpcDL.wasm" data-plugin-integrity="sha256-9c6cpcDLzVe5f7S3a3lKAnOAJ0S1/3fM2jME6Tfpf4M=" data-integrity-source="https://data.jsdelivr.com/v1/packages/gh/UnDuoMe/unduo.me@aa835fd25e9150ecdc2fb128cf9eed408a10a0a0?structure=flat" data-integrity-file="/setup.9c6cpcDL.wasm" data-comment="The page treats the WebAssembly module at data-plugin-url as untrusted code and runs any module the same way, whatever its bytes. loadSetupPlugin() refuses a module unless it imports exactly alloc, input_length, input_load_u8, input_load_u64, store_u8, store_u64, output_set and error_set, which kernel(), in the script below, implements, and exports exactly memory and update. A WebAssembly module computes on its own memory and can reach anything else only through its imports, and these only copy one call's input in and its output or error out. So the module acts only through its output, and the script decides what that output can do. The module runs the setup steps. It receives events as JSON and never pixels: readQrCodes(), in the script, reads QR codes from images and screen frames, and the module gets only their text. check() validates each of its outputs against the Output schema before the page uses it. Its output reaches only what the page shows, the text field, the Duo form's URL and the otpauth:// link. The page shows only the titles, labels and messages listed in pageTexts in the script, and text built from what you pasted: the organization name and setup key from Duo's reply, Duo's reason when it refuses, from a pasted reply that says it failed, and your pasted text in the text field. Its output never reaches the address: the script changes the address only once, with history.replaceState() when the page opens, before anything is pasted, to drop any query or hash. The Duo form's URL, the only output sent to a server, is an api-XXXXXXXX.duosecurity.com host, the same for the whole page load, with a 5 to 128 character activation code in its path, and fromInput() requires that code and host in text the page read: pasted text or HTML, or the text readQrCodes() read from a QR code. The otpauth:// link becomes a QR code, a link and clipboard text when you ask, and fromReply() requires the text its secret encodes, and its organization name, to appear in text you pasted, where Duo's reply arrives. Calls run on the page's thread, so the page can't stop a call that never returns; limits apply once it returns. So whatever its bytes compute, the module can only choose among this page's own steps and messages, leave setup unfinished or hang the tab. Its bytes decide only whether setup works. They are built from crates/setup in github.com/UnDuoMe/unduo.me; the browser fetches them only if their SHA-256 matches data-plugin-integrity, the hash jsDelivr's listing at data-integrity-source gives for data-integrity-file; and GitHub's artifact attestation for this file names the commit and workflow run that built it: gh attestation verify FILE --repo UnDuoMe/unduo.me."><div id="setup" data-school-name="University of Toronto" data-portal-url="https://enroll.utormfa.utoronto.ca/" data-source-url="https://security.utoronto.ca/wp-content/uploads/2024/07/UTORMFA-Info-Sessions-Presentation.pdf"></div>
       <template id="portal-screenshot-figures">
     <figure>
       <figcaption class="figure-caption">1. Choose “Add another device”</figcaption>
-      <img class="screenshot" data-image-src="https://cdn.jsdelivr.net/gh/UnDuoMe/unduo.me@92ecfff684bdeb996aa0c4d10d3f1b321ce1bb64/setup-1-add-device.HfrEhtPk.webp" data-image-integrity="sha256-HfrEhtPk9c4GMWguU9TCXl43w9zp9bDwUoagxQZrOsI=" alt="1. Choose “Add another device”">
+      <img class="screenshot" data-image-src="https://cdn.jsdelivr.net/gh/UnDuoMe/unduo.me@aa835fd25e9150ecdc2fb128cf9eed408a10a0a0/setup-1-add-device.HfrEhtPk.webp" data-image-integrity="sha256-HfrEhtPk9c4GMWguU9TCXl43w9zp9bDwUoagxQZrOsI=" alt="1. Choose “Add another device”">
     </figure>
     <figure>
       <figcaption class="figure-caption">2. Choose Tablet</figcaption>
-      <img class="screenshot" data-image-src="https://cdn.jsdelivr.net/gh/UnDuoMe/unduo.me@92ecfff684bdeb996aa0c4d10d3f1b321ce1bb64/setup-2-tablet.qSlLoa3c.webp" data-image-integrity="sha256-qSlLoa3cOOu5hxK7FpPOf92oip/58zxaag4MKJt22dY=" alt="2. Choose Tablet">
+      <img class="screenshot" data-image-src="https://cdn.jsdelivr.net/gh/UnDuoMe/unduo.me@aa835fd25e9150ecdc2fb128cf9eed408a10a0a0/setup-2-tablet.qSlLoa3c.webp" data-image-integrity="sha256-qSlLoa3cOOu5hxK7FpPOf92oip/58zxaag4MKJt22dY=" alt="2. Choose Tablet">
     </figure>
     <figure>
       <figcaption class="figure-caption">3. Choose Android</figcaption>
-      <img class="screenshot" data-image-src="https://cdn.jsdelivr.net/gh/UnDuoMe/unduo.me@92ecfff684bdeb996aa0c4d10d3f1b321ce1bb64/setup-3-android.F5QoYAql.webp" data-image-integrity="sha256-F5QoYAqlJigm9qem3M78P0y4KQdLJXbQE8lvDthL3fQ=" alt="3. Choose Android">
+      <img class="screenshot" data-image-src="https://cdn.jsdelivr.net/gh/UnDuoMe/unduo.me@aa835fd25e9150ecdc2fb128cf9eed408a10a0a0/setup-3-android.F5QoYAql.webp" data-image-integrity="sha256-F5QoYAqlJigm9qem3M78P0y4KQdLJXbQE8lvDthL3fQ=" alt="3. Choose Android">
     </figure>
     <figure>
       <figcaption class="figure-caption">4. Choose “I have Duo Mobile installed”</figcaption>
-      <img class="screenshot" data-image-src="https://cdn.jsdelivr.net/gh/UnDuoMe/unduo.me@92ecfff684bdeb996aa0c4d10d3f1b321ce1bb64/setup-4-duo-installed.gRuBBlLy.webp" data-image-integrity="sha256-gRuBBlLyFDf/O7hDA1We6UGoBR7myv82TygyQ2KxTAA=" alt="4. Choose “I have Duo Mobile installed”">
+      <img class="screenshot" data-image-src="https://cdn.jsdelivr.net/gh/UnDuoMe/unduo.me@aa835fd25e9150ecdc2fb128cf9eed408a10a0a0/setup-4-duo-installed.gRuBBlLy.webp" data-image-integrity="sha256-gRuBBlLyFDf/O7hDA1We6UGoBR7myv82TygyQ2KxTAA=" alt="4. Choose “I have Duo Mobile installed”">
     </figure>
     <figure>
       <figcaption class="figure-caption">5. Right-click the QR code and copy it</figcaption>
-      <img class="screenshot" data-image-src="https://cdn.jsdelivr.net/gh/UnDuoMe/unduo.me@92ecfff684bdeb996aa0c4d10d3f1b321ce1bb64/setup-5-copy-qr-url.0e4hdp7M.webp" data-image-integrity="sha256-0e4hdp7MHqfVJkbXPdJH4AdllvOb2bysxLxdJxaHLR8=" alt="5. Right-click the QR code and copy it">
+      <img class="screenshot" data-image-src="https://cdn.jsdelivr.net/gh/UnDuoMe/unduo.me@aa835fd25e9150ecdc2fb128cf9eed408a10a0a0/setup-5-copy-qr-url.0e4hdp7M.webp" data-image-integrity="sha256-0e4hdp7MHqfVJkbXPdJH4AdllvOb2bysxLxdJxaHLR8=" alt="5. Right-click the QR code and copy it">
     </figure>
   </template></div>
     <noscript>Enable JavaScript to use unduo.</noscript>
-    <script data-app="unduo" data-part="vanjs" data-upstream="https://raw.githubusercontent.com/vanjs-org/van/84f30ae917107c9d4b4c38b9969a0d56aaac5ac8/public/van-1.6.2.nomodule.js" data-upstream-sha256="759bbbd74a95ee9528ce4f5634dc3b36be38f5802a13ac2ffdaad52a7b271ff6" data-requests="none" data-comment="These script elements, which run in order and share one scope, are all the JavaScript the page runs, bundled from github.com/UnDuoMe/unduo.me without minifying. Together they are the script this comment describes. It imports nothing. It holds VanJS 1.6.2 (this element: the file at data-upstream, byte for byte, whose SHA-256 is data-upstream-sha256; it sets window.van and nothing else), which builds the page's elements with createElement and text nodes and updates them when state changes; the setup page and its steps (startSetupPage, createSetupPage, screenshot); the QR code encoder and reader (qrModules, qrImage, readQrCodes), and the plugin loader and its output checks (kernel, loadSetupPlugin, guard, check, fromInput, fromReply). Nothing in the script writes HTML or evaluates text as code, and no attribute in the page's HTML holds an expression: the #setup element's data attributes are text the script shows or sets as links. Its only requests are the Duo form, whose action check() approves, and fetch() of data-plugin-url and of each screenshot's data-image-src, which returns a file only if its SHA-256 matches. Before setup starts, it tries fetch() of a data: URL, which the CSP forbids, and starts only if that fails. It navigates only with window.open() of the portal link the user clicked (popup), and with history.pushState() and replaceState(), which change only the URL hash. The script sets four kinds of changing URL: the Duo form's action and the otpauth:// link's href, both approved by check(); the authenticator QR code's src, a data: URL from qrImage(); and each screenshot's src, a blob: URL of its fetched file. Every other link's href is written in the script or comes from the #setup element's data-home, data-portal-url, data-source-url or data-download-href.">(() => {
+    <script data-app="unduo" data-part="vanjs" data-upstream="https://raw.githubusercontent.com/vanjs-org/van/84f30ae917107c9d4b4c38b9969a0d56aaac5ac8/public/van-1.6.2.nomodule.js" data-upstream-sha256="759bbbd74a95ee9528ce4f5634dc3b36be38f5802a13ac2ffdaad52a7b271ff6" data-requests="none" data-comment="These script elements, which run in order and share one scope, are all the JavaScript the page runs, bundled from github.com/UnDuoMe/unduo.me without minifying. Together they are the script this comment describes. It imports nothing. It holds VanJS 1.6.2 (this element: the file at data-upstream, byte for byte, whose SHA-256 is data-upstream-sha256; it sets window.van and nothing else), which builds the page's elements with createElement and text nodes and updates them when state changes; the setup page and its steps (startSetupPage, createSetupPage, screenshot); the QR code encoder and reader (qrModules, qrImage, readQrCodes), and the plugin loader and its output checks (kernel, loadSetupPlugin, guard, check, fromInput, fromReply). Nothing in the script writes HTML or evaluates text as code, and no attribute in the page's HTML holds an expression: the #setup element's data attributes are text the script shows or sets as links. Its only requests are the Duo form, whose action check() approves, and fetch() of data-plugin-url and of each screenshot's data-image-src, which returns a file only if its SHA-256 matches. Before setup starts, it tries fetch() of a data: URL, which the CSP forbids, and starts only if that fails. It navigates only with window.open() of the portal link the user clicked (popup), and with one history.replaceState() when the page opens, before anything is pasted, which drops any query or hash from its address. The script sets four kinds of changing URL: the Duo form's action and the otpauth:// link's href, both approved by check(); the authenticator QR code's src, a data: URL from qrImage(); and each screenshot's src, a blob: URL of its fetched file. Every other link's href is written in the script or comes from the #setup element's data-home, data-portal-url, data-source-url or data-download-href.">(() => {
   // van.js
   var protoOf = Object.getPrototypeOf;
   var changedStates;
@@ -190,12 +190,11 @@ var defaultPluginLimits = {
 * match `Output` exactly: each field listed below and no others, with the type,
 * pattern or value shown. An output is at most `maxOutput` UTF-16 code units of
 * JSON, with at most `maxEffects` effects and `maxText` units in each string.
-* Plugin output leaves the page in three places:
+* Plugin output leaves the page in two places. The address isn't one: the page
+* changes it only once, when it opens and before anything is pasted, so nothing
+* the plugin returns reaches browser history or sync.
 *
-* 1. The URL hash (`writeHash`) may hold only the step and code type, and may
-*    change at most twice per thing you do, so a run of changes can't spell
-*    anything out. History and browser sync keep the address.
-* 2. The Duo form (`view.request`): the plugin names only its URL; the fields
+* 1. The Duo form (`view.request`): the plugin names only its URL; the fields
 *    and this page's key are written here. DNS and TLS send the host name
 *    unencrypted, so it must have Duo's eight-character shape and stay the same
 *    all page long. A new URL's code and host must also appear in text the
@@ -204,7 +203,7 @@ var defaultPluginLimits = {
 *    `readQrCodes` read and the plugin never sees as pixels (`fromInput`).
 *    TLS encrypts the path, which holds the activation code.
 *    CSP also limits forms to `*.duosecurity.com`.
-* 3. The authenticator link (`view.account`) becomes a QR code, a link and
+* 2. The authenticator link (`view.account`) becomes a QR code, a link and
 *    clipboard text. It must be an `otpauth://` link, not a web address, with
 *    only the standard parameters (apps may fetch a URL given as `image`), and
 *    its secret must be `account.secret`. Duo's reply must be among the text
@@ -219,7 +218,6 @@ var defaultPluginLimits = {
 * fills the field only with pasted text. The other effects set the text field, move focus, stop the
 * screen share or make the page call the plugin again.
 */
-var hash = /^(?:step=(?:qr|activate|add)(?:&type=totp)?|type=totp)?$/;
 var duoUrl = /^https:\/\/(api-[a-z0-9]{8}\.duosecurity\.com)\/push\/v2\/activation\/[A-Za-z0-9]{5,128}\?customer_protocol=1$/;
 /** Duo Mobile's activation fields, in order; `pubkey` becomes this page's key. */
 var duoFields = [...new URLSearchParams("pkpush=rsa-sha512&pubkey=&jailbroken=false&architecture=arm64&region=US&app_id=com.duosecurity.duomobile&full_disk_encryption=true&passcode_status=true&platform=Android&app_version=4.33.0&app_build_number=433000&version=13&manufacturer=Google&language=en&model=Cheetah&security_patch_level=2024-01-01")];
@@ -321,11 +319,6 @@ var step = range(0, 3);
 var ticket = range(0, 2 ** 32 - 1);
 /** The closed list of effects, by `type`; see `SetupEffect`. */
 var effects = {
-	writeHash: shape({
-		type: oneOf("writeHash"),
-		hash: text(hash),
-		push: boolean
-	}),
 	prepare: shape({
 		type: oneOf("prepare"),
 		value: text()
@@ -422,26 +415,11 @@ var typed = new Set();
 var pasted = new Set();
 /** The last Duo URL `duoForm` accepted. */
 var formUrl = "";
-/** Events the page sends on its own, with no person doing anything. */
-var unprompted = new Set([
-	"unreadable",
-	"decoded",
-	"prepared",
-	"copyDone",
-	"scanSharing",
-	"scanEnded"
-]);
-/**
-* `writeHash` effects since the last thing a person did. Two are allowed: pasting
-* a QR code on an earlier step moves to the QR step, then on to the Duo form.
-*/
-var hashWrites = 0;
 function unsafe(path) {
 	throw new Error(`The setup plugin returned unsafe output at ${path || "the top level"}.`);
 }
 /** Note the text in an event the page sends the plugin. */
 function record(event) {
-	if (!unprompted.has(event.type)) hashWrites = 0;
 	if (event.type === "load" || event.type === "startOver") {
 		typed.clear();
 		pasted.clear();
@@ -548,7 +526,6 @@ function check(output) {
 		if (!problem.message.match(duoRefusal) || reason && !inFailedReply(reason) || code && !inFailedReply(code)) unsafe("view.problem.message");
 	}
 	effects.forEach((effect, index) => {
-		if (effect.type === "writeHash" && ++hashWrites > 2) unsafe(`effects.${index}`);
 		if (effect.type === "setText" && effect.text && ![...pasted].some((part) => part.trim() === effect.text)) unsafe(`effects.${index}.text`);
 	});
 	return {
@@ -2346,7 +2323,7 @@ function guide() {
 }
 /** What the page sends, keeps and loads. */
 function privacy() {
-	return div({ class: "dialog-body" }, p("unduo is a static web page. There is no unduo server that sees your activation code, Duo's reply, or your key."), p("Your browser sends the activation directly to Duo, and Duo's reply shows in a box on this page. You copy it across, and this page turns it into a QR code. Pasted images and shared screens are decoded locally and never uploaded or recorded."), p("Your activation code, Duo's reply and your key stay in this tab's memory. This page never puts them in its address or in browser storage, so refreshing or closing the tab clears them, and your browser asks before you leave. Its address only records which step you're on. Duo's reply opens in a box rather than a new tab, so the activation code stays out of your browser history. If you choose to open it in a new tab instead, your history keeps that address, which holds the code; Duo accepts each code once. On a computer you share, use a private window."), p(`There are no accounts, analytics or cookies. All of this page's code is in the page itself, apart from its setup plugin. Your browser downloads the plugin, styles and images from jsDelivr, which receives ordinary request details such as your IP address but none of your codes or keys. Your authenticator app decides how your key is stored after that.`), p(`This page runs from the file you downloaded. It loads its setup plugin, styles and images from hash-pinned jsDelivr files. To skip unduo's code entirely, use the commands under `, strong("Terminal"), ", at the bottom of the page."));
+	return div({ class: "dialog-body" }, p("unduo is a static web page. There is no unduo server that sees your activation code, Duo's reply, or your key."), p("Your browser sends the activation directly to Duo, and Duo's reply shows in a box on this page. You copy it across, and this page turns it into a QR code. Pasted images and shared screens are decoded locally and never uploaded or recorded."), p("Your activation code, Duo's reply and your key stay in this tab's memory. This page never puts them in its address or in browser storage, so refreshing or closing the tab clears them, and your browser asks before you leave. Its address doesn't change while you set up. Duo's reply opens in a box rather than a new tab, so the activation code stays out of your browser history. If you choose to open it in a new tab instead, your history keeps that address, which holds the code; Duo accepts each code once. On a computer you share, use a private window."), p(`There are no accounts, analytics or cookies. All of this page's code is in the page itself, apart from its setup plugin. Your browser downloads the plugin, styles and images from jsDelivr, which receives ordinary request details such as your IP address but none of your codes or keys. Your authenticator app decides how your key is stored after that.`), p(`This page runs from the file you downloaded. It loads its setup plugin, styles and images from hash-pinned jsDelivr files. To skip unduo's code entirely, use the commands under `, strong("Terminal"), ", at the bottom of the page."));
 }
 /** The commands that do the same setup without this page. */
 function terminal() {
@@ -2611,7 +2588,7 @@ var noView = {
 };
 /**
 * Browser I/O for the setup plugin, which holds the state and decides every
-* step, message and URL. This holds the plugin's view for the steps to show and
+* step, message and Duo URL. This holds the plugin's view for the steps to show and
 * performs the effects the plugin asks for. `load` starts the plugin within the
 * given limits, and every output is checked first; see `guard` in
 * `plugin/setup-plugin.ts`.
@@ -2644,13 +2621,17 @@ function createSetupPage(load) {
 	};
 	function begin() {
 		document.querySelector("#portal-screenshot-figures")?.content.querySelectorAll("img").forEach(screenshot);
-		fetch("data:,").then(() => unenforced.val = true, () => send({
-			type: "load",
-			hash: location.hash,
-			legacy: location.search,
-			platform: navigator.platform,
-			scan: !!navigator.mediaDevices?.getDisplayMedia
-		}));
+		fetch("data:,").then(() => unenforced.val = true, () => {
+			const { hash, search } = location;
+			if (hash || search) history.replaceState(null, "", location.pathname);
+			send({
+				type: "load",
+				hash,
+				legacy: search,
+				platform: navigator.platform,
+				scan: !!navigator.mediaDevices?.getDisplayMedia
+			});
+		});
 	}
 	/** Results apply in call order: each is attached before the next call is queued. */
 	function send(event) {
@@ -2700,9 +2681,6 @@ function createSetupPage(load) {
 	}
 	function run(effect) {
 		switch (effect.type) {
-			case "writeHash":
-				history[effect.push ? "pushState" : "replaceState"](null, "", location.pathname + (effect.hash && `#${effect.hash}`));
-				break;
 			case "prepare":
 				newPublicKey().then(() => true, () => false).then((ok) => send({
 					type: "prepared",
@@ -2899,15 +2877,7 @@ function createSetupPage(load) {
 			scroll: "step-title"
 		});
 	}
-	function navigate() {
-		send({
-			type: "navigate",
-			hash: location.hash
-		});
-	}
 	document.addEventListener("paste", (event) => input(event.clipboardData, event));
-	window.addEventListener("popstate", navigate);
-	window.addEventListener("hashchange", navigate);
 	window.addEventListener("beforeunload", (event) => {
 		if (view.val.furthest > 1) event.preventDefault();
 	});

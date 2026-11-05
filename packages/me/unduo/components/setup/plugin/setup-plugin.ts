@@ -22,12 +22,11 @@ export const defaultPluginLimits: PluginLimits = {
  * match `Output` exactly: each field listed below and no others, with the type,
  * pattern or value shown. An output is at most `maxOutput` UTF-16 code units of
  * JSON, with at most `maxEffects` effects and `maxText` units in each string.
- * Plugin output leaves the page in three places:
+ * Plugin output leaves the page in two places. The address isn't one: the page
+ * changes it only once, when it opens and before anything is pasted, so nothing
+ * the plugin returns reaches browser history or sync.
  *
- * 1. The URL hash (`writeHash`) may hold only the step and code type, and may
- *    change at most twice per thing you do, so a run of changes can't spell
- *    anything out. History and browser sync keep the address.
- * 2. The Duo form (`view.request`): the plugin names only its URL; the fields
+ * 1. The Duo form (`view.request`): the plugin names only its URL; the fields
  *    and this page's key are written here. DNS and TLS send the host name
  *    unencrypted, so it must have Duo's eight-character shape and stay the same
  *    all page long. A new URL's code and host must also appear in text the
@@ -36,7 +35,7 @@ export const defaultPluginLimits: PluginLimits = {
  *    `readQrCodes` read and the plugin never sees as pixels (`fromInput`).
  *    TLS encrypts the path, which holds the activation code.
  *    CSP also limits forms to `*.duosecurity.com`.
- * 3. The authenticator link (`view.account`) becomes a QR code, a link and
+ * 2. The authenticator link (`view.account`) becomes a QR code, a link and
  *    clipboard text. It must be an `otpauth://` link, not a web address, with
  *    only the standard parameters (apps may fetch a URL given as `image`), and
  *    its secret must be `account.secret`. Duo's reply must be among the text
@@ -51,7 +50,6 @@ export const defaultPluginLimits: PluginLimits = {
  * fills the field only with pasted text. The other effects set the text field, move focus, stop the
  * screen share or make the page call the plugin again.
  */
-const hash = /^(?:step=(?:qr|activate|add)(?:&type=totp)?|type=totp)?$/;
 const duoUrl =
   /^https:\/\/(api-[a-z0-9]{8}\.duosecurity\.com)\/push\/v2\/activation\/[A-Za-z0-9]{5,128}\?customer_protocol=1$/;
 /** Duo Mobile's activation fields, in order; `pubkey` becomes this page's key. */
@@ -182,7 +180,6 @@ const ticket = range(0, 2 ** 32 - 1);
 
 /** The closed list of effects, by `type`; see `SetupEffect`. */
 const effects: Record<string, Check> = {
-  writeHash: shape({ type: oneOf("writeHash"), hash: text(hash), push: boolean }),
   prepare: shape({ type: oneOf("prepare"), value: text() }),
   readImage: shape({ type: oneOf("readImage"), ticket }),
   scanFrame: shape({ type: oneOf("scanFrame"), ticket }),
@@ -276,20 +273,6 @@ const typed = new Set<string>();
 const pasted = new Set<string>();
 /** The last Duo URL `duoForm` accepted. */
 let formUrl = "";
-/** Events the page sends on its own, with no person doing anything. */
-const unprompted = new Set<SetupEvent["type"]>([
-  "unreadable",
-  "decoded",
-  "prepared",
-  "copyDone",
-  "scanSharing",
-  "scanEnded",
-]);
-/**
- * `writeHash` effects since the last thing a person did. Two are allowed: pasting
- * a QR code on an earlier step moves to the QR step, then on to the Duo form.
- */
-let hashWrites = 0;
 
 function unsafe(path: string): never {
   throw new Error(`The setup plugin returned unsafe output at ${path || "the top level"}.`);
@@ -297,7 +280,6 @@ function unsafe(path: string): never {
 
 /** Note the text in an event the page sends the plugin. */
 function record(event: SetupEvent) {
-  if (!unprompted.has(event.type)) hashWrites = 0;
   if (event.type === "load" || event.type === "startOver") {
     typed.clear();
     pasted.clear();
@@ -431,7 +413,6 @@ function check(output: unknown): SetupResult {
       unsafe("view.problem.message");
   }
   effects.forEach((effect, index) => {
-    if (effect.type === "writeHash" && ++hashWrites > 2) unsafe(`effects.${index}`);
     // The text field shows only what you pasted.
     if (
       effect.type === "setText" &&

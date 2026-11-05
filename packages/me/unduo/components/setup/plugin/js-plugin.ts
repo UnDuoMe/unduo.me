@@ -139,7 +139,7 @@ const field = (value: unknown, key: string) =>
   isObject(value) && Object.hasOwn(value, key) ? value[key] : undefined;
 
 // ---------------------------------------------------------------------------
-// state.rs: the URL hash holds the step and code type only.
+// state.rs: the URL hash holds the step and code type only. The logic only reads it.
 
 type Step = "qr" | "activate" | "add";
 
@@ -186,14 +186,6 @@ function validateSearch(data: Map<string, string>): Search {
     step: step === "qr" || step === "activate" || step === "add" ? step : null,
     totp: data.get("type") === "totp",
   };
-}
-
-/** The hash for the public fields, or "" when there is nothing to keep. */
-function encodeHash(search: Search) {
-  const pairs: string[] = [];
-  if (search.step) pairs.push(`step=${search.step}`);
-  if (search.totp) pairs.push("type=totp");
-  return pairs.join("&");
 }
 
 /**
@@ -762,8 +754,6 @@ const noSession = (): Session => ({ value: null, submitted: false, account: null
 interface Model {
   search: Search;
   session: Session;
-  /** The URL hash the browser shows, without `#`; `null` forces the next write. */
-  hash: string | null;
   /** The step rendered last; `null` before the first render. */
   previous: number | null;
   /** The activation the host is generating a key for. `start` moves to `ACTIVATE`. */
@@ -790,7 +780,6 @@ interface Model {
 const newModel = (): Model => ({
   search: { step: null, totp: false },
   session: noSession(),
-  hash: null,
   previous: null,
   preparing: null,
   request: null,
@@ -834,7 +823,6 @@ type Event =
 
 /** The closed list of things the logic can ask the host to do, as `core.rs` serializes them. */
 type Effect =
-  | { type: "writeHash"; hash: string; push: boolean }
   | { type: "prepare"; value: string }
   | { type: "readImage"; ticket: number }
   | { type: "scanFrame"; ticket: number }
@@ -1037,8 +1025,6 @@ interface QrResult {
 /** One event's changes to the model, and the effects it asks for. */
 class Transition {
   effects: Effect[] = [];
-  /** Whether the hash change adds a history entry rather than replacing one. */
-  push = false;
   /** Whether this event set the text field, which a step change clears otherwise. */
   textSet = false;
   /** The link error before this event; a step change clears it if unchanged. */
@@ -1056,22 +1042,14 @@ class Transition {
     return this.current() === ACTIVATE && this.model.session.submitted;
   }
 
-  setStep(step: number, push: boolean) {
+  setStep(step: number) {
     this.model.search.step = stepParam(step);
-    this.push ||= push;
   }
 
   /** Fill the text field. Text longer than `maxText` clears it instead. */
   setText(text: string) {
     this.textSet = true;
     this.effects.push({ type: "setText", text: text.length > maxText ? "" : text });
-  }
-
-  writeHash(hash: string, push: boolean) {
-    if (this.model.hash !== hash) {
-      this.model.hash = hash;
-      this.effects.push({ type: "writeHash", hash, push });
-    }
   }
 
   /** Abandon pending work. Its results carry an older ticket or value and are dropped. */
@@ -1083,9 +1061,9 @@ class Transition {
     this.model.scanNote = "";
   }
 
-  showLinkError(message: string, replace: boolean) {
+  showLinkError(message: string) {
     this.model.linkError = message;
-    if (this.current() !== QR) this.setStep(QR, !replace);
+    if (this.current() !== QR) this.setStep(QR);
   }
 
   prepare(value: string, start: boolean) {
@@ -1111,9 +1089,9 @@ class Transition {
       session.submitted = session.value !== null;
       session.account = result.account;
       this.model.search.totp = false;
-      this.setStep(ADD, true);
+      this.setStep(ADD);
     } else if (this.submitted()) this.model.problem = result.error;
-    else this.showLinkError(result.error.message, false);
+    else this.showLinkError(result.error.message);
   }
 
   /**
@@ -1141,12 +1119,10 @@ class Transition {
     else if (result.foundQr)
       this.showLinkError(
         "That QR code isn't a Duo activation code. Copy the one shown after choosing “I have Duo Mobile installed”.",
-        false,
       );
     else
       this.showLinkError(
         "No QR code found in that image. Copy the QR code itself, or a screenshot where it's fully visible.",
-        false,
       );
   }
 
@@ -1168,17 +1144,14 @@ class Transition {
         const platform = asciiLower(event.platform);
         model.apple = ["mac", "iphone", "ipad", "ipod"].some((name) => platform.includes(name));
         model.canScan = event.scan;
-        // A query is always rewritten into the hash.
-        model.hash = event.legacy === "" ? event.hash.replace(/^#+/, "") : null;
         this.restore(event.hash, event.legacy);
         return;
       }
       case "navigate":
-        model.hash = event.hash.replace(/^#+/, "");
         this.restore(event.hash, null);
         return;
       case "goTo":
-        return this.setStep(event.step, true);
+        return this.setStep(event.step);
       case "changeType":
         model.search.totp = event.codeType === "totp";
         return;
@@ -1190,7 +1163,7 @@ class Transition {
         model.problem = null;
         model.search.totp = false;
         this.setText("");
-        return this.setStep(event.step, true);
+        return this.setStep(event.step);
       case "input": {
         if (this.current() === ADD) return;
         const text = event.text === null ? null : trim(event.text) || null;
@@ -1215,7 +1188,7 @@ class Transition {
           this.setText(text);
           const value = parseActivationInput(text);
           if (value.ok) this.startActivation(value.value);
-          else this.showLinkError(value.error, false);
+          else this.showLinkError(value.error);
         }
         return;
       }
@@ -1225,7 +1198,7 @@ class Transition {
       case "unreadable":
         if (event.ticket === model.ticket && model.linkBusy === "image") {
           model.linkBusy = "";
-          this.showLinkError("That image couldn't be read. Try a PNG or JPEG screenshot.", false);
+          this.showLinkError("That image couldn't be read. Try a PNG or JPEG screenshot.");
         }
         return;
       case "decoded": {
@@ -1269,13 +1242,12 @@ class Transition {
         model.preparing = null;
         if (preparing.start) model.linkBusy = "";
         const request = activationRequest(event.value);
-        if (!request.ok || !event.ok) return this.showLinkError(prepareFailure, !preparing.start);
+        if (!request.ok || !event.ok) return this.showLinkError(prepareFailure);
         model.request = { value: event.value, url: request.value.url };
         if (preparing.start) {
-          const push = this.current() !== ACTIVATE;
           model.session = { ...noSession(), value: event.value };
           this.setText("");
-          this.setStep(ACTIVATE, push);
+          this.setStep(ACTIVATE);
         }
         return;
       }
@@ -1346,10 +1318,9 @@ class Transition {
       this.prepare(value, false);
   }
 
-  /** The address follows every event; unchanged hashes are not rewritten. */
+  /** The logic never writes the address, and the page never changes it. */
   finish() {
     this.normalize();
-    this.writeHash(encodeHash(this.model.search), this.push);
     return { view: view(this.model), effects: this.effects };
   }
 }

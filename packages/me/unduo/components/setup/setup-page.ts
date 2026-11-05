@@ -33,7 +33,7 @@ const noView: SetupView = {
 
 /**
  * Browser I/O for the setup plugin, which holds the state and decides every
- * step, message and URL. This holds the plugin's view for the steps to show and
+ * step, message and Duo URL. This holds the plugin's view for the steps to show and
  * performs the effects the plugin asks for. `load` starts the plugin within the
  * given limits, and every output is checked first; see `guard` in
  * `plugin/setup-plugin.ts`.
@@ -76,14 +76,20 @@ export function createSetupPage(load: (limits: PluginLimits) => Promise<SetupPlu
     // allows no data: URL: this fetch must fail.
     void fetch("data:,").then(
       () => (unenforced.val = true),
-      () =>
+      () => {
+        const { hash, search } = location;
+        // The page's only change to its address, made before anything is pasted:
+        // drop an old step, query or hash. The address never changes after this,
+        // so nothing the plugin decides reaches browser history.
+        if (hash || search) history.replaceState(null, "", location.pathname);
         send({
           type: "load",
-          hash: location.hash,
-          legacy: location.search,
+          hash,
+          legacy: search,
           platform: navigator.platform,
           scan: !!navigator.mediaDevices?.getDisplayMedia,
-        }),
+        });
+      },
     );
   }
   /** Results apply in call order: each is attached before the next call is queued. */
@@ -139,14 +145,6 @@ export function createSetupPage(load: (limits: PluginLimits) => Promise<SetupPlu
   }
   function run(effect: SetupEffect) {
     switch (effect.type) {
-      case "writeHash":
-        // The plugin sets only the fragment, which is never sent to a server.
-        history[effect.push ? "pushState" : "replaceState"](
-          null,
-          "",
-          location.pathname + (effect.hash && `#${effect.hash}`),
-        );
-        break;
       case "prepare":
         void newPublicKey()
           .then(
@@ -339,13 +337,7 @@ export function createSetupPage(load: (limits: PluginLimits) => Promise<SetupPlu
   function focusStep() {
     run({ type: "focus", id: "step-title", scroll: "step-title" });
   }
-  function navigate() {
-    send({ type: "navigate", hash: location.hash });
-  }
-
   document.addEventListener("paste", (event) => input(event.clipboardData, event));
-  window.addEventListener("popstate", navigate);
-  window.addEventListener("hashchange", navigate);
   window.addEventListener("beforeunload", (event) => {
     if (view.val.furthest > 1) event.preventDefault();
   });

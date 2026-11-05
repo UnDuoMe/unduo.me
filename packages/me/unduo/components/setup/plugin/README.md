@@ -53,10 +53,9 @@ a string, and the guard parses it. The guard throws on a violation; after one,
 every later call fails, so the page stops.
 Each output must match the schema `Output`, written as plain checks in the guard, exactly: every field
 the plugin returns, no others, each with its type, pattern or allowed values.
-Within that, it checks the three values that can leave the page:
+Within that, it checks the two values that can leave the page. The address isn't
+one: the page changes it only once, when it opens and before anything is pasted.
 
-- the URL hash (`writeHash`) holds only `step=portal|qr|activate|add` and `type=totp`,
-  and changes at most twice per thing a person does;
 - the Duo form (`view.request`): the plugin names only its URL,
   `https://api-XXXXXXXX.duosecurity.com/push/v2/activation/CODE?customer_protocol=1`,
   and the guard writes Duo Mobile's 16 standard device fields and this page's

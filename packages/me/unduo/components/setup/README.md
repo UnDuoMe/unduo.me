@@ -62,7 +62,7 @@ The flow's logic is the Rust setup plugin in [`crates/setup`](../../../../../cra
 loaded by the nested `plugin` package. The plugin keeps the page's state in its
 own memory. `setup-page.ts` is its browser host: it sends each browser event to
 the plugin's `update`, keeps the returned `view` for the steps to show, and performs the returned
-effects (write the URL hash, generate a key, read the QR codes in an image or a
+effects (generate a key, read the QR codes in an image or a
 screen frame with `readQrCodes` from `@-/me.unduo.lib.qr-reader` and send their
 text, stop sharing, set the text field, move focus, send an event later). The
 plugin never receives pixels. The authenticator QR code is drawn by `qr-code.ts`,
@@ -70,7 +70,7 @@ the page's own encoder, from the guarded link. Steps call `send({ type, … })` 
 for clicks, so the host has no per-action methods.
 
 Every output first passes the guard in `plugin/setup-plugin.ts`, the one place
-that checks plugin output. It checks the URL hash, the Duo form and the
+that checks plugin output. It checks the Duo form and the
 authenticator link, and throws on a violation; the host then
 stops sharing, removes the steps and shows an error. The steps set everything
 else as text, booleans and classes, and nothing writes HTML. The CSP already
@@ -95,31 +95,27 @@ The `activate`, `link` and `plugin` packages keep shared types in their own nest
 
 ## Where state lives
 
-| State                                     | Where               | Why                                                                                                           |
-| ----------------------------------------- | ------------------- | ------------------------------------------------------------------------------------------------------------- |
-| `step=portal` / `qr` / `activate` / `add` | URL hash            | Refresh and history restore the current step                                                                  |
-| `type=totp`                               | URL hash (replaced) | Remembers the preferred code type                                                                             |
-| WHED institution ID                       | Document path       | Shareable institution page                                                                                    |
-| Activation value, submitted flag, account | Plugin memory       | Secret: never in this page's links, history or browser storage; the Duo frame's URL holds the activation code |
-| Errors, busy state, scan notes, Duo form  | Plugin memory       | Short-lived                                                                                                   |
-| Typed link or reply, pending image        | Host (in memory)    | Short-lived                                                                                                   |
+| State                                     | Where            | Why                                                                                                           |
+| ----------------------------------------- | ---------------- | ------------------------------------------------------------------------------------------------------------- |
+| Current step and code type                | Plugin memory    | The address never changes during setup, so nothing the plugin decides reaches history or browser sync         |
+| WHED institution ID                       | Document path    | Shareable institution page                                                                                    |
+| Activation value, submitted flag, account | Plugin memory    | Secret: never in this page's links, history or browser storage; the Duo frame's URL holds the activation code |
+| Errors, busy state, scan notes, Duo form  | Plugin memory    | Short-lived                                                                                                   |
+| Typed link or reply, pending image        | Host (in memory) | Short-lived                                                                                                   |
 
-The hash is form-encoded like a query (`#step=add&type=totp`); the plugin
-encodes it and the host writes it. Links and history therefore carry no
-activation values or keys. Refreshing or closing the tab discards them, so the
-host asks the browser to confirm leaving while it holds them. The build renders
-the institution in its document; URL state cannot change that identity, and
-the hash never names it. Old `?university=` home links open that
+The page changes its address once, when it opens and before anything is
+pasted: `history.replaceState` drops any query or hash. It never changes the
+address after that, and it adds no history entries, so links, history and
+browser sync carry nothing the plugin decides, and no activation values or
+keys. The plugin reads the step and code type from the address it opened with
+(`#step=add&type=totp`, or an old `?step=` query), validated field by field; a
+step the session can't reach opens the portal. The numbered steps move between
+steps; Back and Forward leave the page. Refreshing or closing the tab discards
+the activation and key, so the host asks the browser to confirm leaving while
+it holds them. **Start over** clears the session and opens the portal step. The
+build renders the institution in its document; the address cannot change that
+identity, and never names it. Old `?university=` home links open that
 institution's download on the home page.
-
-The URL step is the source of truth for which step is open. If its progress is
-missing, the page shows the furthest step it can and corrects the address with
-a replace. Hashes are validated field by field. Back and Forward keep the
-session, so a submitted request reopens the reply box without resubmitting.
-**Start over** clears the session and opens the portal step. On pages with
-a file step, an address without a step opens that step and the portal's is
-`step=portal`; an address naming a step the session can't reach opens the
-portal.
 
 ## Appearance
 

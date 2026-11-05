@@ -184,25 +184,11 @@ const sentTypes = new Set<string>();
 /** A page that also notes the types it sends. */
 async function trackedPage() {
   const { send, effect } = await page();
-  /** Hash writes since a person last did something; the guard allows two. */
-  let hashWrites = 0;
   return {
     effect,
     send: (event: Record<string, unknown> | string) => {
       if (typeof event === "object") sentTypes.add(String(event.type));
-      const unprompted = [
-        "unreadable",
-        "decoded",
-        "prepared",
-        "copyDone",
-        "scanSharing",
-        "scanEnded",
-      ];
-      if (typeof event !== "object" || !unprompted.includes(String(event.type))) hashWrites = 0;
-      const result = send(event);
-      hashWrites += result?.effects.filter(({ type }) => type === "writeHash").length ?? 0;
-      expect(hashWrites, JSON.stringify(event)).toBeLessThanOrEqual(2);
-      return result;
+      return send(event);
     },
   };
 }
@@ -789,7 +775,7 @@ describe("the URL hash", () => {
       "#step=activate",
       "#type=totp&step=add",
     ]),
-  )("reads and writes the hash %s the same way", async (_, hash) => {
+  )("reads the hash %s the same way", async (_, hash) => {
     const { send } = await activated("#step=qr");
     send({ type: "input", text: reply });
     send({ type: "navigate", hash });
@@ -1213,15 +1199,6 @@ test("counts the outputs compared", () => {
   );
   expect(counts.same).toBeGreaterThan(20_000);
   for (const step of [0, 1, 2, 3]) expect(seen.get(`step ${step}`)).toBeGreaterThan(100);
-  for (const type of [
-    "writeHash",
-    "prepare",
-    "readImage",
-    "scanFrame",
-    "stopScan",
-    "setText",
-    "focus",
-    "later",
-  ])
+  for (const type of ["prepare", "readImage", "scanFrame", "stopScan", "setText", "focus", "later"])
     expect(seen.get(`effect ${type}`), type).toBeGreaterThan(20);
 });

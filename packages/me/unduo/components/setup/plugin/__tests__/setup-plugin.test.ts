@@ -130,11 +130,14 @@ const reply = JSON.stringify({
 const pastedReply: SetupEvent = { type: "input", text: reply };
 
 test("passes honest updates", async () => {
-  for (const hash of ["", "step=qr", "step=activate", "step=add&type=totp", "type=totp"]) {
-    const honest = output({}, [
-      { type: "writeHash", hash, push: true },
-      { type: "setText", text: "" },
-    ]);
+  for (const [current, codeType] of [
+    [0, "hotp"],
+    [1, "hotp"],
+    [2, "hotp"],
+    [3, "totp"],
+    [0, "totp"],
+  ]) {
+    const honest = output({ current, codeType }, [{ type: "setText", text: "" }]);
     await expect(run(honest)).resolves.toEqual(honest);
   }
   const totp = uri.replace("hotp", "totp").replace("counter=0", "period=30");
@@ -324,16 +327,6 @@ test("caps strings, effects and the output's size", async () => {
 });
 
 test.each([
-  `step=qr&secret=${secret}`,
-  "step=add&university=UofT",
-  "university=UofT",
-  "eyJ2ZXJzaW9uIjoxLCJzZWFyY2giOnsic3RlcCI6InFyIn0sInNlc3Npb24iOnt9fQ==",
-  "type=hotp",
-  "step=qr\n",
-  ["step=qr"],
-])("rejects the hash %j", (hash) => unsafe(output({}, [{ type: "writeHash", hash, push: false }])));
-
-test.each([
   account("javascript:alert(1)"),
   account(`https://evil.example/?secret=${secret}`),
   account(`${uri}&image=https://evil.example/?s=${secret}`),
@@ -378,7 +371,8 @@ test("accepts nothing outside the schema", async () => {
     null,
     { type: "evil" },
     { type: "stopScan", extra: 1 },
-    { type: "writeHash", hash: "" },
+    // The plugin can't change the address.
+    { type: "writeHash", hash: "step=qr", push: true },
     { type: "readImage", ticket: -1 },
     { type: "focus", id: "duo-portal", scroll: "duo-reply" },
     { type: "later", ms: 2500, event: { type: "input", text: "x" } },
@@ -553,39 +547,6 @@ test("doesn't quote text from anything but a reply that failed as Duo's refusal"
   await expect(quoted("supersecretkey", both)).rejects.toThrow("at view.problem.message");
   // Firefox's viewer shows a reply as lines of text.
   await expect(quoted("Device limit", "message: Device limit\nstat: FAIL")).resolves.toBeTruthy();
-});
-
-test("lets the hash change at most twice per thing a person does", async () => {
-  const write = (hash: string) => ({ type: "writeHash", hash, push: true });
-  const thrice = await freshPage();
-  await expect(
-    thrice(output({}, [write("step=qr"), write("step=activate"), write("step=add")])),
-  ).rejects.toThrow("at effects.2");
-  // The events the page sends on its own can't carry on past a person's two changes.
-  for (const event of [
-    { type: "copyDone", id: 1 },
-    { type: "prepared", value: "x", ok: true },
-    { type: "decoded", ticket: 1, texts: [] },
-    { type: "unreadable", ticket: 1 },
-    { type: "scanSharing" },
-    { type: "scanEnded" },
-  ] as SetupEvent[]) {
-    const run = await freshPage();
-    await expect(
-      run(output({}, [write("step=qr"), write("step=activate")]), { type: "goTo", step: 1 }),
-    ).resolves.toBeTruthy();
-    await expect(run(output({}, [write("step=add")]), event)).rejects.toThrow("at effects.0");
-  }
-  // A pasted QR code moves to the QR step, then on to the form once the page has its key.
-  const run = await freshPage();
-  await expect(run(output({}, [write("step=qr")]), pastedLink)).resolves.toBeTruthy();
-  await expect(
-    run(output({}, [write("step=activate")]), { type: "prepared", value: "x", ok: true }),
-  ).resolves.toBeTruthy();
-  // The next thing a person does allows more.
-  await expect(
-    run(output({}, [write("step=qr")]), { type: "goTo", step: 1 }),
-  ).resolves.toBeTruthy();
 });
 
 test("fills the text field only with text you pasted", async () => {

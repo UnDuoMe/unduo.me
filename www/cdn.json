@@ -1,9 +1,9 @@
 {
-  "commit": "92ecfff684bdeb996aa0c4d10d3f1b321ce1bb64",
-  "base": "https://cdn.jsdelivr.net/gh/UnDuoMe/unduo.me@92ecfff684bdeb996aa0c4d10d3f1b321ce1bb64/",
+  "commit": "aa835fd25e9150ecdc2fb128cf9eed408a10a0a0",
+  "base": "https://cdn.jsdelivr.net/gh/UnDuoMe/unduo.me@aa835fd25e9150ecdc2fb128cf9eed408a10a0a0/",
   "files": {
     "setup-styles.mY_Vxe-5.css": "sha256-mY/Vxe+5/sNAc2mwNqhP8WUziUiWoXFu/3+EzUPNaxs=",
-    "setup.mFhZmTms.wasm": "sha256-mFhZmTmsl9LL2SaNpvIh6mlQIqlLjJFK5YhzkoVSDoU=",
+    "setup.9c6cpcDL.wasm": "sha256-9c6cpcDLzVe5f7S3a3lKAnOAJ0S1/3fM2jME6Tfpf4M=",
     "setup-1-add-device.HfrEhtPk.webp": "sha256-HfrEhtPk9c4GMWguU9TCXl43w9zp9bDwUoagxQZrOsI=",
     "setup-2-tablet.qSlLoa3c.webp": "sha256-qSlLoa3cOOu5hxK7FpPOf92oip/58zxaag4MKJt22dY=",
     "setup-3-android.F5QoYAql.webp": "sha256-F5QoYAqlJigm9qem3M78P0y4KQdLJXbQE8lvDthL3fQ=",

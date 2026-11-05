@@ -6,7 +6,7 @@ use crate::activation::{parse_activation_input, try_parse_activation};
 use crate::html::first_image_source;
 use crate::request::{DuoRequest, activation_request};
 use crate::response::{Account, looks_like_duo_response, otpauth_uri, parse_activation_response};
-use crate::state::{Search, Session, Step, Totp, encode_hash, parse_search};
+use crate::state::{Search, Session, Step, Totp, parse_search};
 use serde::{Deserialize, Serialize};
 use serde_json::{Value, json};
 
@@ -60,8 +60,6 @@ struct Preparing {
 pub struct Model {
     search: Search,
     session: Session,
-    /// The URL hash the browser shows, without `#`; `None` forces the next write.
-    hash: Option<String>,
     /// The step rendered last; `None` before the first render.
     previous: Option<usize>,
     preparing: Option<Preparing>,
@@ -159,12 +157,6 @@ pub enum Event {
 #[derive(Debug, PartialEq, Serialize)]
 #[serde(tag = "type", rename_all = "camelCase", rename_all_fields = "camelCase")]
 pub enum Effect {
-    /// Replace the URL's query and hash. The hash holds only the step and code
-    /// type; `push` adds a history entry.
-    WriteHash {
-        hash: String,
-        push: bool,
-    },
     /// Generate a key pair and send `prepared` with its public key.
     Prepare {
         value: String,
@@ -287,8 +279,6 @@ fn step_param(step: usize) -> Option<Step> {
 struct Transition<'a> {
     model: &'a mut Model,
     effects: Vec<Effect>,
-    /// Whether the hash change adds a history entry rather than replacing one.
-    push: bool,
     /// Whether this event set the text field, which a step change clears otherwise.
     text_set: bool,
     /// The link error before this event; a step change clears it if unchanged.
@@ -301,7 +291,6 @@ impl<'a> Transition<'a> {
             link_error: model.link_error.clone(),
             model,
             effects: Vec::new(),
-            push: false,
             text_set: false,
         }
     }
@@ -314,9 +303,8 @@ impl<'a> Transition<'a> {
         self.current() == ACTIVATE && self.model.session.submitted == Some(true)
     }
 
-    fn set_step(&mut self, step: usize, push: bool) {
+    fn set_step(&mut self, step: usize) {
         self.model.search.step = step_param(step);
-        self.push |= push;
     }
 
     /// Fill the text field. Text longer than `MAX_TEXT` clears it instead.
@@ -330,13 +318,6 @@ impl<'a> Transition<'a> {
         self.effects.push(Effect::SetText { text });
     }
 
-    fn write_hash(&mut self, hash: String, push: bool) {
-        if self.model.hash.as_ref() != Some(&hash) {
-            self.model.hash = Some(hash.clone());
-            self.effects.push(Effect::WriteHash { hash, push });
-        }
-    }
-
     /// Abandon pending work. Its results carry an older ticket or value and are dropped.
     fn cancel(&mut self) {
         if self.model.link_busy == Busy::Scan {
@@ -348,10 +329,10 @@ impl<'a> Transition<'a> {
         self.model.scan_note.clear();
     }
 
-    fn show_link_error(&mut self, message: &str, replace: bool) {
+    fn show_link_error(&mut self, message: &str) {
         self.model.link_error = message.into();
         if self.current() != QR {
-            self.set_step(QR, !replace);
+            self.set_step(QR);
         }
     }
 
@@ -381,7 +362,7 @@ impl<'a> Transition<'a> {
                 session.submitted = session.value.is_some().then_some(true);
                 session.account = Some(account);
                 self.model.search.totp = None;
-                self.set_step(ADD, true);
+                self.set_step(ADD);
             }
             Err(error) if self.submitted() => {
                 self.model.problem = Some(Problem {
@@ -389,7 +370,7 @@ impl<'a> Transition<'a> {
                     needs_new_code: error.needs_new_code,
                 });
             }
-            Err(error) => self.show_link_error(&error.message, false),
+            Err(error) => self.show_link_error(&error.message),
         }
     }
 
@@ -415,9 +396,9 @@ impl<'a> Transition<'a> {
         if let Some(value) = result.value {
             self.start_activation(value);
         } else if result.found_qr {
-            self.show_link_error("That QR code isn't a Duo activation code. Copy the one shown after choosing “I have Duo Mobile installed”.", false);
+            self.show_link_error("That QR code isn't a Duo activation code. Copy the one shown after choosing “I have Duo Mobile installed”.");
         } else {
-            self.show_link_error("No QR code found in that image. Copy the QR code itself, or a screenshot where it's fully visible.", false);
+            self.show_link_error("No QR code found in that image. Copy the QR code itself, or a screenshot where it's fully visible.");
         }
     }
 
@@ -452,15 +433,10 @@ impl<'a> Transition<'a> {
                     .iter()
                     .any(|name| platform.contains(name));
                 self.model.can_scan = scan;
-                // A query is always rewritten into the hash.
-                self.model.hash = legacy.is_empty().then(|| hash.trim_start_matches('#').into());
                 self.restore(&hash, Some(&legacy));
             }
-            Event::Navigate { hash } => {
-                self.model.hash = Some(hash.trim_start_matches('#').into());
-                self.restore(&hash, None);
-            }
-            Event::GoTo { step } => self.set_step(step, true),
+            Event::Navigate { hash } => self.restore(&hash, None),
+            Event::GoTo { step } => self.set_step(step),
             Event::ChangeType { code_type } => {
                 self.model.search.totp = (code_type == "totp").then_some(Totp::Totp);
             }
@@ -472,7 +448,7 @@ impl<'a> Transition<'a> {
                 self.model.problem = None;
                 self.model.search.totp = None;
                 self.set_text(String::new());
-                self.set_step(step, true);
+                self.set_step(step);
             }
             Event::Input { text, html, image } => {
                 if self.current() == ADD {
@@ -506,7 +482,7 @@ impl<'a> Transition<'a> {
                     self.set_text(text.clone());
                     match parse_activation_input(&text) {
                         Ok(value) => self.start_activation(value),
-                        Err(message) => self.show_link_error(&message, false),
+                        Err(message) => self.show_link_error(&message),
                     }
                 }
             }
@@ -514,10 +490,7 @@ impl<'a> Transition<'a> {
             Event::Unreadable { ticket } => {
                 if ticket == self.model.ticket && self.model.link_busy == Busy::Image {
                     self.model.link_busy = Busy::Idle;
-                    self.show_link_error(
-                        "That image couldn't be read. Try a PNG or JPEG screenshot.",
-                        false,
-                    );
+                    self.show_link_error("That image couldn't be read. Try a PNG or JPEG screenshot.");
                 }
             }
             Event::Decoded { ticket, texts } => {
@@ -567,17 +540,16 @@ impl<'a> Transition<'a> {
                     self.model.link_busy = Busy::Idle;
                 }
                 let Some(request) = activation_request(&value).ok().filter(|_| ok) else {
-                    return self.show_link_error(PREPARE_FAILURE, !preparing.start);
+                    return self.show_link_error(PREPARE_FAILURE);
                 };
                 self.model.request = Some((value.clone(), request));
                 if preparing.start {
-                    let push = self.current() != ACTIVATE;
                     self.model.session = Session {
                         value: Some(value),
                         ..Session::default()
                     };
                     self.set_text(String::new());
-                    self.set_step(ACTIVATE, push);
+                    self.set_step(ACTIVATE);
                 }
             }
             Event::Submitted { value } => {
@@ -669,11 +641,9 @@ impl<'a> Transition<'a> {
         }
     }
 
-    /// The address follows every event; unchanged hashes are not rewritten.
+    /// The plugin never writes the address, and the page never changes it.
     fn finish(mut self) -> Output {
         self.normalize();
-        let push = self.push;
-        self.write_hash(encode_hash(&self.model.search), push);
         Output {
             view: view(self.model),
             effects: self.effects,
@@ -818,13 +788,6 @@ mod tests {
             .to_string()
     }
 
-    fn written(output: &Output) -> Option<(&str, bool)> {
-        output.effects.iter().rev().find_map(|effect| match effect {
-            Effect::WriteHash { hash, push } => Some((hash.as_str(), *push)),
-            _ => None,
-        })
-    }
-
     fn view_json(output: &Output) -> Value {
         serde_json::to_value(&output.view).unwrap()
     }
@@ -843,11 +806,9 @@ mod tests {
         assert_eq!(loaded.view.progress[0].number, 1);
         assert_eq!(loaded.view.shortcut, "⌘");
         assert!(loaded.view.can_scan);
-        assert_eq!(written(&loaded), None, "An unchanged address is not rewritten");
 
         let qr = send(&mut model, json!({ "type": "goTo", "step": QR }));
         assert_eq!(qr.view.current, QR);
-        assert_eq!(written(&qr), Some(("step=qr", true)));
         assert!(qr.effects.contains(&Effect::Focus {
             id: "step-title",
             scroll: "setup-progress"
@@ -873,7 +834,6 @@ mod tests {
                 .effects
                 .contains(&Effect::SetText { text: String::new() })
         );
-        assert_eq!(written(&prepared), Some(("step=activate", true)));
 
         let sent = send(&mut model, json!({ "type": "submitted", "value": VALUE }));
         assert!(sent.view.submitted);
@@ -936,13 +896,11 @@ mod tests {
                 .unwrap()
                 .contains("/totp/")
         );
-        // The address only ever records the step and code type.
-        assert_eq!(written(&totp), Some(("step=add&type=totp", false)));
+        assert_eq!(totp.view.current, ADD);
 
         let over = send(&mut model, json!({ "type": "startOver", "step": PORTAL }));
         assert_eq!(over.view.current, PORTAL);
         assert_eq!(model.session, Session::default());
-        assert_eq!(written(&over), Some(("", true)));
     }
 
     #[test]
@@ -965,7 +923,6 @@ mod tests {
                 .iter()
                 .any(|effect| matches!(effect, Effect::Prepare { .. }))
         );
-        assert_eq!(written(&forward), None);
         let retry = send(&mut model, json!({ "type": "retry" }));
         assert!(!retry.view.submitted);
         assert!(retry.view.request.is_some());
@@ -973,7 +930,6 @@ mod tests {
         // A reload starts without a session, whatever the address says.
         let (_, reloaded) = load("#step=activate", "");
         assert_eq!(reloaded.view.current, PORTAL);
-        assert_eq!(written(&reloaded), Some(("", false)));
     }
 
     #[test]
@@ -985,8 +941,6 @@ mod tests {
         let (model, loaded) = load(&format!("#{old}"), "");
         assert_eq!(loaded.view.current, PORTAL);
         assert_eq!(model.session, Session::default());
-        // The host replaces the old address, so its history entry loses the key.
-        assert_eq!(written(&loaded), Some(("", false)));
     }
 
     #[test]
@@ -994,15 +948,13 @@ mod tests {
         let (mut model, loaded) = load("", "?step=add&type=totp");
         assert_eq!(loaded.view.current, PORTAL);
         assert_eq!(loaded.view.shortcut, "⌘");
-        // A query is always moved into the hash.
-        assert_eq!(written(&loaded), Some(("type=totp", false)));
+        // A query's fields count too.
+        assert_eq!(loaded.view.code_type, "totp");
         let ahead = send(&mut model, json!({ "type": "goTo", "step": ADD }));
         assert_eq!(ahead.view.current, PORTAL);
         assert_eq!(load("#/?step=qr", "").1.view.current, QR);
-        // The portal is the first step, so its hash is empty.
         let (_, portal) = load("#step=portal", "");
         assert_eq!(portal.view.current, PORTAL);
-        assert_eq!(written(&portal), Some(("", false)));
         let (_, windows) = {
             let mut model = Model::default();
             let output = send(
