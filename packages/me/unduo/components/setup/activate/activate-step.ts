@@ -12,7 +12,6 @@ import {
   p,
   span,
   textarea,
-  van,
 } from "@-/me.unduo.lib.dom";
 
 /** The longest reply crates/setup accepts (MAX_RESPONSE_LENGTH in response.rs). */

@@ -58,7 +58,7 @@ async function bundleScript(entry: string) {
     configFile: false,
     root,
     logLevel: "silent",
-    plugins: [vanjsAsGlobal(), universityCatalog(), cdnLibraries()],
+    plugins: [universityCatalog(), cdnLibraries()],
     define: pageDefines,
     build: {
       write: false,
@@ -87,17 +87,6 @@ async function bundleScript(entry: string) {
   return { code, modules };
 }
 
-/** Bundles use the global that the page's VanJS script element sets, not a copy of VanJS. */
-function vanjsAsGlobal(): Plugin {
-  const id = "\0vanjs-global";
-  return {
-    name: "vanjs-as-global",
-    enforce: "pre",
-    resolveId: (source) => (source === "vanjs-core" ? id : undefined),
-    load: (loaded) => (loaded === id ? "export default window.van;" : undefined),
-  };
-}
-
 /**
  * The page's VanJS: this exact file from github.com/vanjs-org/van, kept unchanged
  * in the wrapper package. The element holds its bytes, so anyone can compare them.
@@ -109,10 +98,11 @@ const vanjsCode = readFileSync(
   new URL(`packages/com/npmjs/vanjs-core/${vanjsFile}`, repoRoot),
   "utf8",
 );
+const vanjsComment = `VanJS ${vanjsVersion}: the file at data-upstream, byte for byte, whose SHA-256 is data-upstream-sha256. It sets window.van and nothing else.`;
 const vanjsUrl = `https://raw.githubusercontent.com/vanjs-org/van/${vanjsCommit}/public/${vanjsFile}`;
 if (/<\/script|<!--|\r/i.test(vanjsCode))
   throw new Error(`Unsafe inline script markup in ${vanjsFile}.`);
-const vanjsElement = (comment: string) =>
+const vanjsElement = (comment = vanjsComment) =>
   `<script data-app="unduo" data-part="vanjs" data-upstream="${vanjsUrl}" data-upstream-sha256="${createHash("sha256").update(vanjsCode).digest("hex")}" data-requests="none" data-comment="${comment}">${vanjsCode}</script>`;
 
 /**
@@ -146,7 +136,7 @@ const setupParts = [
   {
     part: "steps",
     modules:
-      /vanjs-global$|\/lib\/dom\/dom\.ts$|\/components\/result\/[\w-]+\.ts$|\/components\/stepper\/[\w-]+\.ts$|\/setup\/(?:shortcuts|limits|portal|link|help)\/[\w-]+\.ts$|\/setup\/setup-layout\.ts$/,
+      /\/lib\/dom\/dom\.ts$|\/components\/result\/[\w-]+\.ts$|\/components\/stepper\/[\w-]+\.ts$|\/setup\/(?:shortcuts|limits|portal|link|help)\/[\w-]+\.ts$|\/setup\/setup-layout\.ts$/,
     requests: "none",
     comment:
       "The element functions from the vanjs element's global, and the elements of each setup step but the Duo form. Their links open only when you click them, and the one form here, for pasted text, has no action: the page handles it.",
@@ -261,8 +251,9 @@ const stylesheetComment =
 const screenshotFile = (file: string) => new URL(`src/assets/setup-${file}.webp`, webRoot);
 
 /**
- * The dev server's pages load files as they are on disk, and its script through
- * Vite. They need a policy only so that `fetch("data:,")` fails and setup starts.
+ * The dev server's pages load files as they are on disk, and their script through
+ * Vite after the same VanJS element a build writes, which sets the global `van`.
+ * They need a policy only so that `fetch("data:,")` fails and setup starts.
  */
 async function devResources(stylesheet: string): Promise<PageResources> {
   const fs = (path: string) => `/@fs${path}`;
@@ -278,7 +269,8 @@ async function devResources(stylesheet: string): Promise<PageResources> {
           "data-plugin-integrity": sri(plugin.bytes),
         },
     image: (file) => ({ "data-image-src": fs(fileURLToPath(screenshotFile(file))) }),
-    script: (entry) => `<script type="module" src="/${pageEntries[entry]}"></script>`,
+    script: (entry) =>
+      `${vanjsElement()}\n<script type="module" src="/${pageEntries[entry]}"></script>`,
   };
 }
 
@@ -320,7 +312,7 @@ async function writeSite(output: string, css: string, pages: readonly SitePage[]
   validateScript(home);
   const elements = {
     setup: setupElements(await bundleScript(pageEntries.setup)),
-    home: `${vanjsElement(`VanJS ${vanjsVersion}: the file at data-upstream, byte for byte, whose SHA-256 is data-upstream-sha256. It sets window.van and nothing else.`)}\n<script type="module" data-app="unduo" data-comment="${scriptComments.home}">${home}</script>`,
+    home: `${vanjsElement()}\n<script type="module" data-app="unduo" data-comment="${scriptComments.home}">${home}</script>`,
   };
   const script = (entry: PageEntry) => elements[entry];
 

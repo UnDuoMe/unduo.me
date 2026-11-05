@@ -1,18 +1,5 @@
 import type { SetupPage, SetupSchool } from "@-/me.unduo.components.setup.entities";
-import {
-  a,
-  button,
-  div,
-  em,
-  input,
-  label,
-  li,
-  p,
-  span,
-  strong,
-  ul,
-  van,
-} from "@-/me.unduo.lib.dom";
+import { a, button, div, em, input, label, li, p, span, strong, ul } from "@-/me.unduo.lib.dom";
 
 /** The institution's portal link, with a field and button to copy it. */
 function schoolPortal({ view, copy, popup }: SetupPage, name: string, portalUrl: string) {

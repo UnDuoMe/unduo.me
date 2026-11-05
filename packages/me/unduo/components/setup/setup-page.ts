@@ -1,5 +1,4 @@
 import { defaultPluginLimits, newPublicKey } from "@-/me.unduo.components.setup.plugin";
-import { van } from "@-/me.unduo.lib.dom";
 import { readQrCodes } from "@-/me.unduo.lib.qr-reader";
 import { qrImage } from "#qr-code";
 import type { SetupPage } from "#entities";

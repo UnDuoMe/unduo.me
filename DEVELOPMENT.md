@@ -52,8 +52,9 @@ script and writes the site.
 
 A page's script elements hold its own code and VanJS, which is
 `public/van-<version>.nomodule.js` from github.com/vanjs-org/van, byte for byte, in its own
-element. The bundle reads the `window.van` it sets. It's small enough to read in the page,
-and it uses neither eval nor HTML strings. The build fails if that element differs from the
+element, in the dev server as in a build. Code uses the global `van` it sets without
+importing it (`packages/com/npmjs/vanjs-core/global.d.ts` declares it). VanJS is small
+enough to read in the page, and it uses neither eval nor HTML strings. The build fails if that element differs from the
 SHA-256 it names, and `vp run verify:cdn` compares it with GitHub's copy.
 `vp check` validates the TypeScript APIs and Flatcap boundaries.
 

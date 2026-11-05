@@ -15,7 +15,6 @@ import {
   p,
   span,
   strong,
-  van,
 } from "@-/me.unduo.lib.dom";
 
 /** The last step: the `otpauth://` QR code, code type, setup key and how to test it. */

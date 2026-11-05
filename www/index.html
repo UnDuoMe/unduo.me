@@ -1,6 +1,6 @@
 <!doctype html>
 <html lang="en">
-  <head><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'sha256-dZu710qV7pUozk9WNNw7Nr449YAqE6wv/arVKnsnH/Y=' 'sha256-klN2dmEcrWGadRNL29yp2xH1gMA3/8gapFU5ZX3eBPw='; script-src-attr 'none'; style-src-elem https://cdn.jsdelivr.net/npm/uikit@3.25.29/dist/css/uikit.min.css https://cdn.jsdelivr.net/gh/UnDuoMe/unduo.me@92ecfff684bdeb996aa0c4d10d3f1b321ce1bb64/setup-styles.mY_Vxe-5.css; style-src-attr 'none'; img-src data:; font-src data:; connect-src 'none'; form-action https://*.duosecurity.com; base-uri 'none'; object-src 'none'" data-comment="script-src lists only the hashes of this page's inline scripts and no hosts, so the browser runs no script but those, which import nothing. No source allows inline handlers or eval. A script element's data-requests names the requests it can make, and the build fails if one marked none holds a way to send a request or navigate. Fetches may reach only the files in connect-src, and forms only Duo. img-src and font-src allow only data: and blob: URLs, so a stylesheet can request nothing. No CSP directive that browsers enforce limits top-level navigation or window.open, so only this page's own scripts can use them.">
+  <head><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'sha256-dZu710qV7pUozk9WNNw7Nr449YAqE6wv/arVKnsnH/Y=' 'sha256-LWruvvsk0Au36kLDSYocpATHcWYF92XWScT3EjUpIVE='; script-src-attr 'none'; style-src-elem https://cdn.jsdelivr.net/npm/uikit@3.25.29/dist/css/uikit.min.css https://cdn.jsdelivr.net/gh/UnDuoMe/unduo.me@92ecfff684bdeb996aa0c4d10d3f1b321ce1bb64/setup-styles.mY_Vxe-5.css; style-src-attr 'none'; img-src data:; font-src data:; connect-src 'none'; form-action https://*.duosecurity.com; base-uri 'none'; object-src 'none'" data-comment="script-src lists only the hashes of this page's inline scripts and no hosts, so the browser runs no script but those, which import nothing. No source allows inline handlers or eval. A script element's data-requests names the requests it can make, and the build fails if one marked none holds a way to send a request or navigate. Fetches may reach only the files in connect-src, and forms only Duo. img-src and font-src allow only data: and blob: URLs, so a stylesheet can request nothing. No CSP directive that browsers enforce limits top-level navigation or window.open, so only this page's own scripts can use them.">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="referrer" content="no-referrer">
@@ -173,15 +173,14 @@
 	"portalUrl": "https://enroll.utormfa.utoronto.ca/",
 	"stateProvince": "Ontario"
 }];
-var _vanjs_global_default = window.van;
 /**
 * The HTML elements the pages build, each a function of its properties and
 * children. A function or `State` as a value keeps that property or child up
 * to date. Text becomes text nodes, so nothing here writes HTML.
 */
-var { a, aside, button, code, details, dialog, div, em, fieldset, footer, form, h1, h2, h3, header, iframe, img, input, kbd, label, legend, li, main, nav, ol, p, pre, section, span, strong, summary, textarea, ul } = _vanjs_global_default.tags;
+var { a, aside, button, code, details, dialog, div, em, fieldset, footer, form, h1, h2, h3, header, iframe, img, input, kbd, label, legend, li, main, nav, ol, p, pre, section, span, strong, summary, textarea, ul } = van.tags;
 /** The icon elements, which need their namespace. */
-var { path, svg } = _vanjs_global_default.tags("http://www.w3.org/2000/svg");
+var { path, svg } = van.tags("http://www.w3.org/2000/svg");
 function normalize(value) {
 	return value.normalize("NFKD").replace(/\p{M}/gu, "").toLowerCase().replace(/[^\p{L}\p{N}.]+/gu, " ").trim();
 }
@@ -237,10 +236,10 @@ var place = (school) => [school.stateProvince, school.country].filter(Boolean).j
 * or a click chooses one. Escape, Tab or a click elsewhere closes it.
 */
 function universityPicker(choose) {
-	const query = _vanjs_global_default.state("");
-	const open = _vanjs_global_default.state(false);
-	const active = _vanjs_global_default.state(0);
-	const choices = _vanjs_global_default.derive(() => searchUniversities(query.val));
+	const query = van.state("");
+	const open = van.state(false);
+	const active = van.state(0);
+	const choices = van.derive(() => searchUniversities(query.val));
 	const count = universities.length.toLocaleString("en-US");
 	const pick = (school) => {
 		if (!school) return;
@@ -422,8 +421,8 @@ var fileName = (school) => `${school.name.replace(/[\\/:*?"<>|]+/g, "-")}.html`;
 * yet, goes to an AI with the prompt, which a button copies.
 */
 function verifyStep(school) {
-	const copied = _vanjs_global_default.state(false);
-	const copyFailed = _vanjs_global_default.state(false);
+	const copied = van.state(false);
+	const copyFailed = van.state(false);
 	const copy = async () => {
 		try {
 			await navigator.clipboard.writeText(question);
@@ -454,7 +453,7 @@ function verifyStep(school) {
 		type: "button",
 		class: "uk-button uk-button-default btn",
 		onclick: copy
-	}, _vanjs_global_default.derive(() => copied.val ? "Copied" : "Copy prompt")), assistants.map((assistant) => a({
+	}, van.derive(() => copied.val ? "Copied" : "Copy prompt")), assistants.map((assistant) => a({
 		class: "uk-button uk-button-default btn",
 		href: assistant.href,
 		target: "_blank",
@@ -466,7 +465,7 @@ function verifyStep(school) {
 	}, "Clipboard access isn't available. Select the prompt above to copy it."), span({
 		class: "sr-only",
 		role: "status"
-	}, _vanjs_global_default.derive(() => copied.val ? "Prompt copied." : "")));
+	}, van.derive(() => copied.val ? "Prompt copied." : "")));
 }
 /** Step 3: open the file, which takes over from here with its own steps, and what to take away. */
 function continueStep(school) {
@@ -518,8 +517,8 @@ function fromUrl() {
 function startHomePage() {
 	const homeTitle = document.title;
 	const start = fromUrl();
-	const selected = _vanjs_global_default.state(start.school);
-	const current = _vanjs_global_default.state(start.current);
+	const selected = van.state(start.school);
+	const current = van.state(start.current);
 	/** The search field, which takes focus back when the dialog closes. */
 	const focusSearch = () => document.getElementById("university")?.focus();
 	/** After the step's elements update, as the setup file does. */
@@ -572,7 +571,7 @@ function startHomePage() {
 		class: "dialog-title step-title",
 		id: "step-title",
 		tabindex: "-1"
-	}, _vanjs_global_default.derive(() => steps[current.val].title)), () => {
+	}, van.derive(() => steps[current.val].title)), () => {
 		const school = selected.val;
 		if (!school || current.val === 0) return overviewStep();
 		return current.val === 1 ? verifyStep(school) : continueStep(school);
@@ -585,12 +584,12 @@ function startHomePage() {
 		type: "button",
 		class: () => current.val === 1 ? "uk-button uk-button-default btn at-end" : "uk-button uk-button-primary btn-accent at-end",
 		onclick: () => current.val === steps.length - 1 ? homeDialog.close() : goTo(current.val + 1)
-	}, _vanjs_global_default.derive(() => current.val === steps.length - 1 ? "Done" : "Continue"))));
+	}, van.derive(() => current.val === steps.length - 1 ? "Done" : "Continue"))));
 	window.addEventListener("popstate", () => {
 		showUrl();
 		focusStep();
 	});
-	_vanjs_global_default.add(document.getElementById("root"), div({ class: "home-page" }, div({ class: "home-center" }, homeHeader(), main({ class: "home-main" }, universityPicker(choose))), homeSource(), homeDialog));
+	van.add(document.getElementById("root"), div({ class: "home-page" }, div({ class: "home-center" }, homeHeader(), main({ class: "home-main" }, universityPicker(choose))), homeSource(), homeDialog));
 	showUrl();
 }
 startHomePage();

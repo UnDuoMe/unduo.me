@@ -34,6 +34,5 @@ export {
   svg,
   textarea,
   ul,
-  van,
 } from "#dom";
 export type { State } from "#dom";

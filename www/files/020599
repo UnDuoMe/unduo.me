@@ -1,6 +1,6 @@
 <!doctype html>
 <html lang="en">
-  <head><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'sha256-dZu710qV7pUozk9WNNw7Nr449YAqE6wv/arVKnsnH/Y=' 'sha256-wB9gqfP4SzTICVjeOth0PNykB2p6klNUxpvBW8jH9DQ=' 'sha256-Rk8KnOZTGvkeJSeVJ5U/VJH8a5z6WToFyDV7exdMWPg=' 'sha256-NZrXdA9jpUGse6BnZ/KLItWaVPVDVyz1+a9XOTCmWKQ=' 'sha256-rBcEKfUJowwmaB47Oyaw8+tZ4I03VfuZxTR4VUjz6h0=' 'sha256-kl8CSpwd5IGqmzXRbvdCF7Z0KqPxd1n8rGLWd2RX6gY=' 'wasm-unsafe-eval'; script-src-attr 'none'; style-src-elem https://cdn.jsdelivr.net/npm/uikit@3.25.29/dist/css/uikit.min.css https://cdn.jsdelivr.net/gh/UnDuoMe/unduo.me@92ecfff684bdeb996aa0c4d10d3f1b321ce1bb64/setup-styles.mY_Vxe-5.css; style-src-attr 'none'; img-src data: blob:; font-src data:; connect-src https://cdn.jsdelivr.net/gh/UnDuoMe/unduo.me@92ecfff684bdeb996aa0c4d10d3f1b321ce1bb64/setup.mFhZmTms.wasm https://cdn.jsdelivr.net/gh/UnDuoMe/unduo.me@92ecfff684bdeb996aa0c4d10d3f1b321ce1bb64/setup-1-add-device.HfrEhtPk.webp https://cdn.jsdelivr.net/gh/UnDuoMe/unduo.me@92ecfff684bdeb996aa0c4d10d3f1b321ce1bb64/setup-2-tablet.qSlLoa3c.webp https://cdn.jsdelivr.net/gh/UnDuoMe/unduo.me@92ecfff684bdeb996aa0c4d10d3f1b321ce1bb64/setup-3-android.F5QoYAql.webp https://cdn.jsdelivr.net/gh/UnDuoMe/unduo.me@92ecfff684bdeb996aa0c4d10d3f1b321ce1bb64/setup-4-duo-installed.gRuBBlLy.webp https://cdn.jsdelivr.net/gh/UnDuoMe/unduo.me@92ecfff684bdeb996aa0c4d10d3f1b321ce1bb64/setup-5-copy-qr-url.0e4hdp7M.webp; form-action https://*.duosecurity.com; frame-src https://*.duosecurity.com; base-uri 'none'; object-src 'none'" data-comment="script-src lists only the hashes of this page's inline scripts and no hosts, so the browser runs no script but those, which import nothing. No source allows inline handlers or eval. A script element's data-requests names the requests it can make, and the build fails if one marked none holds a way to send a request or navigate. 'wasm-unsafe-eval' allows compiling WebAssembly only. Once the page accepts a Duo form, its script adds a second policy, form-action and frame-src https://api-XXXXXXXX.duosecurity.com for that form's host, and browsers enforce both. The script builds one frame, duo-reply, with the sandbox attribute, no permissions and no src. Only the Duo form loads anything in it, and scripts can't run there or read it from this page: you copy Duo's reply out of it by hand. A second button with formTarget _blank sends the same form to a new tab instead, if you choose it. Fetches may reach only the files in connect-src, and forms only Duo. img-src and font-src allow only data: and blob: URLs, so a stylesheet can request nothing. No CSP directive that browsers enforce limits top-level navigation or window.open, so only this page's own scripts can use them.">
+  <head><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'sha256-dZu710qV7pUozk9WNNw7Nr449YAqE6wv/arVKnsnH/Y=' 'sha256-wB9gqfP4SzTICVjeOth0PNykB2p6klNUxpvBW8jH9DQ=' 'sha256-Rk8KnOZTGvkeJSeVJ5U/VJH8a5z6WToFyDV7exdMWPg=' 'sha256-+zz3cn8WILZ8oEAOa7o6XmLdViAiRcGjyDhQ7zjVthU=' 'sha256-I5akYBsSGWDpk3ViKw3OXZQPyfzHNieWdaUgmmQ3AwM=' 'sha256-tvRKZkuBdgfoDhn00mhSTBSJTYZUjAOYTLb3k06myL4=' 'wasm-unsafe-eval'; script-src-attr 'none'; style-src-elem https://cdn.jsdelivr.net/npm/uikit@3.25.29/dist/css/uikit.min.css https://cdn.jsdelivr.net/gh/UnDuoMe/unduo.me@92ecfff684bdeb996aa0c4d10d3f1b321ce1bb64/setup-styles.mY_Vxe-5.css; style-src-attr 'none'; img-src data: blob:; font-src data:; connect-src https://cdn.jsdelivr.net/gh/UnDuoMe/unduo.me@92ecfff684bdeb996aa0c4d10d3f1b321ce1bb64/setup.mFhZmTms.wasm https://cdn.jsdelivr.net/gh/UnDuoMe/unduo.me@92ecfff684bdeb996aa0c4d10d3f1b321ce1bb64/setup-1-add-device.HfrEhtPk.webp https://cdn.jsdelivr.net/gh/UnDuoMe/unduo.me@92ecfff684bdeb996aa0c4d10d3f1b321ce1bb64/setup-2-tablet.qSlLoa3c.webp https://cdn.jsdelivr.net/gh/UnDuoMe/unduo.me@92ecfff684bdeb996aa0c4d10d3f1b321ce1bb64/setup-3-android.F5QoYAql.webp https://cdn.jsdelivr.net/gh/UnDuoMe/unduo.me@92ecfff684bdeb996aa0c4d10d3f1b321ce1bb64/setup-4-duo-installed.gRuBBlLy.webp https://cdn.jsdelivr.net/gh/UnDuoMe/unduo.me@92ecfff684bdeb996aa0c4d10d3f1b321ce1bb64/setup-5-copy-qr-url.0e4hdp7M.webp; form-action https://*.duosecurity.com; frame-src https://*.duosecurity.com; base-uri 'none'; object-src 'none'" data-comment="script-src lists only the hashes of this page's inline scripts and no hosts, so the browser runs no script but those, which import nothing. No source allows inline handlers or eval. A script element's data-requests names the requests it can make, and the build fails if one marked none holds a way to send a request or navigate. 'wasm-unsafe-eval' allows compiling WebAssembly only. Once the page accepts a Duo form, its script adds a second policy, form-action and frame-src https://api-XXXXXXXX.duosecurity.com for that form's host, and browsers enforce both. The script builds one frame, duo-reply, with the sandbox attribute, no permissions and no src. Only the Duo form loads anything in it, and scripts can't run there or read it from this page: you copy Duo's reply out of it by hand. A second button with formTarget _blank sends the same form to a new tab instead, if you choose it. Fetches may reach only the files in connect-src, and forms only Duo. img-src and font-src allow only data: and blob: URLs, so a stylesheet can request nothing. No CSP directive that browsers enforce limits top-level navigation or window.open, so only this page's own scripts can use them.">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="referrer" content="no-referrer">
@@ -2052,15 +2052,14 @@ function qrImage(text, scale = 6, border = 2) {
 }
 </script>
 <script data-app="unduo" data-part="steps" data-source="packages/me/unduo/lib/dom/dom.ts packages/me/unduo/components/result/authenticator-result.ts packages/me/unduo/components/setup/shortcuts/shortcut-keys.ts packages/me/unduo/components/setup/portal/portal-instructions.ts packages/me/unduo/components/setup/portal/portal-step.ts packages/me/unduo/components/setup/link/link-step.ts packages/me/unduo/components/stepper/stepper.ts packages/me/unduo/components/setup/help/terminal-commands.ts packages/me/unduo/components/setup/help/setup-help.ts packages/me/unduo/components/setup/limits/plugin-limits.ts packages/me/unduo/components/setup/setup-layout.ts" data-requests="none" data-comment="The element functions from the vanjs element's global, and the elements of each setup step but the Duo form. Their links open only when you click them, and the one form here, for pasted text, has no action: the page handles it.">"use strict";
-var _vanjs_global_default = window.van;
 /**
 * The HTML elements the pages build, each a function of its properties and
 * children. A function or `State` as a value keeps that property or child up
 * to date. Text becomes text nodes, so nothing here writes HTML.
 */
-var { a, aside, button, code, details, dialog, div, em, fieldset, footer, form, h1, h2, h3, header, iframe, img, input, kbd, label, legend, li, main, nav, ol, p, pre, section, span, strong, summary, textarea, ul } = _vanjs_global_default.tags;
+var { a, aside, button, code, details, dialog, div, em, fieldset, footer, form, h1, h2, h3, header, iframe, img, input, kbd, label, legend, li, main, nav, ol, p, pre, section, span, strong, summary, textarea, ul } = van.tags;
 /** The icon elements, which need their namespace. */
-var { path, svg } = _vanjs_global_default.tags("http://www.w3.org/2000/svg");
+var { path, svg } = van.tags("http://www.w3.org/2000/svg");
 /** The last step: the `otpauth://` QR code, code type, setup key and how to test it. */
 function authenticatorResult({ view, qr, send, copy }) {
 	const codeType = (type, name) => label({ class: () => `code-type ${view.val.codeType === type ? "code-type-on" : "code-type-off"}` }, input({
@@ -2084,7 +2083,7 @@ function authenticatorResult({ view, qr, send, copy }) {
 	}) : "", span({
 		role: "status",
 		hidden: () => !!qr.val
-	}, _vanjs_global_default.derive(() => qr.val === false ? "Use the setup key instead." : "Creating QR code…"))), fieldset({ class: "code-types" }, legend({ class: "sr-only" }, "Code type"), codeType("hotp", "Counter-based"), codeType("totp", "Time-based"))), div({ class: "result-details" }, p({ class: "result-summary" }, "Duo account for ", strong(_vanjs_global_default.derive(() => view.val.account?.customer ?? ""))), h3({ class: "subheading" }, "Scan this with your authenticator app"), p({
+	}, van.derive(() => qr.val === false ? "Use the setup key instead." : "Creating QR code…"))), fieldset({ class: "code-types" }, legend({ class: "sr-only" }, "Code type"), codeType("hotp", "Counter-based"), codeType("totp", "Time-based"))), div({ class: "result-details" }, p({ class: "result-summary" }, "Duo account for ", strong(van.derive(() => view.val.account?.customer ?? ""))), h3({ class: "subheading" }, "Scan this with your authenticator app"), p({
 		class: advice,
 		hidden: () => view.val.codeType !== "hotp"
 	}, "Use an app that supports ", strong("counter-based codes"), ", such as Google Authenticator, 2FAS, Aegis or FreeOTP. Tap refresh in the app whenever you need a new code."), p({
@@ -2101,29 +2100,29 @@ function authenticatorResult({ view, qr, send, copy }) {
 		type: "button",
 		class: "uk-button uk-button-text btn",
 		onclick: () => send({ type: "reveal" })
-	}, _vanjs_global_default.derive(() => view.val.account?.revealed ? "Hide" : "Show"))), code({ class: "setup-key" }, _vanjs_global_default.derive(() => view.val.account?.key ?? "")), p({ class: "hint" }, _vanjs_global_default.derive(() => view.val.codeType === "hotp" ? "Counter-based (HOTP) · counter 0 · 6 digits · SHA-1" : "Time-based (TOTP) · 30 seconds · 6 digits · SHA-1"))), div({ class: "row-2" }, button({
+	}, van.derive(() => view.val.account?.revealed ? "Hide" : "Show"))), code({ class: "setup-key" }, van.derive(() => view.val.account?.key ?? "")), p({ class: "hint" }, van.derive(() => view.val.codeType === "hotp" ? "Counter-based (HOTP) · counter 0 · 6 digits · SHA-1" : "Time-based (TOTP) · 30 seconds · 6 digits · SHA-1"))), div({ class: "row-2" }, button({
 		type: "button",
 		class: "uk-button uk-button-default btn",
 		onclick: () => copy("key")
-	}, _vanjs_global_default.derive(() => view.val.copied === "key" ? "Key copied" : "Copy key")), button({
+	}, van.derive(() => view.val.copied === "key" ? "Key copied" : "Copy key")), button({
 		type: "button",
 		class: "uk-button uk-button-text btn",
 		onclick: () => copy("uri")
-	}, _vanjs_global_default.derive(() => view.val.copied === "uri" ? "Link copied" : "Copy otpauth:// link"))), p({
+	}, van.derive(() => view.val.copied === "uri" ? "Link copied" : "Copy otpauth:// link"))), p({
 		class: "hint",
 		role: "alert",
 		hidden: () => !view.val.copyError
 	}, "Clipboard access isn't available. Select the key above to copy it."), span({
 		class: "sr-only",
 		role: "status"
-	}, _vanjs_global_default.derive(() => view.val.copied === "key" ? "Setup key copied." : view.val.copied === "uri" ? "Link copied." : "")))), div({ class: "next-test" }, h3({ class: "subheading" }, "Then test it"), p({ class: "body-note" }, "Sign in somewhere that uses Duo, choose ", em("Other options"), " → ", em("Duo Mobile passcode"), " (or ", em("Enter a passcode"), "), and type the code your app shows.")), aside({
+	}, van.derive(() => view.val.copied === "key" ? "Setup key copied." : view.val.copied === "uri" ? "Link copied." : "")))), div({ class: "next-test" }, h3({ class: "subheading" }, "Then test it"), p({ class: "body-note" }, "Sign in somewhere that uses Duo, choose ", em("Other options"), " → ", em("Duo Mobile passcode"), " (or ", em("Enter a passcode"), "), and type the code your app shows.")), aside({
 		class: "uk-alert-warning warning",
 		role: "note"
 	}, h3({ class: "warning-title" }, "Add it now — unduo forgets the key when you close this tab"), p({ class: "warning-text" }, "Keep your current Duo sign-in method until a code from your authenticator works.")));
 }
 /** A keyboard shortcut: this device's modifier key, then `letter`. */
 function shortcutKeys({ view }, letter) {
-	return kbd({ class: "key" }, span(_vanjs_global_default.derive(() => view.val.shortcut)), letter);
+	return kbd({ class: "key" }, span(van.derive(() => view.val.shortcut)), letter);
 }
 var instruction = "instruction";
 /** The example screenshots, copied from the page's `<template>`, which holds their URLs and pins. */
@@ -2170,7 +2169,7 @@ function schoolPortal({ view, copy, popup }, name, portalUrl) {
 			type: "button",
 			class: "uk-button uk-button-default btn",
 			onclick: () => copy("portal")
-		}, _vanjs_global_default.derive(() => view.val.copied === "portal" ? "Copied" : "Copy"))),
+		}, van.derive(() => view.val.copied === "portal" ? "Copied" : "Copy"))),
 		p({
 			class: "copied-note",
 			role: "alert",
@@ -2179,7 +2178,7 @@ function schoolPortal({ view, copy, popup }, name, portalUrl) {
 		span({
 			class: "sr-only",
 			role: "status"
-		}, _vanjs_global_default.derive(() => view.val.copied === "portal" ? "Portal link copied." : ""))
+		}, van.derive(() => view.val.copied === "portal" ? "Portal link copied." : ""))
 	];
 }
 /** The step that opens the Duo device portal, with the institution's link if it has one. */
@@ -2254,7 +2253,7 @@ function linkStep(page) {
 		class: "uk-text-danger small",
 		role: "alert",
 		hidden: () => !view.val.linkError
-	}, _vanjs_global_default.derive(() => view.val.linkError)))), div({ class: "link-actions" }, button({
+	}, van.derive(() => view.val.linkError)))), div({ class: "link-actions" }, button({
 		type: "button",
 		class: secondary,
 		disabled: () => !!view.val.linkBusy,
@@ -2274,20 +2273,20 @@ function linkStep(page) {
 		class: "scan-note",
 		role: "status",
 		hidden: () => !(view.val.linkBusy === "image" || view.val.linkBusy === "prepare" || view.val.scanNote)
-	}, _vanjs_global_default.derive(() => view.val.linkBusy === "image" ? "Reading the QR code…" : view.val.linkBusy === "prepare" ? "Preparing your request…" : view.val.scanNote))));
+	}, van.derive(() => view.val.linkBusy === "image" ? "Reading the QR code…" : view.val.linkBusy === "prepare" ? "Preparing your request…" : view.val.scanNote))));
 }
 var targetClass = "step-target";
 /** One numbered step, which links to its step once it can be reached and isn't open. */
 function stepItem({ steps, select }, position) {
 	const step = () => steps.val[position];
-	const linked = _vanjs_global_default.derive(() => !!step()?.reachable && step()?.state !== "active");
+	const linked = van.derive(() => !!step()?.reachable && step()?.state !== "active");
 	const label = () => [
 		span({
 			class: "step-number",
 			"aria-hidden": "true"
-		}, _vanjs_global_default.derive(() => step()?.state === "complete" ? "✓" : step()?.number ?? "")),
-		span({ class: "step-label" }, _vanjs_global_default.derive(() => step()?.label ?? "")),
-		span({ class: "sr-only" }, _vanjs_global_default.derive(() => step()?.description ?? ""))
+		}, van.derive(() => step()?.state === "complete" ? "✓" : step()?.number ?? "")),
+		span({ class: "step-label" }, van.derive(() => step()?.label ?? "")),
+		span({ class: "sr-only" }, van.derive(() => step()?.description ?? ""))
 	];
 	return li({
 		class: "step-item",
@@ -2520,7 +2519,7 @@ function activateStep(page) {
 		class: `${primary$1} wide`,
 		type: "submit",
 		disabled: () => !view.val.request
-	}, _vanjs_global_default.derive(() => view.val.request ? "Activate with Duo" : "Preparing…")), p({ class: "sent-note" }, "Sent straight from your browser to ", span(_vanjs_global_default.derive(() => view.val.request?.host ?? "")), ". Each QR code works once."), p({ class: "tab-note" }, button({
+	}, van.derive(() => view.val.request ? "Activate with Duo" : "Preparing…")), p({ class: "sent-note" }, "Sent straight from your browser to ", span(van.derive(() => view.val.request?.host ?? "")), ". Each QR code works once."), p({ class: "tab-note" }, button({
 		type: "submit",
 		formTarget: "_blank",
 		class: textButton,
@@ -2535,7 +2534,7 @@ function activateStep(page) {
 				text: text.val
 			});
 		}
-	}, ol({ class: "reply-steps" }, li(span(_vanjs_global_default.derive(() => newTab.val ? "In the Duo tab, select everything with " : "Click in the box, then select everything with ")), shortcutKeys(page, "A")), li("Copy it with ", shortcutKeys(page, "C")), li(span(_vanjs_global_default.derive(() => newTab.val ? "Come back and paste it in the field below with " : "Click the field under the box and paste with ")), shortcutKeys(page, "V"))), iframe({
+	}, ol({ class: "reply-steps" }, li(span(van.derive(() => newTab.val ? "In the Duo tab, select everything with " : "Click in the box, then select everything with ")), shortcutKeys(page, "A")), li("Copy it with ", shortcutKeys(page, "C")), li(span(van.derive(() => newTab.val ? "Come back and paste it in the field below with " : "Click the field under the box and paste with ")), shortcutKeys(page, "V"))), iframe({
 		name: "duo-reply",
 		sandbox: "",
 		title: "Duo's reply",
@@ -2562,12 +2561,12 @@ function activateStep(page) {
 	}), p({
 		id: "reply-description",
 		class: "hint"
-	}, _vanjs_global_default.derive(() => `It contains your key, so it's read only in this page. ${newTab.val ? "Close the Duo tab afterwards." : "The box empties when you go on to the next step."}`)), p({
+	}, van.derive(() => `It contains your key, so it's read only in this page. ${newTab.val ? "Close the Duo tab afterwards." : "The box empties when you go on to the next step."}`)), p({
 		id: "reply-error",
 		class: "uk-text-danger small",
 		role: "alert",
 		hidden: () => !view.val.problem
-	}, _vanjs_global_default.derive(() => view.val.problem?.message ?? ""))), div({ class: "row-2" }, button({
+	}, van.derive(() => view.val.problem?.message ?? ""))), div({ class: "row-2" }, button({
 		type: "button",
 		class: primary$1,
 		hidden: () => !view.val.problem?.needsNewCode,
@@ -2582,7 +2581,7 @@ function activateStep(page) {
 	}, "Create my authenticator")), p({
 		class: "retry-note",
 		hidden: () => !!view.val.problem
-	}, span(_vanjs_global_default.derive(() => newTab.val ? "No Duo tab appeared? Your browser may have blocked it, so Duo never got the request." : "Box still empty? Try again, or open the reply in a new tab.")), button({
+	}, span(van.derive(() => newTab.val ? "No Duo tab appeared? Your browser may have blocked it, so Duo never got the request." : "Box still empty? Try again, or open the reply in a new tab.")), button({
 		type: "button",
 		class: textButton,
 		onclick: page.retry
@@ -2630,18 +2629,18 @@ function createSetupPage(load) {
 	const sent = new Set();
 	/** Each screenshot's blob: URL, by its `data-image-src`. */
 	const images = new Map();
-	const view = _vanjs_global_default.state(noView);
-	const started = _vanjs_global_default.derive(() => view.val !== noView);
-	const failed = _vanjs_global_default.state(false);
-	const activated = _vanjs_global_default.state(false);
-	const newTab = _vanjs_global_default.state(false);
-	const unenforced = _vanjs_global_default.state(false);
-	const text = _vanjs_global_default.state("");
-	const dragging = _vanjs_global_default.state(false);
-	const qr = _vanjs_global_default.state("");
+	const view = van.state(noView);
+	const started = van.derive(() => view.val !== noView);
+	const failed = van.state(false);
+	const activated = van.state(false);
+	const newTab = van.state(false);
+	const unenforced = van.state(false);
+	const text = van.state("");
+	const dragging = van.state(false);
+	const qr = van.state("");
 	const limits = {
-		maxPages: _vanjs_global_default.state(String(defaultPluginLimits.maxPages)),
-		timeoutMs: _vanjs_global_default.state(String(defaultPluginLimits.timeoutMs))
+		maxPages: van.state(String(defaultPluginLimits.maxPages)),
+		timeoutMs: van.state(String(defaultPluginLimits.timeoutMs))
 	};
 	function begin() {
 		document.querySelector("#portal-screenshot-figures")?.content.querySelectorAll("img").forEach(screenshot);
@@ -2944,18 +2943,18 @@ var home = "https://unduo.me/";
 /** The stepper and the card for the current step, with Back, Next and Start over. */
 function setupCard(page, school) {
 	const { view, send } = page;
-	const current = _vanjs_global_default.derive(() => view.val.current);
+	const current = van.derive(() => view.val.current);
 	const steps = [
 		() => portalStep(school, home, page),
 		() => linkStep(page),
 		() => "",
 		() => authenticatorResult(page)
 	];
-	const activation = _vanjs_global_default.derive(() => view.val.current === 2 || page.activated.val && view.val.current < 2);
+	const activation = van.derive(() => view.val.current === 2 || page.activated.val && view.val.current < 2);
 	return div(stepper({
 		id: "setup-progress",
 		label: "Setup progress",
-		steps: _vanjs_global_default.derive(() => view.val.progress),
+		steps: van.derive(() => view.val.progress),
 		select: (step) => send({
 			type: "goTo",
 			step
@@ -2967,7 +2966,7 @@ function setupCard(page, school) {
 		class: "step-title",
 		id: "step-title",
 		tabindex: "-1"
-	}, _vanjs_global_default.derive(() => view.val.title)), () => steps[current.val]?.() ?? "", () => activation.val ? div({ hidden: () => view.val.current !== 2 }, activateStep(page)) : "", div({ class: "step-nav" }, button({
+	}, van.derive(() => view.val.title)), () => steps[current.val]?.() ?? "", () => activation.val ? div({ hidden: () => view.val.current !== 2 }, activateStep(page)) : "", div({ class: "step-nav" }, button({
 		type: "button",
 		class: "uk-button uk-button-text btn",
 		hidden: () => view.val.current === 0,
@@ -2991,7 +2990,7 @@ function setupCard(page, school) {
 			type: "goTo",
 			step: view.val.current + 1
 		})
-	}, _vanjs_global_default.derive(() => view.val.current === 0 ? "I'm signed in" : "Next"))))));
+	}, van.derive(() => view.val.current === 0 ? "I'm signed in" : "Next"))))));
 }
 /**
 * Start setup on a page the build wrote with `setupMount`. Its `#setup` element
@@ -3009,7 +3008,7 @@ function startSetupPage(load) {
 	};
 	const page = createSetupPage(load);
 	const alert = "uk-alert-danger page-alert";
-	_vanjs_global_default.add(host, p({
+	van.add(host, p({
 		class: alert,
 		role: "alert",
 		hidden: () => !page.unenforced.val
@@ -3018,7 +3017,7 @@ function startSetupPage(load) {
 		role: "alert",
 		hidden: () => !page.failed.val
 	}, "unduo couldn't load its setup code, or it went over its limits. Check your connection, then reload the page, or change the limits under Advanced."), () => page.started.val ? setupCard(page, school) : "");
-	_vanjs_global_default.add(document.getElementById("root"), setupLayout(page, schoolName, home, host));
+	van.add(document.getElementById("root"), setupLayout(page, schoolName, home, host));
 }
 var { pluginUrl, pluginIntegrity } = document.getElementById("root").dataset;
 startSetupPage((limits) => loadSetupPlugin(pluginUrl, pluginIntegrity, limits));

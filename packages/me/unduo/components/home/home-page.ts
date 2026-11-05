@@ -1,6 +1,6 @@
 import { universityPicker } from "@-/me.unduo.components.university-picker";
 import type { University } from "@-/me.unduo.data.universities.entities";
-import { button, dialog, div, h2, main, p, path, svg, van } from "@-/me.unduo.lib.dom";
+import { button, dialog, div, h2, main, p, path, svg } from "@-/me.unduo.lib.dom";
 import { findUniversity } from "@-/me.unduo.lib.universities";
 import { homeHeader, homeSource, overviewStep } from "#home-intro";
 import { continueStep, verifyStep } from "#home-steps";

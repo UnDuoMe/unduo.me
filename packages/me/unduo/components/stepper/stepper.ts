@@ -1,4 +1,4 @@
-import { button, li, nav, ol, span, van } from "@-/me.unduo.lib.dom";
+import { button, li, nav, ol, span } from "@-/me.unduo.lib.dom";
 import type { State } from "@-/me.unduo.lib.dom";
 import type { StepperStep } from "@-/me.unduo.components.stepper.entities";
 

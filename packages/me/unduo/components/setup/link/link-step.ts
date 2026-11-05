@@ -1,7 +1,7 @@
 import type { SetupPage } from "@-/me.unduo.components.setup.entities";
 import { portalInstructions } from "@-/me.unduo.components.setup.portal";
 import { shortcutKeys } from "@-/me.unduo.components.setup.shortcuts";
-import { button, div, form, input, label, p, van } from "@-/me.unduo.lib.dom";
+import { button, div, form, input, label, p } from "@-/me.unduo.lib.dom";
 
 const secondary = "uk-button uk-button-default btn";
 

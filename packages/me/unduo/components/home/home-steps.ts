@@ -1,5 +1,5 @@
 import type { University } from "@-/me.unduo.data.universities.entities";
-import { a, button, div, label, p, span, strong, textarea, van } from "@-/me.unduo.lib.dom";
+import { a, button, div, label, p, span, strong, textarea } from "@-/me.unduo.lib.dom";
 
 /**
  * The prompt to put to an AI. It lives in the home page's script, which the file

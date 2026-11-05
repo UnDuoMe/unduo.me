@@ -10,12 +10,10 @@ import {
   readCdnSource,
 } from "#cdn-source";
 
-/** The one npm file the page's script may contain, unminified: VanJS, pinned in the root catalog. */
-const pageLibrary = /\/node_modules\/vanjs-core\/src\/van\.js$/;
-
 /**
  * The page runs only code it contains: the client bundle may import no URL and
- * no npm package but VanJS. The CDN stylesheets must be the installed npm files.
+ * no npm package. VanJS is the global `van` that the page's own vanjs element
+ * sets, so code never imports it. The CDN stylesheets must be the installed npm files.
  */
 export function cdnLibraries(): Plugin {
   const { assets } = readCdnSource();
@@ -42,7 +40,7 @@ export function cdnLibraries(): Plugin {
     },
     resolveId(id, importer, options) {
       if (options.ssr || importer?.endsWith(".css")) return;
-      if (!id.startsWith("\0") && !/^(\.|\/|#|@-\/|@-apps\/|@vite\/|vite\/|vanjs-core$)/.test(id)) {
+      if (!id.startsWith("\0") && !/^(\.|\/|#|@-\/|@-apps\/|@vite\/|vite\/)/.test(id)) {
         this.error(`The page runs only its own code, so it can't import ${id}.`);
       }
     },
@@ -50,7 +48,7 @@ export function cdnLibraries(): Plugin {
       for (const output of Object.values(bundle)) {
         if (output.type !== "chunk") continue;
         const vendors = Object.keys(output.modules).filter(
-          (id) => id.includes("/node_modules/") && !id.endsWith(".css") && !pageLibrary.test(id),
+          (id) => id.includes("/node_modules/") && !id.endsWith(".css"),
         );
         if (vendors.length)
           this.error(`The page runs only its own code, not ${vendors.join(", ")}`);

@@ -1,6 +1,3 @@
-import { van } from "@-/com.npmjs.vanjs-core";
-
-export { van };
 export type { State } from "@-/com.npmjs.vanjs-core";
 
 /**

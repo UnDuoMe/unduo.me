@@ -4,7 +4,7 @@ import { linkStep } from "@-/me.unduo.components.setup.link";
 import type { PluginLimits, SetupPlugin } from "@-/me.unduo.components.setup.plugin";
 import { portalStep } from "@-/me.unduo.components.setup.portal";
 import { stepper } from "@-/me.unduo.components.stepper";
-import { button, div, h2, p, section, van } from "@-/me.unduo.lib.dom";
+import { button, div, h2, p, section } from "@-/me.unduo.lib.dom";
 import { setupLayout } from "#setup-layout";
 import { createSetupPage } from "#setup-page";
 import type { SetupPage, SetupSchool } from "#entities";

@@ -1,6 +1,6 @@
 import { universities } from "@-/me.unduo.data.universities";
 import type { University } from "@-/me.unduo.data.universities.entities";
-import { div, input, label, li, p, path, span, svg, ul, van } from "@-/me.unduo.lib.dom";
+import { div, input, label, li, p, path, span, svg, ul } from "@-/me.unduo.lib.dom";
 import { searchUniversities } from "@-/me.unduo.lib.universities";
 
 const optionId = (index: number) => `university-option-${index}`;
