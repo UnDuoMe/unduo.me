@@ -110,3 +110,20 @@ export function cropToPage(
   const end = blankRowAbove(gray, w, limit, Math.round(limit / 2), scale);
   execFileSync("magick", [raw, "-crop", `${w}x${end}+${x}+${top}`, "+repage", out]);
 }
+
+/**
+ * Save a cropped screenshot for the web: 1,400 pixels wide, enough to read
+ * when it opens larger, as WebP.
+ */
+export function toWebp(png: string, webp: string) {
+  execFileSync("magick", [
+    png,
+    "-resize",
+    "1400x>",
+    "-quality",
+    "82",
+    "-define",
+    "webp:method=6",
+    webp,
+  ]);
+}

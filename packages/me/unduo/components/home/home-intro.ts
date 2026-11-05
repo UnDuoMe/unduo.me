@@ -14,7 +14,8 @@ import {
   svg,
 } from "@-/me.unduo.lib.dom";
 
-const steps = [
+/** How UnDuo works, in the three steps the user wrote. */
+export const steps = [
   "Get a new QR code from Duo.",
   "UnDuo converts it to a 2FA QR Code.",
   "Scan this 2FA QR Code with your favorite 2FA app.",

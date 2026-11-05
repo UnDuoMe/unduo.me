@@ -1,3 +1,4 @@
+import { homeMount } from "@-/me.unduo.components.home/server";
 import { setupMount } from "@-/me.unduo.components.setup/server";
 import type { SitePage } from "@-/me.unduo.configs.web";
 import { getBuildUniversities } from "@-/me.unduo.configs.web/universities";
@@ -15,11 +16,14 @@ export function sitePages(): SitePage[] {
       path: "index.html",
       entry: "home",
       render: (resources) =>
-        pageLayout({
-          title: "UnDuo — A secure way to use any 2FA app for your school login",
-          entry: "home",
-          resources,
-        }),
+        pageLayout(
+          {
+            title: "UnDuo — A secure way to use any 2FA app for your school login",
+            entry: "home",
+            resources,
+          },
+          homeMount({ image: resources.image }),
+        ),
     },
     ...getBuildUniversities().map((university) => {
       if (!/^IAU-\d{6}(?:-\d{6})*$/.test(university.id))

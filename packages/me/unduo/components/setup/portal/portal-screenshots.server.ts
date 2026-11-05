@@ -17,7 +17,7 @@ export function portalScreenshots(image: (file: string) => Record<string, string
     ({ file, label }) => `
     <figure>
       <figcaption class="figure-caption">${escapeText(label)}</figcaption>
-      <img class="screenshot"${attributes({ ...image(file), alt: label })}>
+      <img class="screenshot"${attributes({ ...image(`setup-${file}`), alt: label })}>
     </figure>`,
   );
   return `<template id="portal-screenshot-figures">${figures.join("")}

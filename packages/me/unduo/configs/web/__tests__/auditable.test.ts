@@ -171,12 +171,29 @@ function expectPinned(document: string) {
       /\/\*\*\n\s*\* Plugin output check\. `guard` checks each output before any other code sees/,
     );
   } else {
-    expect(document).toMatch(/connect-src 'none'/);
+    // The home page fetches only the AI replies' screenshots, or nothing when they're data: URLs.
+    const replies = [
+      ...document.matchAll(/\bdata-image-src="([^"]+)" data-image-integrity="([^"]+)"/g),
+    ];
+    if (!selfContained)
+      expect(
+        replies.map(([, url]) => /\/(ai-reply-\w+)\./.exec(url!)?.[1]),
+        "The AI replies' screenshots",
+      ).toEqual(["ai-reply-chatgpt", "ai-reply-claude", "ai-reply-gemini"]);
+    for (const [, url, integrity] of replies)
+      expect(integrity, url).toBe(assets.files[url!.slice(assets.base.length)]);
+    const fetched = replies.map(([, url]) => url!).sort();
+    expect(
+      document.includes(`connect-src ${fetched.join(" ") || "'none'"};`),
+      "Only the screenshot files may be fetched",
+    ).toBe(true);
     expect(document).not.toMatch(/wasm-unsafe-eval/);
   }
   if (selfContained) expectLoadsNothingByUrl(document);
   expect(
-    document.includes(pluginUrl || jsSetup ? "img-src data: blob:;" : "img-src data:;"),
+    document.includes(
+      /\sdata-image-src=/.test(document) ? "img-src data: blob:;" : "img-src data:;",
+    ),
     "Images are data: URLs or blob: URLs of fetched screenshots",
   ).toBe(true);
   expect(document, "The page declares no import map").not.toMatch(/type="importmap"/i);
@@ -435,7 +452,10 @@ describe.runIf(enabled)("static output", () => {
       ]);
       expect(count(/\.src = /g), "The only other source is a screenshot's blob: URL").toBe(1);
     } else {
-      expect(count(/\bfetch\(|(?<![\w$])(?:window\.)?open\(/g)).toBe(0);
+      expect(count(/\bfetch\(/g), "Fetches of the AI replies' screenshots").toBe(1);
+      expect(count(/(?<![\w$])(?:window\.)?open\(/g)).toBe(0);
+      expect(count(/createObjectURL\(/g), "blob: URLs only for screenshots").toBe(1);
+      expect(count(/\.src = /g), "The only source is a screenshot's blob: URL").toBe(1);
       expect(count(/location\.replace\(/g), "Old ?university= links stay on this page").toBe(0);
       expect(count(/history\.pushState\(/g), "The chosen institution and step").toBe(1);
       expect(urls.sort()).toEqual([
@@ -943,9 +963,9 @@ describe.runIf(enabled)("browser", { timeout: 180_000 }, () => {
     );
     expect(
       evaluate(
-        "[...document.querySelectorAll('main input, main button, main a')].map((field) => [field.id, field.getAttribute('role'), field.placeholder, field.labels[0].textContent])",
+        "[...document.querySelectorAll('.home-hero input, .home-hero button, .home-hero a')].map((field) => [field.id, field.getAttribute('role'), field.placeholder, field.labels[0].textContent])",
       ),
-      "One search field shows",
+      "The hero shows one search field",
     ).toEqual([["university", "combobox", "Select Your University", "Select Your University"]]);
     expect(
       evaluate("(({ href, ariaLabel }) => [href, ariaLabel])(document.querySelector('footer a'))"),
@@ -956,6 +976,41 @@ describe.runIf(enabled)("browser", { timeout: 180_000 }, () => {
     expect(evaluate("!!document.querySelector('.step-item')"), "No stepper").toBe(false);
     expect(evaluate("!!document.querySelector('a[download]')")).toBe(false);
     expect(evaluate("document.activeElement === document.body"), "Nothing steals focus").toBe(true);
+    // Under the hero: what ChatGPT, Claude and Gemini said, each screenshot a pinned file.
+    browser(
+      "wait",
+      "--fn",
+      "[...document.querySelectorAll('.reply-card .reply-shot')].every((image) => image.src.startsWith('blob:') && image.naturalWidth > 0)",
+    );
+    expect(
+      evaluate(
+        "[...document.querySelectorAll('.reply-card')].map((card) => [card.querySelector('.reply-name').textContent, card.querySelector('.reply-verdict').textContent, card.querySelectorAll('.reply-shot').length])",
+      ),
+    ).toEqual([
+      ["ChatGPT", "Safe: yes", 1],
+      ["Claude", "Safe: yes", 1],
+      ["Gemini", "Safe: yes", 1],
+    ]);
+    // A screenshot opens larger, and Escape closes it.
+    evaluate("document.querySelector('.reply-shot-button').click()");
+    expect(
+      evaluate(
+        "[document.querySelector('#reply-viewer').open, document.querySelector('#reply-viewer img').src.startsWith('blob:')]",
+      ),
+    ).toEqual([true, true]);
+    browser("press", "Escape");
+    expect(evaluate("document.querySelector('#reply-viewer').open")).toBe(false);
+    expect(
+      evaluate("[...document.querySelectorAll('.how-text')].map((step) => step.textContent)"),
+    ).toEqual([
+      "Get a new QR code from Duo.",
+      "UnDuo converts it to a 2FA QR Code.",
+      "Scan this 2FA QR Code with your favorite 2FA app.",
+    ]);
+    // The last section's button brings back the search, without opening its list.
+    evaluate("document.querySelector('.cta-button').click()");
+    expect(focused()).toBe("university");
+    expect(dropdownOpen()).toBe(false);
 
     // A click on the field opens the list under it, and Escape closes it.
     browser("click", "#university");

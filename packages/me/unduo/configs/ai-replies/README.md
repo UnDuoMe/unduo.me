@@ -37,12 +37,19 @@ gap between paragraphs above it.
 
 ## Output
 
-- `screenshots/<site>.png`: each cropped screenshot, at the display's scale.
-- `screenshots/results.json`: the prompt, and per site when it ran, the file's name and
-  SHA-256, the model, the verdict (`yes` or `no`) and the reply's text as the accessibility
-  tree reads it (long paragraphs come truncated), or why the site couldn't be asked. A run of
-  some sites keeps the other sites' entries.
-- `.output/ai-replies/<site>.png` at the repository root: the uncropped window.
+- `apps/unduo-web/src/assets/ai-reply-<site>.webp`: each cropped screenshot, 1,400 pixels
+  wide, which the home page shows under its hero. The build publishes them with the other
+  assets, so run `vp run publish:assets` before pushing.
+- `results.json`: the prompt, and per site when it ran, the file's name and SHA-256, the
+  model, the verdict (`yes` or `no`) and the reply's text as the accessibility tree reads it
+  (long paragraphs come truncated), or why the site couldn't be asked. A run of some sites
+  keeps the other sites' entries.
+- `.output/ai-replies/<site>.png` and `<site>-cropped.png` at the repository root: the
+  window, uncropped and cropped.
+
+The home page's cards quote a sentence of each reply, from `aiReplies` in
+`packages/me/unduo/components/home/ai-replies.ts`, with each model and date. Update them
+when a new screenshot shows a different reply.
 
 One site failing doesn't stop the others. The script exits with an error when a site fails
 or a reply says "Safe: no", after saving every screenshot it could.

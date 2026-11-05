@@ -10,7 +10,8 @@ const { values } = parseArgs({
     site: { type: "string", multiple: true },
     file: { type: "string", default: join(root, "www/files/020599") },
     name: { type: "string", default: "University of Toronto.html" },
-    out: { type: "string", default: fileURLToPath(new URL("screenshots", import.meta.url)) },
+    images: { type: "string", default: join(root, "apps/unduo-web/src/assets") },
+    results: { type: "string", default: fileURLToPath(new URL("results.json", import.meta.url)) },
     focus: { type: "boolean", default: false },
   },
 });
@@ -18,7 +19,8 @@ const { values } = parseArgs({
 const captures = await captureAiReplies({
   file: values.file,
   fileName: values.name,
-  out: values.out,
+  images: values.images,
+  results: values.results,
   raw: join(root, ".output/ai-replies"),
   sites: (values.site ?? ["chatgpt", "gemini", "claude"]) as Site["id"][],
   focus: values.focus,
@@ -27,6 +29,9 @@ for (const { name, model, verdict, screenshot, error } of captures)
   console.log(
     error
       ? `${name}: failed: ${error}`
-      : `${name} (${model}): Safe: ${verdict}  ${join(values.out, screenshot!)}`,
+      : `${name} (${model}): Safe: ${verdict}  ${join(values.images, screenshot!)}`,
   );
 if (captures.some(({ verdict }) => verdict !== "yes")) process.exitCode = 1;
+console.log(
+  "If a reply changed, update its quote in packages/me/unduo/components/home/ai-replies.ts.",
+);

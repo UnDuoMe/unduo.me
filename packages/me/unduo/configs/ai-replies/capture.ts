@@ -12,7 +12,7 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { aiPrompt } from "@-/me.unduo.components.home/server";
 import { ChromeWindow, sleep } from "#chrome";
-import { cropToPage } from "#crop";
+import { cropToPage, toWebp } from "#crop";
 import { type Site, sites } from "#sites";
 import { finishedReply, holdsOnly, type Reply } from "#tree";
 
@@ -20,9 +20,11 @@ export interface CaptureOptions {
   /** The setup file to attach, and the name a student's browser saves it under. */
   file: string;
   fileName: string;
-  /** Where the cropped screenshots and `results.json` go. */
-  out: string;
-  /** Where the uncropped window screenshots go. */
+  /** Where the home page's screenshots go, as `ai-reply-<site>.webp`. */
+  images: string;
+  /** The file that records each site's reply. */
+  results: string;
+  /** Where the window screenshots go, uncropped and cropped, as PNG. */
   raw: string;
   sites: Site["id"][];
   /** Whether Chrome may come to the front for a moment, to set ChatGPT's model. */
@@ -36,7 +38,7 @@ export interface Capture {
   verdict?: Reply["verdict"];
   /** The reply's text as the accessibility tree gives it. */
   reply?: string;
-  /** The cropped screenshot's file name in `out`. */
+  /** The screenshot's file name in `images`. */
   screenshot?: string;
   /** Why the site couldn't be asked, if it couldn't. */
   error?: string;
@@ -85,8 +87,10 @@ async function ask(window: ChromeWindow, site: Site, upload: string, options: Ca
   const shot = window.screenshot();
   const raw = join(options.raw, `${site.id}.png`);
   copyFileSync(shot.path, raw);
-  const screenshot = `${site.id}.png`;
-  cropToPage(raw, join(options.out, screenshot), shot.scale, site.crop);
+  const cropped = join(options.raw, `${site.id}-cropped.png`);
+  cropToPage(raw, cropped, shot.scale, site.crop);
+  const screenshot = `ai-reply-${site.id}.webp`;
+  toWebp(cropped, join(options.images, screenshot));
   return {
     site: site.id,
     name: site.name,
@@ -105,7 +109,6 @@ async function ask(window: ChromeWindow, site: Site, upload: string, options: Ca
  * back afterward; anything else on it is lost.
  */
 export async function captureAiReplies(options: CaptureOptions) {
-  mkdirSync(options.out, { recursive: true });
   mkdirSync(options.raw, { recursive: true });
   const upload = join(mkdtempSync(join(tmpdir(), "unduo-ai-")), options.fileName);
   const file = {
@@ -139,7 +142,7 @@ export async function captureAiReplies(options: CaptureOptions) {
     execFileSync("pbcopy", { input: clipboard });
   }
   // Keep the other sites' replies, so one site can be asked again on its own.
-  const results = join(options.out, "results.json");
+  const { results } = options;
   const kept = existsSync(results)
     ? (JSON.parse(readFileSync(results, "utf8")) as { replies: Capture[] }).replies.filter(
         ({ site }) => !options.sites.includes(site),

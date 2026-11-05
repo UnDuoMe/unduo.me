@@ -4,7 +4,10 @@
   "type": "module",
   "imports": {
     "#ai-prompt": "./ai-prompt.ts",
+    "#ai-replies": "./ai-replies.ts",
     "#home-intro": "./home-intro.ts",
+    "#home-landing": "./home-landing.ts",
+    "#home-mount": "./home-mount.server.ts",
     "#home-page": "./home-page.ts",
     "#home-steps": "./home-steps.ts"
   },

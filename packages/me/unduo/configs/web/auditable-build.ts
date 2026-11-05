@@ -39,8 +39,8 @@ export interface PageResources {
   head: string;
   /** The attributes that load the setup plugin; absent when the logic is in the script. */
   plugin?: Record<string, string> | undefined;
-  /** The attributes that load a screenshot. */
-  image: (file: string) => Record<string, string>;
+  /** The attributes that load an image in `src/assets/`, named without `.webp`. */
+  image: (name: string) => Record<string, string>;
   /** The element that runs the page's script. */
   script: (entry: PageEntry) => string;
 }
@@ -207,7 +207,7 @@ const vanjsInElement = `VanJS ${installedVersion("vanjs-core")} (this element: t
 /** What each page's one script holds and can do; the auditable test checks it against the code. */
 export const scriptComments: Record<string, string> = {
   setup: `This is all the JavaScript the page runs, bundled from github.com/UnDuoMe/unduo.me without minifying. It imports nothing. It holds ${vanjs}, which builds the page's elements with createElement and text nodes and updates them when state changes; the setup page and its steps (startSetupPage, createSetupPage, screenshot); the QR code encoder and reader (qrModules, qrImage, readQrCodes), and the plugin loader and its output checks (kernel, loadSetupPlugin, guard, check, fromInput, fromReply). Nothing in the script writes HTML or evaluates text as code, and no attribute in the page's HTML holds an expression: the #setup element's data attributes are text the script shows or sets as links. Its only requests are the Duo form, whose action check() approves, and fetch() of data-plugin-url and of each screenshot's data-image-src, which returns a file only if its SHA-256 matches. Before setup starts, it tries fetch() of a data: URL, which the CSP forbids, and starts only if that fails. It navigates only with window.open() of the portal link the user clicked (popup), and with one history.replaceState() when the page opens, before anything is pasted, which drops any query or hash from its address. The script sets four kinds of changing URL: the Duo form's action and the otpauth:// link's href, both approved by check(); the authenticator QR code's src, a data: URL from qrImage(); and each screenshot's src, a blob: URL of its fetched file. Every other link's href is written in the script or comes from the #setup element's data-home, data-portal-url, data-source-url or data-download-href.`,
-  home: `This and the vanjs element before it are all the JavaScript the page runs. This one is bundled from github.com/UnDuoMe/unduo.me without minifying. It imports nothing. With VanJS, which builds the page's elements with createElement and text nodes, it filters the list of institutions as you type and takes the one you choose through downloading its setup file, asking an AI about it and opening it. It makes no requests. It changes the URL only with history.pushState(), which records the institution and step you chose in this page's own address; only links you click go anywhere else. When you ask, it copies a prompt for an AI to your clipboard.`,
+  home: `This and the vanjs element before it are all the JavaScript the page runs. This one is bundled from github.com/UnDuoMe/unduo.me without minifying. It imports nothing. With VanJS, which builds the page's elements with createElement and text nodes, it filters the list of institutions as you type and takes the one you choose through downloading its setup file, asking an AI about it and opening it. Its only requests are fetch() of the screenshots of what ChatGPT, Claude and Gemini said about a setup file (showScreenshot): each image's data-image-src in the #ai-reply-images template, which returns a file only if its SHA-256 matches, shown as a blob: URL. It changes the URL only with history.pushState(), which records the institution and step you chose in this page's own address; only links you click go anywhere else. When you ask, it copies a prompt for an AI to your clipboard.`,
 };
 if (jsPlugin)
   scriptComments.setup = `This is all the JavaScript the page runs, bundled from github.com/UnDuoMe/unduo.me without minifying. It imports nothing. It holds ${vanjs}, which builds the page's elements with createElement and text nodes and updates them when state changes; the setup page and its steps (startSetupPage, createSetupPage, screenshot); the QR code encoder and reader (qrModules, qrImage, readQrCodes), the setup logic ported from crates/setup to TypeScript (loadJsSetupPlugin, createSetupLogic, readEvent, view), and the checks on the setup logic's output (guard, check, fromInput, fromReply). Nothing in the script writes HTML or evaluates text as code, and no attribute in the page's HTML holds an expression: the #setup element's data attributes are text the script shows or sets as links. Its only requests are the Duo form, whose action check() approves, and fetch() of each screenshot's data-image-src, which returns a file only if its SHA-256 matches. Before setup starts, it tries fetch() of a data: URL, which the CSP forbids, and starts only if that fails. Once the page accepts a Duo form, it adds a second CSP limiting forms to that form's host. It navigates only with window.open() of the portal link the user clicked (popup), and with one history.replaceState() when the page opens, before anything is pasted, which drops any query or hash from its address. The script sets four kinds of changing URL: the Duo form's action and the otpauth:// link's href, both approved by check(); the authenticator QR code's src, a data: URL from qrImage(); and each screenshot's src, a blob: URL of its fetched file. Every other link's href is written in the script or comes from the #setup element's data-home, data-portal-url, data-source-url or data-download-href.`;
@@ -248,7 +248,10 @@ const selfContainedRequests: Record<string, string> = {
 const stylesheetComment =
   "The browser applies this stylesheet only if its SHA-256 matches integrity. jsDelivr's listing at data-integrity-source, a commit of github.com/UnDuoMe/unduo.me, gives the same hash for data-integrity-file.";
 
-const screenshotFile = (file: string) => new URL(`src/assets/setup-${file}.webp`, webRoot);
+/** An image in `src/assets/`, by its name without `.webp`, such as `setup-1-add-device`. */
+const imageFile = (name: string) => new URL(`src/assets/${name}.webp`, webRoot);
+/** The images pages show: the setup file's portal screenshots and the home page's AI replies. */
+const pageImage = /^((?:setup|ai-reply)-.+)\.webp$/;
 
 /**
  * The dev server's pages load files as they are on disk, and their script through
@@ -268,7 +271,7 @@ async function devResources(stylesheet: string): Promise<PageResources> {
           "data-plugin-url": fs(fileURLToPath(setupPluginFile)),
           "data-plugin-integrity": sri(plugin.bytes),
         },
-    image: (file) => ({ "data-image-src": fs(fileURLToPath(screenshotFile(file))) }),
+    image: (name) => ({ "data-image-src": fs(fileURLToPath(imageFile(name))) }),
     script: (entry) =>
       `${vanjsElement()}\n<script type="module" src="/${pageEntries[entry]}"></script>`,
   };
@@ -295,13 +298,12 @@ async function writeSite(output: string, css: string, pages: readonly SitePage[]
   const plugin = publish("setup.wasm", readSetupPlugin().bytes);
   const images = new Map<string, ReturnType<typeof publish>>();
   for (const name of (await readdir(new URL("src/assets/", webRoot))).sort()) {
-    const screenshot = /^setup-(.+)\.webp$/.exec(name)?.[1];
-    if (screenshot)
-      images.set(screenshot, publish(name, await readFile(screenshotFile(screenshot))));
+    const stem = pageImage.exec(name)?.[1];
+    if (stem) images.set(stem, publish(name, await readFile(imageFile(stem))));
   }
-  const image = (file: string) => {
-    const published = images.get(file);
-    if (!published) throw new Error(`Missing screenshot: ${file}`);
+  const image = (name: string) => {
+    const published = images.get(name);
+    if (!published) throw new Error(`Missing image: ${name}`);
     return published;
   };
   const commit = cdnCommit(files);

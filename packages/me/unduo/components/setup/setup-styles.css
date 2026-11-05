@@ -360,9 +360,15 @@ summary {
   .dialog-actions {
     @apply mt-5! flex! justify-end!;
   }
-  /* The home page's content sits in the middle of the screen, the source link at its bottom. */
+  /* The home page is a landing page: the hero fills the first screen, then sections, then the source link. */
   .home-page {
-    @apply relative! flex! min-h-dvh! flex-col! items-center! justify-center! px-4! pt-16! pb-24! text-center!;
+    @apply flex! min-h-dvh! flex-col!;
+  }
+  .home-landing {
+    @apply flex! flex-1! flex-col!;
+  }
+  .home-hero {
+    @apply flex! min-h-[80svh]! flex-col! items-center! justify-center! bg-[radial-gradient(60rem_32rem_at_50%_-6rem,rgb(30_103_207/0.13),transparent)]! px-4! pt-16! pb-20! text-center!;
   }
   .home-center {
     @apply flex! w-full! max-w-2xl! flex-col! items-center!;
@@ -383,13 +389,89 @@ summary {
     @apply mt-5! flex! w-full! justify-center!;
   }
   .home-footer {
-    @apply absolute! inset-x-0! bottom-0! flex! justify-center! pb-6!;
+    @apply flex! justify-center! border-t! border-separator! py-8!;
   }
   .home-source {
     @apply inline-flex! size-11! items-center! justify-center! rounded-full! text-muted! transition-colors! hover:bg-default! hover:text-foreground!;
   }
   .home-source-icon {
     @apply size-6!;
+  }
+  /* A section under the hero, its heading and lead centered above its content. */
+  .landing-section {
+    @apply mx-auto! w-full! max-w-6xl! px-4! py-16! min-[641px]:px-6! min-[641px]:py-20!;
+  }
+  .section-intro {
+    @apply mx-auto! mb-10! flex! max-w-2xl! flex-col! items-center! gap-3! text-center!;
+  }
+  .section-title {
+    @apply text-3xl! font-bold! tracking-tight! text-balance! min-[641px]:text-4xl!;
+  }
+  .section-lead {
+    @apply text-base! leading-[1.6]! text-balance! text-muted!;
+  }
+  /* What each AI said: its verdict, a sentence of its reply, and a screenshot that opens larger. */
+  .reply-grid {
+    @apply grid! gap-6! min-[960px]:grid-cols-3!;
+  }
+  .reply-card {
+    @apply flex! flex-col! gap-4! rounded-2xl! border! border-separator! bg-white! p-5! text-left! shadow-[0_1px_2px_rgb(15_23_42/0.04),0_12px_32px_-12px_rgb(15_23_42/0.12)]!;
+  }
+  .reply-head {
+    @apply flex! items-start! justify-between! gap-3!;
+  }
+  .reply-name {
+    @apply text-lg! leading-tight! font-semibold!;
+  }
+  .reply-model {
+    @apply mt-0.5! text-sm! text-muted!;
+  }
+  .reply-verdict {
+    @apply inline-flex! shrink-0! items-center! gap-1.5! rounded-full! bg-success-soft! px-3! py-1! text-sm! font-semibold! text-success!;
+  }
+  .reply-verdict-icon {
+    @apply size-4!;
+  }
+  .reply-quote {
+    @apply text-[0.9375rem]! leading-[1.6]! text-foreground!;
+  }
+  .reply-shot-button {
+    @apply relative! mt-auto! block! w-full! overflow-hidden! rounded-xl! border! border-separator! bg-surface-secondary! p-0! transition-[border-color,box-shadow]! hover:border-border! hover:shadow-md!;
+  }
+  .reply-shot {
+    @apply block! aspect-[4/3]! w-full! object-cover! object-bottom!;
+  }
+  .reply-shot-hint {
+    @apply absolute! right-2.5! bottom-2.5! rounded-full! border! border-separator! bg-white/95! px-3! py-1! text-xs! font-medium! text-foreground! shadow-sm!;
+  }
+  .reply-date {
+    @apply text-xs! text-muted!;
+  }
+  /* A reply's whole screenshot, as large as the screen allows. */
+  .viewer {
+    @apply w-[min(60rem,calc(100%-2rem))]! max-w-none! p-3! pt-12!;
+  }
+  .viewer-image {
+    @apply overflow-hidden! rounded-xl! border! border-separator! [&_.reply-shot]:aspect-auto! [&_.reply-shot]:h-auto!;
+  }
+  /* How UnDuo works, as three numbered cards. */
+  .how-steps {
+    @apply m-0! grid! list-none! gap-4! p-0! min-[960px]:grid-cols-3!;
+  }
+  .how-step {
+    @apply flex! items-start! gap-4! rounded-2xl! border! border-separator! bg-white! p-5! text-left!;
+  }
+  .how-number {
+    @apply flex! size-9! shrink-0! items-center! justify-center! rounded-full! bg-accent-soft! font-semibold! text-accent!;
+  }
+  .how-text {
+    @apply pt-1.5! text-[0.9375rem]! leading-[1.55]!;
+  }
+  .landing-cta {
+    @apply flex! justify-center! px-4! pt-4! pb-20!;
+  }
+  .cta-button {
+    @apply h-12! px-7! text-base! font-semibold! shadow-sm!;
   }
   .dialog-school {
     @apply mb-1! pr-8! text-xs! font-medium! text-muted!;

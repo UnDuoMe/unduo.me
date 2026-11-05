@@ -1,8 +1,9 @@
 import { universityPicker } from "@-/me.unduo.components.university-picker";
 import type { University } from "@-/me.unduo.data.universities.entities";
-import { button, dialog, div, h2, main, p, path, svg } from "@-/me.unduo.lib.dom";
+import { button, dialog, div, h2, main, p, path, section, svg } from "@-/me.unduo.lib.dom";
 import { findUniversity } from "@-/me.unduo.lib.universities";
 import { homeHeader, homeSource, overviewStep } from "#home-intro";
+import { aiTestimonials, getStarted, howItWorks } from "#home-landing";
 import { continueStep, verifyStep } from "#home-steps";
 
 /** The dialog's steps once an institution is chosen. `id` names a step in the URL. */
@@ -36,10 +37,12 @@ function fromUrl() {
 }
 
 /**
- * Build the home page in its `#root`, centered: the name, what UnDuo is for and
- * a searchable dropdown of institutions, with a link to the source at the
- * bottom. Choosing one opens a dialog that takes it from an overview to opening
- * its file, which has its own stepper for setup.
+ * Build the home page in its `#root`, a landing page: the name, what UnDuo is
+ * for and a searchable dropdown of institutions, filling the first screen; then
+ * what ChatGPT, Claude and Gemini said about a file, how UnDuo works, a way back
+ * to the search, and a link to the source. Choosing an institution opens a
+ * dialog that takes it from an overview to opening its file, which has its own
+ * stepper for setup.
  */
 export function startHomePage() {
   const homeTitle = document.title;
@@ -48,6 +51,12 @@ export function startHomePage() {
   const current = van.state(start.current);
   /** The search field, which takes focus back when the dialog closes. */
   const focusSearch = () => document.getElementById("university")?.focus();
+  /** Bring the search back into view from further down the page, then focus it. */
+  const toSearch = () => {
+    const field = document.getElementById("university");
+    field?.scrollIntoView({ block: "center" });
+    field?.focus({ preventScroll: true });
+  };
 
   /** After the step's elements update, as the setup file does. */
   const focusStep = () => setTimeout(() => document.getElementById("step-title")?.focus());
@@ -144,10 +153,19 @@ export function startHomePage() {
     document.getElementById("root")!,
     div(
       { class: "home-page" },
-      div(
-        { class: "home-center" },
-        homeHeader(),
-        main({ class: "home-main" }, universityPicker(choose)),
+      main(
+        { class: "home-landing" },
+        section(
+          { class: "home-hero" },
+          div(
+            { class: "home-center" },
+            homeHeader(),
+            div({ class: "home-main" }, universityPicker(choose)),
+          ),
+        ),
+        aiTestimonials(),
+        howItWorks(),
+        getStarted(toSearch),
       ),
       homeSource(),
       homeDialog,
