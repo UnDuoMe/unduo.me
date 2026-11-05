@@ -1,0 +1,19 @@
+{
+  "name": "@-/me.unduo.lib.universities",
+  "private": true,
+  "type": "module",
+  "imports": {
+    "#university-search": "./university-search.ts"
+  },
+  "exports": {
+    ".": "./+.ts"
+  },
+  "dependencies": {
+    "@-/me.unduo.data.universities": "workspace:*",
+    "@-/me.unduo.data.universities.entities": "workspace:*"
+  },
+  "devDependencies": {
+    "vite": "catalog:",
+    "vite-plus": "catalog:"
+  }
+}

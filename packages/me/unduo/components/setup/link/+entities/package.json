@@ -1,0 +1,11 @@
+{
+  "name": "@-/me.unduo.components.setup.link.entities",
+  "private": true,
+  "type": "module",
+  "imports": {
+    "#link-step": "./link-step.ts"
+  },
+  "exports": {
+    ".": "./+.ts"
+  }
+}

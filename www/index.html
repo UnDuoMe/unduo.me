@@ -1,0 +1,599 @@
+<!doctype html>
+<html lang="en">
+  <head><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'sha256-dZu710qV7pUozk9WNNw7Nr449YAqE6wv/arVKnsnH/Y=' 'sha256-klN2dmEcrWGadRNL29yp2xH1gMA3/8gapFU5ZX3eBPw='; script-src-attr 'none'; style-src-elem https://cdn.jsdelivr.net/npm/uikit@3.25.29/dist/css/uikit.min.css https://cdn.jsdelivr.net/gh/UnDuoMe/unduo.me@92ecfff684bdeb996aa0c4d10d3f1b321ce1bb64/setup-styles.mY_Vxe-5.css; style-src-attr 'none'; img-src data:; font-src data:; connect-src 'none'; form-action https://*.duosecurity.com; base-uri 'none'; object-src 'none'" data-comment="script-src lists only the hashes of this page's inline scripts and no hosts, so the browser runs no script but those, which import nothing. No source allows inline handlers or eval. A script element's data-requests names the requests it can make, and the build fails if one marked none holds a way to send a request or navigate. Fetches may reach only the files in connect-src, and forms only Duo. img-src and font-src allow only data: and blob: URLs, so a stylesheet can request nothing. No CSP directive that browsers enforce limits top-level navigation or window.open, so only this page's own scripts can use them.">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="referrer" content="no-referrer">
+    <meta name="description" content="Use your favorite authenticator with Duo. Activation goes directly to Duo; your key stays in your browser. No install or account.">
+    <title>UnDuo — A secure way to use any 2FA app for your school login</title>
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2064%2064'%3E%3Cpath%20d='M17%2020v17a9%209%200%200%200%2018%200V20m12%200v24'%20fill='none'%20stroke='currentColor'%20stroke-width='6'%20stroke-linecap='round'/%3E%3C/svg%3E">
+    <!-- CDN stylesheet URL and SRI hash: update with vp run update:cdn. The page loads no scripts from a CDN. -->
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/uikit@3.25.29/dist/css/uikit.min.css"
+      integrity="sha256-u7rK4EvrYUNLlBrA/s9SFru2CdHqGY8S2bizol9fSw4="
+      crossorigin="anonymous"
+      referrerpolicy="no-referrer"
+      data-vendor="uikit"
+      data-integrity-source="https://data.jsdelivr.com/v1/packages/npm/uikit@3.25.29?structure=flat"
+      data-integrity-file="/dist/css/uikit.min.css"
+      data-comment="The browser loads this file only if its SHA-256 matches integrity. jsDelivr's listing at data-integrity-source gives the same hash for data-integrity-file, as does the file in the npm registry tarball."
+    />
+    <link rel="stylesheet" data-vendor="app" href="https://cdn.jsdelivr.net/gh/UnDuoMe/unduo.me@92ecfff684bdeb996aa0c4d10d3f1b321ce1bb64/setup-styles.mY_Vxe-5.css" integrity="sha256-mY/Vxe+5/sNAc2mwNqhP8WUziUiWoXFu/3+EzUPNaxs=" crossorigin="anonymous" referrerpolicy="no-referrer" data-integrity-source="https://data.jsdelivr.com/v1/packages/gh/UnDuoMe/unduo.me@92ecfff684bdeb996aa0c4d10d3f1b321ce1bb64?structure=flat" data-integrity-file="/setup-styles.mY_Vxe-5.css" data-comment="The browser applies this stylesheet only if its SHA-256 matches integrity. jsDelivr's listing at data-integrity-source, a commit of github.com/UnDuoMe/unduo.me, gives the same hash for data-integrity-file.">
+  </head>
+  <body class="page-body">
+    <div id="root"></div>
+    <noscript>Enable JavaScript to use unduo.</noscript>
+    <script data-app="unduo" data-part="vanjs" data-upstream="https://raw.githubusercontent.com/vanjs-org/van/84f30ae917107c9d4b4c38b9969a0d56aaac5ac8/public/van-1.6.2.nomodule.js" data-upstream-sha256="759bbbd74a95ee9528ce4f5634dc3b36be38f5802a13ac2ffdaad52a7b271ff6" data-requests="none" data-comment="VanJS 1.6.2: the file at data-upstream, byte for byte, whose SHA-256 is data-upstream-sha256. It sets window.van and nothing else.">(() => {
+  // van.js
+  var protoOf = Object.getPrototypeOf;
+  var changedStates;
+  var derivedStates;
+  var curDeps;
+  var curNewDerives;
+  var alwaysConnectedDom = { isConnected: 1 };
+  var gcCycleInMs = 1e3;
+  var statesToGc;
+  var propSetterCache = {};
+  var objProto = protoOf(alwaysConnectedDom);
+  var funcProto = protoOf(protoOf);
+  var _undefined;
+  var addAndScheduleOnFirst = (set, s, f, waitMs) => (set ?? (waitMs ? setTimeout(f, waitMs) : queueMicrotask(f), /* @__PURE__ */ new Set())).add(s);
+  var runAndCaptureDeps = (f, deps, arg) => {
+    let prevDeps = curDeps;
+    curDeps = deps;
+    try {
+      return f(arg);
+    } catch (e) {
+      console.error(e);
+      return arg;
+    } finally {
+      curDeps = prevDeps;
+    }
+  };
+  var keepConnected = (l) => l.filter((b) => b._dom?.isConnected);
+  var addStatesToGc = (d) => statesToGc = addAndScheduleOnFirst(statesToGc, d, () => {
+    for (let s of statesToGc)
+      s._bindings = keepConnected(s._bindings), s._listeners = keepConnected(s._listeners);
+    statesToGc = _undefined;
+  }, gcCycleInMs);
+  var stateProto = {
+    get val() {
+      curDeps?._getters?.add(this);
+      return this.rawVal;
+    },
+    get oldVal() {
+      curDeps?._getters?.add(this);
+      return this._oldVal;
+    },
+    set val(v) {
+      curDeps?._setters?.add(this);
+      if (v !== this.rawVal) {
+        this.rawVal = v;
+        this._bindings.length + this._listeners.length ? (derivedStates?.add(this), changedStates = addAndScheduleOnFirst(changedStates, this, updateDoms)) : this._oldVal = v;
+      }
+    }
+  };
+  var state = (initVal) => ({
+    __proto__: stateProto,
+    rawVal: initVal,
+    _oldVal: initVal,
+    _bindings: [],
+    _listeners: []
+  });
+  var bind = (f, dom) => {
+    let deps = { _getters: /* @__PURE__ */ new Set(), _setters: /* @__PURE__ */ new Set() }, binding = { f }, prevNewDerives = curNewDerives;
+    curNewDerives = [];
+    let newDom = runAndCaptureDeps(f, deps, dom);
+    newDom = (newDom ?? document).nodeType ? newDom : new Text(newDom);
+    for (let d of deps._getters)
+      deps._setters.has(d) || (addStatesToGc(d), d._bindings.push(binding));
+    for (let l of curNewDerives) l._dom = newDom;
+    curNewDerives = prevNewDerives;
+    return binding._dom = newDom;
+  };
+  var derive = (f, s = state(), dom) => {
+    let deps = { _getters: /* @__PURE__ */ new Set(), _setters: /* @__PURE__ */ new Set() }, listener = { f, s };
+    listener._dom = dom ?? curNewDerives?.push(listener) ?? alwaysConnectedDom;
+    s.val = runAndCaptureDeps(f, deps, s.rawVal);
+    for (let d of deps._getters)
+      deps._setters.has(d) || (addStatesToGc(d), d._listeners.push(listener));
+    return s;
+  };
+  var add = (dom, ...children) => {
+    for (let c of children.flat(Infinity)) {
+      let protoOfC = protoOf(c ?? 0);
+      let child = protoOfC === stateProto ? bind(() => c.val) : protoOfC === funcProto ? bind(c) : c;
+      child != _undefined && dom.append(child);
+    }
+    return dom;
+  };
+  var tag = (ns, name, ...args) => {
+    let [{ is, ...props }, ...children] = protoOf(args[0] ?? 0) === objProto ? args : [{}, ...args];
+    let dom = ns ? document.createElementNS(ns, name, { is }) : document.createElement(name, { is });
+    for (let [k, v] of Object.entries(props)) {
+      let getPropDescriptor = (proto) => proto && (Object.getOwnPropertyDescriptor(proto, k) ?? getPropDescriptor(protoOf(proto)));
+      let propSetter = !ns && !is && !name.includes("-") ? propSetterCache[name + "," + k] ??= getPropDescriptor(protoOf(dom))?.set ?? 0 : getPropDescriptor(protoOf(dom))?.set;
+      let isEvent = k.startsWith("on");
+      let setter = isEvent ? (v2, oldV) => {
+        let event = k.slice(2);
+        dom.removeEventListener(event, oldV);
+        dom.addEventListener(event, v2);
+      } : propSetter ? propSetter.bind(dom) : dom.setAttribute.bind(dom, k);
+      let protoOfV = protoOf(v ?? 0);
+      isEvent || protoOfV === funcProto && (v = derive(v, _undefined, dom), protoOfV = stateProto);
+      protoOfV === stateProto ? bind(() => (setter(v.val, v._oldVal), dom)) : setter(v);
+    }
+    return add(dom, children);
+  };
+  var handler = (ns) => ({ get: (_, name) => tag.bind(_undefined, ns, name) });
+  var update = (dom, newDom) => newDom ? newDom !== dom && dom.replaceWith(newDom) : dom.remove();
+  var updateDoms = () => {
+    let iterationsLeft = 100, derivedStatesArray = [...changedStates].filter((s) => s.rawVal !== s._oldVal);
+    do {
+      derivedStates = /* @__PURE__ */ new Set();
+      for (let l of new Set(derivedStatesArray.flatMap((s) => s._listeners = keepConnected(s._listeners))))
+        derive(l.f, l.s, l._dom), l._dom = _undefined;
+    } while (--iterationsLeft && (derivedStatesArray = [...derivedStates]).length);
+    let changedStatesArray = [...changedStates].filter((s) => s.rawVal !== s._oldVal);
+    changedStates = _undefined;
+    for (let b of new Set(changedStatesArray.flatMap((s) => s._bindings = keepConnected(s._bindings))))
+      update(b._dom, bind(b.f, b._dom)), b._dom = _undefined;
+    for (let s of changedStatesArray) s._oldVal = s.rawVal;
+  };
+  var van_default = {
+    tags: new Proxy((ns) => new Proxy(tag, handler(ns)), handler()),
+    hydrate: (dom, f) => update(dom, bind(f, dom)),
+    add,
+    state,
+    derive
+  };
+
+  // van.forbundle.js
+  window.van = van_default;
+})();
+</script>
+<script type="module" data-app="unduo" data-comment="This and the vanjs element before it are all the JavaScript the page runs. This one is bundled from github.com/UnDuoMe/unduo.me without minifying. It imports nothing. With VanJS, which builds the page's elements with createElement and text nodes, it filters the list of institutions as you type and takes the one you choose through downloading its setup file, asking an AI about it and opening it. It makes no requests. It changes the URL only with history.pushState(), which records the institution and step you chose in this page's own address; only links you click go anywhere else. When you ask, it copies a prompt for an AI to your clipboard.">var universities = [{
+	"id": "IAU-020599",
+	"name": "University of Toronto",
+	"country": "Canada",
+	"aliases": [
+		"University of Toronto",
+		"utoronto.ca",
+		"toronto.edu",
+		"utoronto",
+		"U of T",
+		"UofT",
+		"UTORMFA",
+		"U Toronto"
+	],
+	"sourceUrl": "https://security.utoronto.ca/wp-content/uploads/2024/07/UTORMFA-Info-Sessions-Presentation.pdf",
+	"sourceKind": "university",
+	"checkedAt": "2026-10-31",
+	"portalUrl": "https://enroll.utormfa.utoronto.ca/",
+	"stateProvince": "Ontario"
+}];
+var _vanjs_global_default = window.van;
+/**
+* The HTML elements the pages build, each a function of its properties and
+* children. A function or `State` as a value keeps that property or child up
+* to date. Text becomes text nodes, so nothing here writes HTML.
+*/
+var { a, aside, button, code, details, dialog, div, em, fieldset, footer, form, h1, h2, h3, header, iframe, img, input, kbd, label, legend, li, main, nav, ol, p, pre, section, span, strong, summary, textarea, ul } = _vanjs_global_default.tags;
+/** The icon elements, which need their namespace. */
+var { path, svg } = _vanjs_global_default.tags("http://www.w3.org/2000/svg");
+function normalize(value) {
+	return value.normalize("NFKD").replace(/\p{M}/gu, "").toLowerCase().replace(/[^\p{L}\p{N}.]+/gu, " ").trim();
+}
+function searchable(university) {
+	const name = normalize(university.name);
+	const aliases = [name, ...university.aliases.map(normalize)];
+	const text = normalize([
+		university.id,
+		university.name,
+		university.country,
+		university.stateProvince ?? "",
+		...university.aliases
+	].join(" "));
+	return {
+		university,
+		name,
+		aliases,
+		text,
+		words: new Set(text.split(/\s+/))
+	};
+}
+var entries = universities.map(searchable);
+new Map(entries.map((entry) => [entry.university, entry]));
+var byId = new Map(entries.map((entry) => [normalize(entry.university.id), entry.university]));
+var byAlias = new Map();
+for (const entry of entries) for (const alias of new Set(entry.aliases)) byAlias.set(alias, byAlias.has(alias) ? void 0 : entry.university);
+function matches(entry, tokens) {
+	return tokens.every((token) => token.length <= 2 ? entry.words.has(token) : entry.text.includes(token));
+}
+/** Resolve exact identifiers only. Ambiguous aliases never preselect a school. */
+function findUniversity(value) {
+	if (!value || value.length > 160) return void 0;
+	const query = normalize(value);
+	return query ? byId.get(query) ?? byAlias.get(query) : void 0;
+}
+/** Return a bounded menu, ranking exact names/domains before broad text matches. */
+function searchUniversities(value, limit = 50) {
+	const maximum = Math.min(100, Math.max(0, Math.floor(limit)));
+	if (!maximum || value.length > 160) return [];
+	const query = normalize(value);
+	const tokens = query.split(/\s+/).filter(Boolean);
+	const exact = findUniversity(value);
+	return entries.filter((entry) => matches(entry, tokens)).map((entry) => ({
+		university: entry.university,
+		rank: entry.university === exact ? 0 : !query ? entry.university.portalUrl ? 1 : 2 : entry.aliases.includes(query) ? 1 : entry.name.startsWith(query) ? 2 : entry.name.includes(query) ? 3 : 4
+	})).sort((a, b) => a.rank - b.rank).slice(0, maximum).map((entry) => entry.university);
+}
+var optionId = (index) => `university-option-${index}`;
+var place = (school) => [school.stateProvince, school.country].filter(Boolean).join(", ") + (school.portalUrl ? " · Portal link available" : "");
+/**
+* A searchable dropdown of the published institutions. Typing in the field
+* filters the list under it, the arrow keys move through the list, and Enter
+* or a click chooses one. Escape, Tab or a click elsewhere closes it.
+*/
+function universityPicker(choose) {
+	const query = _vanjs_global_default.state("");
+	const open = _vanjs_global_default.state(false);
+	const active = _vanjs_global_default.state(0);
+	const choices = _vanjs_global_default.derive(() => searchUniversities(query.val));
+	const count = universities.length.toLocaleString("en-US");
+	const pick = (school) => {
+		if (!school) return;
+		open.val = false;
+		query.val = "";
+		choose(school);
+	};
+	/** Move the highlight by `step`, wrapping around, and keep it in view. */
+	const move = (step) => {
+		const length = choices.val.length;
+		if (!length) return;
+		active.val = (active.val + step + length) % length;
+		setTimeout(() => document.getElementById(optionId(active.val))?.scrollIntoView({ block: "nearest" }));
+	};
+	const field = input({
+		id: "university",
+		class: "picker-input",
+		type: "text",
+		role: "combobox",
+		placeholder: "Select Your University",
+		autocomplete: "off",
+		spellcheck: false,
+		"aria-autocomplete": "list",
+		"aria-expanded": () => String(open.val),
+		"aria-controls": "university-choices",
+		"aria-describedby": "university-description",
+		"aria-activedescendant": () => open.val && choices.val.length > 0 ? optionId(active.val) : "",
+		value: query,
+		oninput: (event) => {
+			query.val = event.target.value;
+			active.val = 0;
+			open.val = true;
+		},
+		onclick: () => {
+			open.val = true;
+		},
+		onkeydown: (event) => {
+			if (event.key === "ArrowDown" || event.key === "ArrowUp") {
+				event.preventDefault();
+				if (open.val) move(event.key === "ArrowDown" ? 1 : -1);
+				else {
+					active.val = event.key === "ArrowDown" ? 0 : Math.max(0, choices.val.length - 1);
+					open.val = true;
+				}
+			} else if (event.key === "Enter" && open.val) {
+				event.preventDefault();
+				pick(choices.val[active.val]);
+			} else if (event.key === "Escape") {
+				if (open.val) open.val = false;
+				else query.val = "";
+			} else if (event.key === "Tab") open.val = false;
+		}
+	});
+	const picker = div({
+		id: "university-picker",
+		class: "picker",
+		"data-open": () => String(open.val),
+		onfocusout: (event) => {
+			if (!picker.contains(event.relatedTarget)) open.val = false;
+		}
+	}, label({
+		for: "university",
+		class: "sr-only"
+	}, "Select Your University"), div({
+		class: "picker-field",
+		onmousedown: (event) => {
+			if (event.target === field) return;
+			event.preventDefault();
+			field.focus();
+			open.val = !open.val;
+		}
+	}, svg({
+		class: "picker-icon",
+		viewBox: "0 0 20 20",
+		"aria-hidden": "true"
+	}, path({
+		d: "M9 3.5a5.5 5.5 0 1 0 0 11 5.5 5.5 0 0 0 0-11ZM16.5 16.5l-3.6-3.6",
+		fill: "none",
+		stroke: "currentColor",
+		"stroke-width": "1.6",
+		"stroke-linecap": "round"
+	})), field, svg({
+		class: "picker-chevron",
+		viewBox: "0 0 20 20",
+		"aria-hidden": "true"
+	}, path({
+		d: "M5.5 8l4.5 4.5L14.5 8",
+		fill: "none",
+		stroke: "currentColor",
+		"stroke-width": "1.6",
+		"stroke-linecap": "round",
+		"stroke-linejoin": "round"
+	}))), div({
+		id: "university-dropdown",
+		class: "picker-panel",
+		hidden: () => !open.val
+	}, () => ul({
+		id: "university-choices",
+		class: "picker-list",
+		role: "listbox",
+		"aria-label": "Universities"
+	}, choices.val.map((school, index) => li({
+		id: optionId(index),
+		class: "picker-option",
+		role: "option",
+		"aria-selected": () => String(open.val && index === active.val),
+		onmousedown: (event) => event.preventDefault(),
+		onmousemove: () => {
+			if (active.val !== index) active.val = index;
+		},
+		onclick: () => pick(school)
+	}, span({ class: "picker-name" }, school.name), span({ class: "picker-place" }, place(school))))), p({
+		class: "picker-empty",
+		role: "status",
+		hidden: () => choices.val.length > 0
+	}, "No matching university. Try another name or acronym."), p({
+		id: "university-description",
+		class: "picker-hint"
+	}, `${count}${count === "1" ? " institution. " : " institutions. "}Directory inclusion does not confirm Duo use.`)));
+	return picker;
+}
+var steps$1 = [
+	"Get a new QR code from Duo.",
+	"UnDuo converts it to a 2FA QR Code.",
+	"Scan this 2FA QR Code with your favorite 2FA app."
+];
+/** The page's name, what it's for, and why it can be trusted. */
+function homeHeader() {
+	return header({ class: "home-header" }, h1({ class: "home-title" }, "UnDuo"), p({ class: "home-tagline" }, "A ", strong("secure"), " way to use ", em("any"), " 2FA app for your school login."), div({ class: "home-subtext" }, p("UnDuo is a single-file webpage designed to be fully secure."), p(strong("Don't take our word for it."), " You'll be able to check for yourself."), p("Select your university below to get started:")));
+}
+/** A link to the source, as GitHub's mark at the bottom of the page. */
+function homeSource() {
+	return footer({ class: "home-footer" }, a({
+		class: "home-source",
+		href: "https://github.com/UnDuoMe/unduo.me",
+		target: "_blank",
+		rel: "noreferrer",
+		"aria-label": "Source on GitHub",
+		title: "Source on GitHub"
+	}, svg({
+		class: "home-source-icon",
+		viewBox: "0 0 16 16",
+		"aria-hidden": "true"
+	}, path({
+		fill: "currentColor",
+		d: "M8 0c4.42 0 8 3.58 8 8a8.013 8.013 0 0 1-5.45 7.59c-.4.08-.55-.17-.55-.38 0-.27.01-1.13.01-2.2 0-.75-.25-1.23-.54-1.48 1.78-.2 3.65-.88 3.65-3.95 0-.88-.31-1.59-.82-2.15.08-.2.36-1.02-.08-2.12 0 0-.67-.22-2.2.82-.64-.18-1.32-.27-2-.27-.68 0-1.36.09-2 .27-1.53-1.03-2.2-.82-2.2-.82-.44 1.1-.16 1.92-.08 2.12-.51.56-.82 1.28-.82 2.15 0 3.06 1.86 3.75 3.64 3.95-.23.2-.44.55-.51 1.07-.46.21-1.61.55-2.33-.66-.15-.24-.6-.83-1.23-.82-.67.01-.27.38.01.53.34.19.73.9.82 1.13.16.45.68 1.31 2.69.94 0 .67.01 1.3.01 1.49 0 .21-.15.45-.55.38A7.995 7.995 0 0 1 0 8c0-4.42 3.58-8 8-8Z"
+	}))));
+}
+/**
+* The dialog's first step: how UnDuo works, in the three steps a student needs
+* to know before starting, and that the next step lets them check it.
+*/
+function overviewStep() {
+	return div(h3({ class: "home-heading" }, "How UnDuo Works:"), ol({ class: "instructions" }, steps$1.map((text) => li({ class: "instruction" }, text))), p({ class: "home-secure" }, "UnDuo is fully secure. Don't take our word for it. On the next step, you'll get to check for yourself (or with the help of AI)."));
+}
+/**
+* The prompt to put to an AI. It lives in the home page's script, which the file
+* doesn't contain, so the file an AI reads doesn't hold the question put to that AI.
+*/
+var question = "I'm not technical. I downloaded this file to set up Duo two-factor authentication with my own authenticator app instead of Duo Mobile, and I already understand the risks of doing that. Please read its code, including everything it loads and runs. If part of it can't be read, judge that part by what the readable code allows it to do. Will this file keep my Duo activation code and secret key safe, so they stay between me, Duo and my authenticator app? I'm not asking for a guarantee: answer \"Safe: no\" only if you can point to how the file would let them reach anyone else. Start your reply with \"Safe: yes\" or \"Safe: no\", then tell me why in a few short sentences with no technical terms.";
+var assistants = [
+	{
+		name: "ChatGPT",
+		href: "https://chatgpt.com/"
+	},
+	{
+		name: "Claude",
+		href: "https://claude.ai/"
+	},
+	{
+		name: "Gemini",
+		href: "https://gemini.google.com/"
+	}
+];
+/** The name a browser saves an institution's file under. */
+var fileName = (school) => `${school.name.replace(/[\\/:*?"<>|]+/g, "-")}.html`;
+/**
+* Step 2: the institution's file, which the student downloads but mustn't open
+* yet, goes to an AI with the prompt, which a button copies.
+*/
+function verifyStep(school) {
+	const copied = _vanjs_global_default.state(false);
+	const copyFailed = _vanjs_global_default.state(false);
+	const copy = async () => {
+		try {
+			await navigator.clipboard.writeText(question);
+			copyFailed.val = false;
+			copied.val = true;
+			setTimeout(() => {
+				copied.val = false;
+			}, 2500);
+		} catch {
+			copyFailed.val = true;
+		}
+	};
+	return div(p({ class: "home-step-text" }, `Download the file for ${school.name}, but `, strong("DO NOT RUN IT"), " (yet)."), a({
+		class: "uk-button uk-button-primary btn-accent home-download",
+		href: `./files/${school.id.slice(4)}`,
+		download: fileName(school)
+	}, `Download ${fileName(school)}`), p({ class: "home-step-text" }, `Then drag and drop ${fileName(school)} into your favorite AI and copy this prompt:`), label({
+		for: "ai-question",
+		class: "sr-only"
+	}, "Prompt for the AI"), textarea({
+		class: "uk-textarea field question",
+		id: "ai-question",
+		rows: 3,
+		readOnly: true,
+		spellcheck: false,
+		onfocus: (event) => event.target.select()
+	}, question), div({ class: "question-actions" }, button({
+		type: "button",
+		class: "uk-button uk-button-default btn",
+		onclick: copy
+	}, _vanjs_global_default.derive(() => copied.val ? "Copied" : "Copy prompt")), assistants.map((assistant) => a({
+		class: "uk-button uk-button-default btn",
+		href: assistant.href,
+		target: "_blank",
+		rel: "noopener noreferrer"
+	}, `Open ${assistant.name}`))), p({
+		class: "copied-note",
+		role: "alert",
+		hidden: () => !copyFailed.val
+	}, "Clipboard access isn't available. Select the prompt above to copy it."), span({
+		class: "sr-only",
+		role: "status"
+	}, _vanjs_global_default.derive(() => copied.val ? "Prompt copied." : "")));
+}
+/** Step 3: open the file, which takes over from here with its own steps, and what to take away. */
+function continueStep(school) {
+	return div(p({ class: "home-step-text" }, `Once your AI has given the thumbs up, double click ${fileName(school)} and follow its further instructions. If it doesn't, don't open the file.`), p({ class: "note" }, "It runs in your browser and starts at the Duo portal step."), p({ class: "home-step-text stay-safe" }, strong("Never trust any website with your sensitive school data without a way to fully audit and verify it, even if they claim to be secure.")));
+}
+/** The dialog's steps once an institution is chosen. `id` names a step in the URL. */
+var steps = [
+	{
+		id: "overview",
+		title: "Overview"
+	},
+	{
+		id: "verify",
+		title: "Verify"
+	},
+	{
+		id: "continue",
+		title: "Continue"
+	}
+];
+/** Steps that earlier versions of the page named in links, and where they lead now. */
+var renamed = {
+	university: "overview",
+	download: "verify",
+	check: "verify",
+	open: "continue",
+	safe: "continue"
+};
+/**
+* What the URL names: `?university=` holds the institution, whose dialog is open,
+* and `#step=` the dialog's step, the overview when it names none. Without a
+* published institution the dialog is closed.
+*/
+function fromUrl() {
+	const school = findUniversity(new URLSearchParams(window.location.search).get("university") ?? void 0);
+	const named = new URLSearchParams(window.location.hash.slice(1)).get("step") ?? "";
+	const index = steps.findIndex(({ id }) => id === (renamed[named] ?? named));
+	return {
+		school,
+		current: school && index >= 0 ? index : 0
+	};
+}
+/**
+* Build the home page in its `#root`, centered: the name, what UnDuo is for and
+* a searchable dropdown of institutions, with a link to the source at the
+* bottom. Choosing one opens a dialog that takes it from an overview to opening
+* its file, which has its own stepper for setup.
+*/
+function startHomePage() {
+	const homeTitle = document.title;
+	const start = fromUrl();
+	const selected = _vanjs_global_default.state(start.school);
+	const current = _vanjs_global_default.state(start.current);
+	/** The search field, which takes focus back when the dialog closes. */
+	const focusSearch = () => document.getElementById("university")?.focus();
+	/** After the step's elements update, as the setup file does. */
+	const focusStep = () => setTimeout(() => document.getElementById("step-title")?.focus());
+	const showUrl = () => {
+		const { school, current: step } = fromUrl();
+		selected.val = school;
+		current.val = step;
+		document.title = school ? `Download UnDuo for ${school.name}` : homeTitle;
+		if (school && !homeDialog.open) {
+			homeDialog.showModal();
+			focusStep();
+		} else if (!school && homeDialog.open) homeDialog.close();
+	};
+	/** A new address: an institution's dialog at a step, or the page with the dialog closed. */
+	const navigate = (address) => {
+		window.history.pushState(null, "", address);
+		showUrl();
+	};
+	const goTo = (index, school = selected.val) => {
+		if (!school) return;
+		navigate(`?university=${school.id}#step=${steps[index].id}`);
+		focusStep();
+	};
+	/** Choosing an institution opens its dialog at the overview. */
+	const choose = (school) => goTo(0, school);
+	const homeDialog = dialog({
+		id: "home-dialog",
+		class: "dialog",
+		"aria-labelledby": "step-title",
+		onclose: () => {
+			if (fromUrl().school) navigate(window.location.pathname);
+			focusSearch();
+		}
+	}, button({
+		type: "button",
+		class: "uk-modal-close-default uk-close",
+		"aria-label": "Close",
+		onclick: () => homeDialog.close()
+	}, svg({
+		width: "14",
+		height: "14",
+		viewBox: "0 0 14 14",
+		"aria-hidden": "true"
+	}, path({
+		d: "M1 1l12 12M13 1L1 13",
+		stroke: "currentColor",
+		"stroke-width": "1.4"
+	}))), p({ class: "dialog-school" }, () => selected.val?.name ?? ""), h2({
+		class: "dialog-title step-title",
+		id: "step-title",
+		tabindex: "-1"
+	}, _vanjs_global_default.derive(() => steps[current.val].title)), () => {
+		const school = selected.val;
+		if (!school || current.val === 0) return overviewStep();
+		return current.val === 1 ? verifyStep(school) : continueStep(school);
+	}, div({ class: "step-nav" }, button({
+		type: "button",
+		class: "uk-button uk-button-text btn",
+		hidden: () => current.val === 0,
+		onclick: () => goTo(current.val - 1)
+	}, "Back"), button({
+		type: "button",
+		class: () => current.val === 1 ? "uk-button uk-button-default btn at-end" : "uk-button uk-button-primary btn-accent at-end",
+		onclick: () => current.val === steps.length - 1 ? homeDialog.close() : goTo(current.val + 1)
+	}, _vanjs_global_default.derive(() => current.val === steps.length - 1 ? "Done" : "Continue"))));
+	window.addEventListener("popstate", () => {
+		showUrl();
+		focusStep();
+	});
+	_vanjs_global_default.add(document.getElementById("root"), div({ class: "home-page" }, div({ class: "home-center" }, homeHeader(), main({ class: "home-main" }, universityPicker(choose))), homeSource(), homeDialog));
+	showUrl();
+}
+startHomePage();
+</script>
+  </body>
+</html>

@@ -1,0 +1,1 @@
+export { universities } from "#universities";

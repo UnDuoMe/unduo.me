@@ -1,0 +1,29 @@
+{
+  "name": "@-/me.unduo.configs.e2e",
+  "private": true,
+  "type": "module",
+  "imports": {
+    "#authenticator": "./authenticator.ts",
+    "#browser-actions": "./browser-actions.ts",
+    "#mock-assistant": "./mock-assistant.ts",
+    "#mock-duo": "./mock-duo.ts",
+    "#network-guard": "./network-guard.ts",
+    "#site": "./site.ts"
+  },
+  "exports": {
+    ".": "./+.ts"
+  },
+  "scripts": {
+    "test:e2e": "playwright test",
+    "install:e2e": "playwright install chromium"
+  },
+  "dependencies": {
+    "@-/com.npmjs.jsqr": "workspace:*",
+    "@-/com.npmjs.qrcode": "workspace:*",
+    "@playwright/test": "catalog:"
+  },
+  "devDependencies": {
+    "vite": "catalog:",
+    "vite-plus": "catalog:"
+  }
+}

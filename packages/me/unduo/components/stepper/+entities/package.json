@@ -1,0 +1,11 @@
+{
+  "name": "@-/me.unduo.components.stepper.entities",
+  "private": true,
+  "type": "module",
+  "imports": {
+    "#stepper-step": "./stepper-step.ts"
+  },
+  "exports": {
+    ".": "./+.ts"
+  }
+}

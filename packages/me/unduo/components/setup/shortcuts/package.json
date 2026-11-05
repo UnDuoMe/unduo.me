@@ -1,0 +1,15 @@
+{
+  "name": "@-/me.unduo.components.setup.shortcuts",
+  "private": true,
+  "type": "module",
+  "imports": {
+    "#shortcut-keys": "./shortcut-keys.ts"
+  },
+  "exports": {
+    ".": "./+.ts"
+  },
+  "dependencies": {
+    "@-/me.unduo.components.setup.entities": "workspace:*",
+    "@-/me.unduo.lib.dom": "workspace:*"
+  }
+}

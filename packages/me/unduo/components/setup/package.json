@@ -1,0 +1,38 @@
+{
+  "name": "@-/me.unduo.components.setup",
+  "private": true,
+  "type": "module",
+  "imports": {
+    "#entities": "@-/me.unduo.components.setup.entities",
+    "#qr-code": "./qr-code.ts",
+    "#setup-app": "./setup-app.ts",
+    "#setup-layout": "./setup-layout.ts",
+    "#setup-mount": "./setup-mount.server.ts",
+    "#setup-page": "./setup-page.ts"
+  },
+  "exports": {
+    ".": "./+.ts",
+    "./styles.css": "./setup-styles.css",
+    "./server": "./+server.ts"
+  },
+  "dependencies": {
+    "@-/me.unduo.components.result": "workspace:*",
+    "@-/me.unduo.components.setup.activate": "workspace:*",
+    "@-/me.unduo.components.setup.entities": "workspace:*",
+    "@-/me.unduo.components.setup.help": "workspace:*",
+    "@-/me.unduo.components.setup.limits": "workspace:*",
+    "@-/me.unduo.components.setup.link": "workspace:*",
+    "@-/me.unduo.components.setup.plugin": "workspace:*",
+    "@-/me.unduo.components.setup.portal": "workspace:*",
+    "@-/me.unduo.components.stepper": "workspace:*",
+    "@-/me.unduo.data.universities.entities": "workspace:*",
+    "@-/me.unduo.lib.dom": "workspace:*",
+    "@-/me.unduo.lib.qr-reader": "workspace:*",
+    "tailwindcss": "catalog:"
+  },
+  "devDependencies": {
+    "@-/com.npmjs.qr": "workspace:*",
+    "vite": "catalog:",
+    "vite-plus": "catalog:"
+  }
+}

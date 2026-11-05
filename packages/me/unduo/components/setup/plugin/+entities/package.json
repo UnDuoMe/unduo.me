@@ -1,0 +1,15 @@
+{
+  "name": "@-/me.unduo.components.setup.plugin.entities",
+  "private": true,
+  "type": "module",
+  "imports": {
+    "#setup-plugin": "./setup-plugin.ts"
+  },
+  "exports": {
+    ".": "./+.ts"
+  },
+  "dependencies": {
+    "@-/me.unduo.components.setup.activate.entities": "workspace:*",
+    "@-/me.unduo.components.setup.link.entities": "workspace:*"
+  }
+}

@@ -1,0 +1,26 @@
+{
+  "name": "@-/me.unduo.configs.dev",
+  "private": true,
+  "bin": {
+    "_dev": "./_dev.ts"
+  },
+  "type": "module",
+  "imports": {
+    "#dev-command": "./dev-command.ts",
+    "#dev-paths": "./dev-paths.ts",
+    "#dev-port": "./dev-port.ts",
+    "#generate-mprocs-config": "./generate-mprocs-config.ts",
+    "#start-dev-stack": "./start-dev-stack.ts"
+  },
+  "exports": {
+    ".": "./+.ts"
+  },
+  "dependencies": {
+    "@-/com.npmjs.citty": "workspace:*"
+  },
+  "devDependencies": {
+    "mprocs": "catalog:",
+    "vite": "catalog:",
+    "vite-plus": "catalog:"
+  }
+}

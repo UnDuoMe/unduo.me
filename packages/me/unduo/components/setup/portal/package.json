@@ -1,0 +1,18 @@
+{
+  "name": "@-/me.unduo.components.setup.portal",
+  "private": true,
+  "type": "module",
+  "imports": {
+    "#portal-instructions": "./portal-instructions.ts",
+    "#portal-screenshots": "./portal-screenshots.server.ts",
+    "#portal-step": "./portal-step.ts"
+  },
+  "exports": {
+    ".": "./+.ts",
+    "./server": "./+server.ts"
+  },
+  "dependencies": {
+    "@-/me.unduo.components.setup.entities": "workspace:*",
+    "@-/me.unduo.lib.dom": "workspace:*"
+  }
+}

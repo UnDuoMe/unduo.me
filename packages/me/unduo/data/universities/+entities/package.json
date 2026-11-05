@@ -1,0 +1,12 @@
+{
+  "name": "@-/me.unduo.data.universities.entities",
+  "private": true,
+  "type": "module",
+  "imports": {
+    "#university": "./university.ts"
+  },
+  "exports": {
+    ".": "./+.ts"
+  },
+  "dependencies": {}
+}

@@ -1,0 +1,59 @@
+name: Check
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+concurrency:
+  group: check-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  check:
+    name: Check, test and build
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+          # Audit the PR's real commits rather than GitHub's synthetic merge commit.
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+
+      - uses: voidzero-dev/setup-vp@v1.21.2
+        with:
+          node-version: "24"
+          cache: true
+
+      - run: vp install --frozen-lockfile
+      - run: vp run check:git
+      - run: vp check
+      - run: vp test
+      - run: vp run build:web
+      # Checks CDN files against jsDelivr's SHA-256 listing and the npm registry tarballs.
+      - run: vp run verify:cdn
+
+  plugin:
+    name: Rust plugin tests and reproducible build
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: voidzero-dev/setup-vp@v1.21.2
+        with:
+          node-version: "24"
+          cache: true
+
+      - run: vp install --frozen-lockfile
+      # rust-toolchain.toml selects the pinned compiler, wasm target and rust-src.
+      - run: rustup toolchain install
+      - run: vp run lint:plugin
+      - run: vp run test:plugin
+      # Fails unless a fresh Linux build reproduces the committed setup.wasm byte for byte.
+      - run: vp run check:plugin

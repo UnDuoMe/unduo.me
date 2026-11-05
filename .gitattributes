@@ -1,0 +1,3 @@
+# Preserve generated scripts byte-for-byte, including vendor whitespace and CSP hashes.
+/index.html -text whitespace=-blank-at-eol
+packages/com/npmjs/vanjs-core/*.nomodule.js -text

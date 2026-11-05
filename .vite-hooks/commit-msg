@@ -1,0 +1,3 @@
+#!/bin/sh
+set -eu
+vpx packages/me/unduo/configs/git/git-hook.ts message "$1"

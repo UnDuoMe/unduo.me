@@ -1,0 +1,25 @@
+{
+  "name": "@-apps/unduo-web",
+  "private": true,
+  "type": "module",
+  "imports": {},
+  "scripts": {
+    "build": "vp build",
+    "dev": "vp dev"
+  },
+  "dependencies": {
+    "@-/me.unduo.components.home": "workspace:*",
+    "@-/me.unduo.components.setup": "workspace:*",
+    "@-/me.unduo.components.setup.plugin": "workspace:*",
+    "@-/me.unduo.data.universities.entities": "workspace:*",
+    "@-/me.unduo.lib.dom": "workspace:*",
+    "uikit": "catalog:"
+  },
+  "devDependencies": {
+    "@-/me.unduo.configs.web": "workspace:*",
+    "@tailwindcss/postcss": "catalog:",
+    "tailwindcss": "catalog:",
+    "vite": "catalog:",
+    "vite-plus": "catalog:"
+  }
+}

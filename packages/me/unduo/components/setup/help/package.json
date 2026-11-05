@@ -1,0 +1,19 @@
+{
+  "name": "@-/me.unduo.components.setup.help",
+  "private": true,
+  "type": "module",
+  "imports": {
+    "#setup-help": "./setup-help.ts",
+    "#terminal-commands": "./terminal-commands.ts"
+  },
+  "exports": {
+    ".": "./+.ts"
+  },
+  "dependencies": {
+    "@-/me.unduo.lib.dom": "workspace:*"
+  },
+  "devDependencies": {
+    "vite": "catalog:",
+    "vite-plus": "catalog:"
+  }
+}

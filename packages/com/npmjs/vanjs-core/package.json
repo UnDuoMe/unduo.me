@@ -1,0 +1,12 @@
+{
+  "name": "@-/com.npmjs.vanjs-core",
+  "private": true,
+  "type": "module",
+  "imports": {},
+  "exports": {
+    ".": "./+.ts"
+  },
+  "dependencies": {
+    "vanjs-core": "catalog:"
+  }
+}

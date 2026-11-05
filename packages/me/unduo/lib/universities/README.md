@@ -1,0 +1,3 @@
+# @-/me.unduo.lib.universities
+
+Browser-safe university search and deep-link resolution. `findUniversity` accepts stable IDs, full names, acronyms and domains; ambiguous aliases return no result. `searchUniversities` returns at most 50 items by default (100 maximum), ranks exact names and domains first, and favors documented portals for an empty query. A precomputed index keeps lookup and filtering responsive across the global npm directory. `universityMatches` matches accent-insensitive query tokens across names, countries, provinces and domains. The setup route validates `?university=` itself and resolves it here only after lazily loading the portal finder. Searches run locally without sending keystrokes or email addresses to a service.

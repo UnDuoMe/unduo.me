@@ -1,0 +1,15 @@
+{
+  "name": "@-/me.unduo.components.stepper",
+  "private": true,
+  "type": "module",
+  "imports": {
+    "#stepper": "./stepper.ts"
+  },
+  "exports": {
+    ".": "./+.ts"
+  },
+  "dependencies": {
+    "@-/me.unduo.components.stepper.entities": "workspace:*",
+    "@-/me.unduo.lib.dom": "workspace:*"
+  }
+}

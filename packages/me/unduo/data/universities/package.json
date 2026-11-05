@@ -1,0 +1,22 @@
+{
+  "name": "@-/me.unduo.data.universities",
+  "private": true,
+  "type": "module",
+  "imports": {
+    "#universities": "./universities.ts",
+    "#mfa-overrides": "./mfa-overrides.ts",
+    "#whed-directory": "./whed-directory.json",
+    "#whed-source": "./whed-source.json"
+  },
+  "exports": {
+    ".": "./+.ts"
+  },
+  "dependencies": {
+    "@-/com.npmjs.universities-domains-list": "workspace:*",
+    "@-/me.unduo.data.universities.entities": "workspace:*"
+  },
+  "devDependencies": {
+    "vite": "catalog:",
+    "vite-plus": "catalog:"
+  }
+}

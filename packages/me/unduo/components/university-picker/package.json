@@ -1,0 +1,17 @@
+{
+  "name": "@-/me.unduo.components.university-picker",
+  "private": true,
+  "type": "module",
+  "imports": {
+    "#university-picker": "./university-picker.ts"
+  },
+  "exports": {
+    ".": "./+.ts"
+  },
+  "dependencies": {
+    "@-/me.unduo.data.universities": "workspace:*",
+    "@-/me.unduo.data.universities.entities": "workspace:*",
+    "@-/me.unduo.lib.dom": "workspace:*",
+    "@-/me.unduo.lib.universities": "workspace:*"
+  }
+}

@@ -1,0 +1,12 @@
+{
+  "name": "@-/com.npmjs.qrcode",
+  "private": true,
+  "type": "module",
+  "imports": {},
+  "exports": {
+    ".": "./+.ts"
+  },
+  "dependencies": {
+    "qrcode": "catalog:"
+  }
+}

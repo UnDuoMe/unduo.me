@@ -1,0 +1,14 @@
+{
+  "name": "@-/me.unduo.configs.git",
+  "private": true,
+  "type": "module",
+  "imports": {
+    "#git-policy": "./git-policy.ts"
+  },
+  "exports": {
+    ".": "./+server.ts"
+  },
+  "devDependencies": {
+    "vite-plus": "catalog:"
+  }
+}

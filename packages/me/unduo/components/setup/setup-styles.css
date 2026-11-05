@@ -1,0 +1,486 @@
+@import "tailwindcss/index.css" source(none) important;
+
+@theme {
+  --color-background: #f8fafc;
+  --color-foreground: #182230;
+  --color-muted: #526174;
+  --color-default: #e9eef5;
+  --color-surface-secondary: #f1f5f9;
+  --color-border: #cbd5e1;
+  --color-separator: #dbe3ed;
+  --color-accent: #1e67cf;
+  --color-accent-hover: #1959b5;
+  --color-accent-foreground: #fff;
+  --color-accent-soft: #e7f0ff;
+  --color-success: #167244;
+  --color-success-soft: #e4f5eb;
+  --color-focus: #1e67cf;
+}
+
+/* UIkit supplies component styles; reset prose margins for utility layouts. */
+p,
+h1,
+h2,
+h3,
+ol,
+ul,
+figure {
+  margin: 0;
+}
+button:not(:disabled),
+summary {
+  cursor: pointer;
+}
+:focus-visible {
+  outline: 2px solid var(--color-focus);
+  outline-offset: 3px;
+}
+
+/* Scrolling to the current step is smooth unless motion is reduced. */
+@media (prefers-reduced-motion: no-preference) {
+  html {
+    scroll-behavior: smooth;
+  }
+}
+
+/*
+ * The page's classes. Each @apply lists Tailwind utilities, compiled to plain CSS;
+ * `!` keeps them important, as the import above makes utilities, so they beat UIkit.
+ */
+@layer utilities {
+  .btn {
+    @apply rounded-lg! normal-case!;
+  }
+  .btn-accent {
+    @apply bg-accent! text-accent-foreground! hover:bg-accent-hover! disabled:opacity-50! rounded-lg! normal-case!;
+  }
+  .btn-inline {
+    @apply -mt-0.5! h-auto! min-h-0! px-1.5! py-0.5!;
+  }
+  .at-end {
+    @apply ml-auto!;
+  }
+  .wide {
+    @apply w-full!;
+  }
+  .small {
+    @apply text-sm!;
+  }
+  .field {
+    @apply rounded-lg!;
+  }
+  .grow {
+    @apply min-w-0! flex-1!;
+  }
+  .mono {
+    @apply font-mono! text-sm!;
+  }
+  .no-shrink {
+    @apply shrink-0!;
+  }
+  .medium {
+    @apply font-medium!;
+  }
+  .sr-only {
+    @apply sr-only!;
+  }
+  .hint {
+    @apply text-xs! text-muted!;
+  }
+  .note {
+    @apply text-sm! text-muted!;
+  }
+  .intro {
+    @apply mb-4! text-sm! leading-[1.55]! text-muted!;
+  }
+  .subheading {
+    @apply text-base! font-semibold!;
+  }
+  .summary-label {
+    @apply text-sm! font-medium!;
+  }
+  .stack-1 {
+    @apply grid! gap-1.5!;
+  }
+  .stack-2 {
+    @apply grid! gap-2!;
+  }
+  .stack-4 {
+    @apply grid! gap-4!;
+  }
+  .stack-5 {
+    @apply grid! gap-5!;
+  }
+  .row-2 {
+    @apply flex! flex-wrap! gap-2!;
+  }
+  .key {
+    @apply rounded! border! border-border! bg-white! px-1.5! py-0.5! text-xs! text-foreground!;
+  }
+  .page-body {
+    @apply min-h-dvh! bg-background! text-foreground! font-sans!;
+  }
+  .page {
+    @apply mx-auto! max-w-190! px-3.5! pb-6! min-[641px]:px-5! min-[641px]:pb-8!;
+  }
+  .skip-link {
+    @apply not-focus:sr-only! focus:block! focus:p-3!;
+  }
+  .site-header {
+    @apply flex! min-h-18! items-center! gap-4!;
+  }
+  .logo {
+    @apply text-xl! font-bold! tracking-tight!;
+  }
+  .logo-dot {
+    @apply text-accent!;
+  }
+  .site-nav {
+    @apply ml-auto! flex! items-center! gap-1!;
+  }
+  .nav-link {
+    @apply inline-flex! rounded-lg! p-2! text-muted! hover:text-foreground!;
+  }
+  .hero {
+    @apply pt-3! pb-5! min-[641px]:py-7!;
+  }
+  .eyebrow {
+    @apply mb-2! text-sm! font-medium! text-accent!;
+  }
+  .headline {
+    @apply text-2xl! font-semibold! tracking-tight! text-balance! min-[641px]:text-3xl!;
+  }
+  .tagline {
+    @apply mt-2.5! max-w-[58ch]! leading-[1.6]! text-muted!;
+  }
+  .disclaimer {
+    @apply mt-2! max-w-[58ch]! text-sm! text-muted!;
+  }
+  .site-footer {
+    @apply flex! flex-wrap! items-center! justify-between! gap-x-5! gap-y-3! pt-7! text-xs! text-muted!;
+  }
+  .footer-item {
+    @apply inline-flex! items-center! gap-1.5!;
+  }
+  .footer-links {
+    @apply inline-flex! items-center! gap-2!;
+  }
+  .page-alert {
+    @apply rounded-xl! p-4! text-sm!;
+  }
+  .step-card {
+    @apply rounded-2xl! px-4! py-4.5! min-[641px]:px-7! min-[641px]:py-6!;
+  }
+  .step-title {
+    @apply mb-4.5! text-lg! font-semibold! outline-none!;
+  }
+  .step-nav {
+    @apply mt-6! flex! items-center! gap-3! border-t! border-separator! pt-4!;
+  }
+  .step-progress {
+    @apply scroll-mt-4!;
+  }
+  .step-list {
+    @apply mb-4! grid! list-none! auto-cols-fr! grid-flow-col! p-0!;
+  }
+  .sent-note {
+    @apply mt-3! flex! items-start! gap-1.5! text-xs! text-muted!;
+  }
+  .tab-note {
+    @apply mt-3! flex! flex-wrap! items-center! gap-1.5! text-xs! text-muted!;
+  }
+  .retry-note {
+    @apply flex! flex-wrap! items-center! gap-1.5! text-xs! text-muted!;
+  }
+  .reply-steps {
+    @apply grid! list-none! gap-2! p-0! text-sm! [counter-reset:reply]! [&>li]:inline-flex! [&>li]:items-center! [&>li]:gap-1.5! [&>li]:[counter-increment:reply]! [&>li]:before:font-semibold! [&>li]:before:text-muted! [&>li]:before:content-[counter(reply)"."]!;
+  }
+  .reply-frame {
+    @apply h-28! w-full! rounded-lg! border! border-border! bg-white!;
+  }
+  .drop-zone {
+    @apply mt-5! rounded-2xl! border-2! border-dashed! border-border! bg-surface-secondary! px-4.5! pt-4.5! pb-4! transition-[border-color,background-color]! duration-[120ms]! ease-linear! data-[dragging=true]:border-accent! data-[dragging=true]:bg-accent-soft!;
+  }
+  .link-row {
+    @apply flex! flex-col! items-stretch! gap-2! min-[641px]:flex-row! min-[641px]:items-center!;
+  }
+  .link-submit {
+    @apply w-full! min-[641px]:w-auto!;
+  }
+  .link-actions {
+    @apply mt-3.5! flex! flex-wrap! items-center! gap-2!;
+  }
+  .scan-note {
+    @apply mt-3! flex! items-center! gap-2! text-sm! text-muted!;
+  }
+  .question {
+    @apply mt-2! text-sm! field-sizing-content!;
+  }
+  .question-actions {
+    @apply mt-2! flex! flex-wrap! gap-2!;
+  }
+  .copied-note {
+    @apply mt-1.5! text-xs! text-muted!;
+  }
+  .school-note {
+    @apply mt-2! text-sm! text-muted!;
+  }
+  .portal-label {
+    @apply mt-3! block! text-sm! font-medium!;
+  }
+  .portal-row {
+    @apply mt-1.5! flex! gap-2!;
+  }
+  .school-card {
+    @apply mb-4! rounded-xl! bg-surface-secondary! p-3!;
+  }
+  .school-link {
+    @apply mt-2! inline-block! text-sm!;
+  }
+  .other-school {
+    @apply mt-4! inline-block! text-sm!;
+  }
+  .portal-steps {
+    @apply grid! list-none! gap-3.5! p-0! text-sm! leading-[1.55]! [&_em]:font-medium! [&_em]:text-foreground! [&_em]:not-italic!;
+  }
+  .instructions {
+    @apply grid! list-none! gap-3.5! p-0! [counter-reset:guide]! [&_em]:font-medium! [&_em]:text-foreground! [&_em]:not-italic!;
+  }
+  .instruction {
+    @apply relative! pl-7.5! text-sm! leading-[1.55]! [counter-increment:guide]! before:absolute! before:top-0! before:left-0! before:inline-flex! before:size-5! before:items-center! before:justify-center! before:rounded-full! before:bg-default! before:text-xs! before:font-semibold! before:text-muted! before:content-[counter(guide)]!;
+  }
+  .instruction-note {
+    @apply block! text-muted!;
+  }
+  .screenshots {
+    @apply mt-3! ml-4.5!;
+  }
+  .screenshot-list {
+    @apply mt-3! grid! gap-5!;
+  }
+  .figure-caption {
+    @apply mb-2! text-sm! text-muted!;
+  }
+  .screenshot {
+    @apply h-auto! max-w-full! rounded-lg! border! border-border!;
+  }
+  .limits-panel {
+    @apply mt-3! grid! gap-4! rounded-xl! border! border-border! p-4! text-sm! text-foreground!;
+  }
+  .limits-note {
+    @apply leading-[1.6]!;
+  }
+  .limits-grid {
+    @apply grid! gap-3! min-[641px]:grid-cols-2!;
+  }
+  .limit {
+    @apply grid! content-start! gap-1!;
+  }
+  .code-type {
+    @apply flex! cursor-pointer! items-center! justify-center! gap-1! rounded! px-1! py-2! text-xs!;
+  }
+  .code-type-on {
+    @apply bg-accent-soft! text-accent!;
+  }
+  .code-type-off {
+    @apply text-muted!;
+  }
+  .result-layout {
+    @apply grid! grid-cols-[minmax(0,1fr)]! items-start! gap-7! min-[641px]:grid-cols-[220px_minmax(0,1fr)]!;
+  }
+  .qr-column {
+    @apply mx-auto! grid! w-full! max-w-65! gap-2.5! min-[641px]:mx-0! min-[641px]:max-w-none!;
+  }
+  .qr-box {
+    @apply flex! aspect-square! items-center! justify-center! rounded-2xl! border! border-border! bg-white! p-1.5! text-sm! text-muted!;
+  }
+  .qr-image {
+    @apply block! h-auto! w-full! [image-rendering:pixelated]!;
+  }
+  .code-types {
+    @apply grid! grid-cols-2! gap-1! rounded-lg! border! border-border! p-1!;
+  }
+  .result-details {
+    @apply grid! min-w-0! content-start! gap-3!;
+  }
+  .result-summary {
+    @apply text-sm! text-muted! wrap-anywhere! [&_strong]:text-foreground!;
+  }
+  .advice {
+    @apply text-sm! leading-[1.55]! text-muted! [&_strong]:text-foreground!;
+  }
+  .touch-only {
+    @apply hidden! pointer-coarse:inline-block!;
+  }
+  .key-header {
+    @apply flex! items-center! justify-between!;
+  }
+  .setup-key {
+    @apply block! rounded-xl! bg-default! text-foreground! px-3! py-2.5! font-mono! text-sm! wrap-anywhere! select-all!;
+  }
+  .next-test {
+    @apply grid! gap-1! border-t! border-separator! pt-4.5! [&_em]:font-medium! [&_em]:text-foreground! [&_em]:not-italic!;
+  }
+  .body-note {
+    @apply text-sm! leading-[1.55]! text-muted!;
+  }
+  .warning {
+    @apply text-amber-950! rounded-xl! p-4!;
+  }
+  .warning-title {
+    @apply text-sm! font-semibold!;
+  }
+  .warning-text {
+    @apply mt-1! text-sm!;
+  }
+  .dialog {
+    @apply m-auto! max-h-[calc(100dvh-2rem)]! w-[calc(100%-2rem)]! max-w-150! overflow-y-auto! rounded-2xl! border-0! bg-white! p-7! text-foreground! shadow-xl! backdrop:bg-black/60!;
+  }
+  .dialog-title {
+    @apply text-xl! font-semibold!;
+  }
+  .dialog-body {
+    @apply grid! gap-3! text-sm! leading-[1.65]!;
+  }
+  .dialog-body-single {
+    @apply grid! grid-cols-1! gap-3! text-sm! leading-[1.65]!;
+  }
+  .command {
+    @apply m-0! text-xs!;
+  }
+  .dialog-list {
+    @apply grid! list-decimal! gap-2! pl-5!;
+  }
+  .dialog-heading {
+    @apply mt-1! text-base! font-semibold!;
+  }
+  .dialog-header {
+    @apply mb-4!;
+  }
+  .dialog-actions {
+    @apply mt-5! flex! justify-end!;
+  }
+  /* The home page's content sits in the middle of the screen, the source link at its bottom. */
+  .home-page {
+    @apply relative! flex! min-h-dvh! flex-col! items-center! justify-center! px-4! pt-16! pb-24! text-center!;
+  }
+  .home-center {
+    @apply flex! w-full! max-w-2xl! flex-col! items-center!;
+  }
+  .home-header {
+    @apply flex! flex-col! items-center! gap-3!;
+  }
+  .home-title {
+    @apply text-5xl! font-bold! tracking-tight! min-[641px]:text-6xl!;
+  }
+  .home-tagline {
+    @apply text-lg! leading-[1.4]! text-balance! text-muted! min-[641px]:text-xl! [&_strong]:font-semibold! [&_strong]:text-foreground! [&_em]:text-inherit! [&_em]:italic!;
+  }
+  .home-subtext {
+    @apply mt-3! grid! max-w-lg! gap-2! text-sm! leading-[1.6]! text-balance! text-muted! min-[641px]:text-[0.9375rem]! [&_strong]:font-semibold! [&_strong]:text-foreground!;
+  }
+  .home-main {
+    @apply mt-5! flex! w-full! justify-center!;
+  }
+  .home-footer {
+    @apply absolute! inset-x-0! bottom-0! flex! justify-center! pb-6!;
+  }
+  .home-source {
+    @apply inline-flex! size-11! items-center! justify-center! rounded-full! text-muted! transition-colors! hover:bg-default! hover:text-foreground!;
+  }
+  .home-source-icon {
+    @apply size-6!;
+  }
+  .dialog-school {
+    @apply mb-1! pr-8! text-xs! font-medium! text-muted!;
+  }
+  .home-heading {
+    @apply mb-3! text-base! font-semibold!;
+  }
+  .home-step-text {
+    @apply mb-4! text-sm! leading-[1.55]! text-muted! [&_strong]:text-foreground!;
+  }
+  .home-download {
+    @apply mb-5!;
+  }
+  .home-secure {
+    @apply mt-5! text-sm! leading-[1.55]! text-muted! italic!;
+  }
+  .stay-safe {
+    @apply mt-5! mb-0!;
+  }
+  /* The university search: a field that opens a list of matches under it. */
+  .picker {
+    @apply relative! w-full! max-w-md! text-left!;
+  }
+  .picker-field {
+    @apply flex! h-14! cursor-text! items-center! gap-3! rounded-2xl! border! border-border! bg-white! px-4.5! shadow-sm! transition-[border-color,box-shadow]! hover:border-[#94a3b8]! focus-within:border-accent! focus-within:shadow-[0_0_0_4px_rgb(30_103_207/0.15)]!;
+  }
+  .picker-icon {
+    @apply size-5! shrink-0! cursor-pointer! text-muted!;
+  }
+  .picker-input {
+    @apply h-full! min-w-0! flex-1! border-0! bg-transparent! p-0! text-base! text-foreground! outline-none! placeholder:text-muted! focus-visible:outline-none!;
+  }
+  .picker-chevron {
+    @apply size-5! shrink-0! cursor-pointer! text-muted! transition-transform! duration-200!;
+  }
+  .picker[data-open="true"] .picker-chevron {
+    @apply rotate-180!;
+  }
+  .picker-panel {
+    @apply absolute! inset-x-0! top-full! z-10! mt-2! overflow-hidden! rounded-2xl! border! border-border! bg-white! shadow-[0_16px_40px_-12px_rgb(15_23_42/0.25)]!;
+  }
+  .picker-list {
+    @apply m-0! grid! empty:hidden! max-h-[min(20rem,40dvh)]! list-none! gap-0.5! overflow-y-auto! p-1.5!;
+  }
+  .picker-option {
+    @apply grid! cursor-pointer! gap-0.5! rounded-xl! px-3.5! py-2.5! text-sm! text-foreground!;
+  }
+  .picker-option[aria-selected="true"] {
+    @apply bg-accent-soft!;
+  }
+  .picker-name {
+    @apply font-medium!;
+  }
+  .picker-place {
+    @apply text-xs! text-muted!;
+  }
+  .picker-empty {
+    @apply px-5! py-4! text-sm! text-muted!;
+  }
+  .picker-hint {
+    @apply border-t! border-separator! bg-surface-secondary! px-5! py-2.5! text-xs! text-muted!;
+  }
+
+  /* The stepper's states come from the data attributes on each step. */
+  .step-item {
+    @apply relative! min-w-0! after:absolute! after:top-5! after:right-[calc(-50%+24px)]! after:left-[calc(50%+24px)]! after:h-0.5! after:rounded-[1px]! after:bg-separator! after:content-['']! last:after:hidden! data-[finished=true]:after:bg-success!;
+  }
+  .step-target {
+    @apply flex! w-full! flex-col! items-center! gap-1.5! rounded-xl! px-1! py-1.5! text-center! text-xs! text-muted! min-[641px]:gap-2! min-[641px]:text-sm!;
+  }
+  .step-item[data-state="active"] .step-target {
+    @apply font-semibold! text-foreground!;
+  }
+  .step-item[data-state="complete"] .step-target {
+    @apply text-foreground!;
+  }
+  .step-link {
+    @apply cursor-pointer! focus-visible:outline-2! focus-visible:outline-offset-2! focus-visible:outline-focus!;
+  }
+  .step-number {
+    @apply inline-flex! size-7.5! shrink-0! items-center! justify-center! rounded-full! bg-default! text-sm! font-semibold! text-muted!;
+  }
+  .step-item[data-state="active"] .step-number {
+    @apply bg-accent! text-accent-foreground!;
+  }
+  .step-item[data-state="complete"] .step-number {
+    @apply bg-success-soft! text-success!;
+  }
+  @media (hover: hover) {
+    .step-link:hover .step-label {
+      @apply underline! underline-offset-3!;
+    }
+  }
+}

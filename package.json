@@ -1,0 +1,119 @@
+{
+  "name": "unduo",
+  "private": true,
+  "description": "Un-Duo yourself by making it possible to use any 2FA application for Duo Security authentication.",
+  "keywords": [
+    "2fa",
+    "authenticator",
+    "duo",
+    "duo-security",
+    "hotp",
+    "otp",
+    "totp"
+  ],
+  "homepage": "https://github.com/UnDuoMe/unduo.me#readme",
+  "bugs": {
+    "url": "https://github.com/UnDuoMe/unduo.me/issues"
+  },
+  "license": "MIT",
+  "author": "UnDuoMe",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/UnDuoMe/unduo.me.git"
+  },
+  "workspaces": {
+    "packages": [
+      "apps/*",
+      "packages/**"
+    ],
+    "catalog": {
+      "citty": "^0.2.2",
+      "qrcode": "^1.5.4",
+      "@types/node": "^26.1.1",
+      "@types/qrcode": "^1.5.6",
+      "tailwindcss": "^4.3.3",
+      "typescript": "^7.0.2",
+      "vite": "npm:@voidzero-dev/vite-plus-core@1.5.0",
+      "vite-plus": "1.5.0",
+      "eslint-plugin-flatcap": "^0.1.0",
+      "jsqr": "^1.4.0",
+      "universities-domains-list": "^0.1.0",
+      "@tailwindcss/postcss": "^4.3.3",
+      "uikit": "3.25.29",
+      "qr": "0.7.2",
+      "es-module-lexer": "^3.0.4",
+      "parse5": "^8.0.1",
+      "mprocs": "0.9.6",
+      "vanjs-core": "1.6.2",
+      "postcss": "^8.5.32",
+      "@playwright/test": "1.64.1"
+    }
+  },
+  "type": "module",
+  "scripts": {
+    "prepare": "vp config && vp run setup:git",
+    "setup:git": "vpx packages/me/unduo/configs/git/configure-git.ts",
+    "check:git": "vpx packages/me/unduo/configs/git/git-hook.ts history",
+    "build:web": "vp run --filter @-apps/unduo-web build",
+    "build:web:self-contained": "vp run --filter @-/me.unduo.configs.web build:self-contained",
+    "dev": "vp exec _dev",
+    "preview": "vp run --filter @-/me.unduo.configs.web preview",
+    "check": "vp check",
+    "test": "vp test",
+    "test:plugin": "cargo test -p unduo-setup --locked --all-features",
+    "lint:plugin": "cargo fmt --all --check && cargo clippy -p unduo-setup --all-targets --all-features --locked -- -D warnings",
+    "test:web": "vp run --filter @-/me.unduo.configs.web test:auditable",
+    "test:e2e": "vp run --filter @-/me.unduo.configs.e2e test:e2e",
+    "install:e2e": "vp run --filter @-/me.unduo.configs.e2e install:e2e",
+    "update:universities": "vp run --filter @-/me.unduo.configs.web update:universities",
+    "update:cdn": "vp run --filter @-/me.unduo.configs.web update:cdn",
+    "verify:cdn": "vp run --filter @-/me.unduo.configs.web verify:cdn",
+    "build:plugin": "vp run --filter @-/me.unduo.configs.web build:plugin",
+    "check:plugin": "vp run --filter @-/me.unduo.configs.web check:plugin",
+    "publish:assets": "vp run --filter @-/me.unduo.configs.web publish:assets",
+    "dev:web": "vp run --filter @-apps/unduo-web dev"
+  },
+  "devDependencies": {
+    "@-/com.npmjs.citty": "workspace:*",
+    "@-/com.npmjs.jsqr": "workspace:*",
+    "@-/com.npmjs.qr": "workspace:*",
+    "@-/com.npmjs.qrcode": "workspace:*",
+    "@-/com.npmjs.universities-domains-list": "workspace:*",
+    "@-/me.unduo.components.home": "workspace:*",
+    "@-/me.unduo.components.result": "workspace:*",
+    "@-/me.unduo.components.setup": "workspace:*",
+    "@-/me.unduo.components.stepper": "workspace:*",
+    "@-/me.unduo.components.university-picker": "workspace:*",
+    "@-/me.unduo.configs.dev": "workspace:*",
+    "@-/me.unduo.configs.e2e": "workspace:*",
+    "@-/me.unduo.configs.git": "workspace:*",
+    "@-/me.unduo.configs.web": "workspace:*",
+    "@-/me.unduo.data.universities": "workspace:*",
+    "@-/me.unduo.data.universities.entities": "workspace:*",
+    "@-/me.unduo.lib.dom": "workspace:*",
+    "@-/me.unduo.lib.universities": "workspace:*",
+    "@-apps/unduo-web": "workspace:*",
+    "@tailwindcss/postcss": "catalog:",
+    "@types/node": "catalog:",
+    "@types/qrcode": "catalog:",
+    "citty": "catalog:",
+    "eslint-plugin-flatcap": "catalog:",
+    "mprocs": "catalog:",
+    "qrcode": "catalog:",
+    "tailwindcss": "catalog:",
+    "typescript": "catalog:",
+    "uikit": "catalog:",
+    "vite": "catalog:",
+    "vite-plus": "catalog:"
+  },
+  "overrides": {
+    "vite": "catalog:"
+  },
+  "devEngines": {
+    "packageManager": {
+      "name": "bun",
+      "version": "1.4.4",
+      "onFail": "download"
+    }
+  }
+}

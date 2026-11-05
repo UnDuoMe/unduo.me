@@ -1,0 +1,16 @@
+{
+  "name": "@-/me.unduo.lib.dom",
+  "private": true,
+  "type": "module",
+  "imports": {
+    "#dom": "./dom.ts",
+    "#html": "./html.server.ts"
+  },
+  "exports": {
+    ".": "./+.ts",
+    "./server": "./+server.ts"
+  },
+  "dependencies": {
+    "@-/com.npmjs.vanjs-core": "workspace:*"
+  }
+}

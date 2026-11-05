@@ -1,0 +1,15 @@
+{
+  "name": "@-/me.unduo.components.result",
+  "private": true,
+  "type": "module",
+  "imports": {
+    "#authenticator-result": "./authenticator-result.ts"
+  },
+  "exports": {
+    ".": "./+.ts"
+  },
+  "dependencies": {
+    "@-/me.unduo.components.setup.entities": "workspace:*",
+    "@-/me.unduo.lib.dom": "workspace:*"
+  }
+}

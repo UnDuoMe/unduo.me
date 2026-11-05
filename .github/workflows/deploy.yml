@@ -1,0 +1,75 @@
+name: Deploy website
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    permissions:
+      # Pushes the assets/<sha> tag.
+      contents: write
+      pages: write
+      id-token: write
+      # Signs build provenance for the setup files and the pinned assets.
+      attestations: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          # Queued or manually rerun jobs must publish the current main.
+          ref: main
+          fetch-depth: 0
+
+      - uses: voidzero-dev/setup-vp@v1.21.2
+        with:
+          node-version: "24"
+          cache: true
+
+      - run: vp install --frozen-lockfile
+      - run: vp run check:git
+      - run: vp run build:web
+
+      # Records, in GitHub's attestation store and Sigstore's public log, that this
+      # run built these exact bytes from this commit. Check a downloaded file with
+      # `gh attestation verify <file> --repo UnDuoMe/unduo.me`.
+      - uses: actions/attest@v4
+        with:
+          subject-path: |
+            www/files/*
+            www/cdn/*
+
+      # Pages pin their stylesheet, images and setup plugin to a content-addressed
+      # commit on jsDelivr. Publish it before any page that references it.
+      - run: vp run publish:assets
+
+      - uses: actions/configure-pages@v5
+      - uses: actions/upload-pages-artifact@v4
+        with:
+          path: www
+      - uses: actions/deploy-pages@v4
+        id: deployment
+
+      # Setup runs only from a file on the student's computer, so the site must serve
+      # that file as a download, never as a page that would run.
+      - name: Check the site serves the setup file as a download
+        env:
+          PAGE_URL: ${{ steps.deployment.outputs.page_url }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          curl -fsSI --retry 5 --retry-all-errors --retry-delay 10 "${PAGE_URL}files/020599" |
+            grep -qi '^content-type: application/octet-stream'

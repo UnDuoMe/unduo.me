@@ -1,0 +1,19 @@
+{
+  "name": "@-/me.unduo.components.setup.link",
+  "private": true,
+  "type": "module",
+  "imports": {
+    "#entities": "@-/me.unduo.components.setup.link.entities",
+    "#link-step": "./link-step.ts"
+  },
+  "exports": {
+    ".": "./+.ts"
+  },
+  "dependencies": {
+    "@-/me.unduo.components.setup.entities": "workspace:*",
+    "@-/me.unduo.components.setup.link.entities": "workspace:*",
+    "@-/me.unduo.components.setup.portal": "workspace:*",
+    "@-/me.unduo.components.setup.shortcuts": "workspace:*",
+    "@-/me.unduo.lib.dom": "workspace:*"
+  }
+}

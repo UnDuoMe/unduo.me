@@ -1,0 +1,11 @@
+{
+  "name": "@-/me.unduo.components.setup.activate.entities",
+  "private": true,
+  "type": "module",
+  "imports": {
+    "#activate-step": "./activate-step.ts"
+  },
+  "exports": {
+    ".": "./+.ts"
+  }
+}

@@ -1,0 +1,16 @@
+{
+  "name": "@-/me.unduo.components.setup.limits",
+  "private": true,
+  "type": "module",
+  "imports": {
+    "#plugin-limits": "./plugin-limits.ts"
+  },
+  "exports": {
+    ".": "./+.ts"
+  },
+  "dependencies": {
+    "@-/me.unduo.components.setup.entities": "workspace:*",
+    "@-/me.unduo.components.setup.plugin": "workspace:*",
+    "@-/me.unduo.lib.dom": "workspace:*"
+  }
+}

@@ -1,0 +1,46 @@
+{
+  "name": "@-/me.unduo.configs.web",
+  "private": true,
+  "type": "module",
+  "imports": {
+    "#auditable-build": "./auditable-build.ts",
+    "#build-universities": "./build-universities.ts",
+    "#cdn-assets": "./cdn-assets.ts",
+    "#cdn-libraries": "./cdn-libraries.ts",
+    "#cdn-source": "./cdn-source.mjs",
+    "#html-security": "./html-security.mjs",
+    "#self-contained": "./self-contained.ts",
+    "#university-catalog": "./university-catalog.ts",
+    "#web-paths": "./web-paths.ts"
+  },
+  "exports": {
+    ".": "./+server.ts",
+    "./universities": "./+universities.ts"
+  },
+  "scripts": {
+    "preview": "node preview.mjs",
+    "test:auditable": "UNDUO_TEST_WEB=1 vp test run auditable",
+    "update:universities": "node update-universities.mjs",
+    "update:cdn": "node update-cdn.mjs",
+    "verify:cdn": "node verify-cdn.mjs",
+    "build:plugin": "node build-plugin.mjs",
+    "check:plugin": "node build-plugin.mjs --check",
+    "publish:assets": "node publish-assets.mjs",
+    "build:self-contained": "node build-self-contained.mjs"
+  },
+  "dependencies": {
+    "@-/com.npmjs.jsqr": "workspace:*",
+    "@-/com.npmjs.qrcode": "workspace:*",
+    "@-/me.unduo.components.setup.plugin": "workspace:*",
+    "@-/me.unduo.configs.git": "workspace:*",
+    "@-/me.unduo.data.universities": "workspace:*",
+    "es-module-lexer": "catalog:",
+    "parse5": "catalog:",
+    "postcss": "catalog:",
+    "vite": "catalog:"
+  },
+  "devDependencies": {
+    "typescript": "catalog:",
+    "vite-plus": "catalog:"
+  }
+}

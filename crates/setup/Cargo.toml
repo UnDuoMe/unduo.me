@@ -1,0 +1,27 @@
+[package]
+name = "unduo-setup"
+version = "0.1.0"
+edition = "2024"
+publish = false
+description = "The unduo setup flow as a sandboxed Extism plugin: pure state and parsing."
+license = "MIT"
+
+[lib]
+crate-type = ["cdylib", "rlib"]
+
+[dependencies]
+base64 = "0.23.1"
+extism-pdk = { version = "1.4.1", default-features = false }
+regex-lite = "0.1.9"
+rqrr = { version = "0.11.0", default-features = false, optional = true }
+serde = { version = "1.0.229", features = ["derive"] }
+serde_json = { version = "1.0.154", features = ["preserve_order"] }
+url = "2.5.8"
+
+[features]
+# A QR reader the page doesn't use: the page reads QR codes itself, so the
+# published module holds no code that takes pixels.
+qr-reader = ["dep:rqrr"]
+
+[dev-dependencies]
+qrcode = { version = "0.14.1", default-features = false }

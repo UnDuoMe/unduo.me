@@ -1,0 +1,26 @@
+{
+  "name": "@-/me.unduo.components.setup.plugin",
+  "private": true,
+  "type": "module",
+  "imports": {
+    "#js-plugin": "./js-plugin.ts",
+    "#setup-plugin": "./setup-plugin.ts",
+    "#plugin-file": "./plugin-file.server.ts",
+    "#entities": "@-/me.unduo.components.setup.plugin.entities"
+  },
+  "exports": {
+    ".": "./+.ts",
+    "./server": "./+server.ts",
+    "./setup.wasm": "./setup.wasm",
+    "./setup.wasm.json": "./setup.wasm.json"
+  },
+  "dependencies": {
+    "@-/me.unduo.components.setup.plugin.entities": "workspace:*"
+  },
+  "devDependencies": {
+    "@-/com.npmjs.qr": "workspace:*",
+    "@types/node": "catalog:",
+    "vite": "catalog:",
+    "vite-plus": "catalog:"
+  }
+}

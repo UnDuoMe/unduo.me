@@ -1,0 +1,8 @@
+{
+  "catalog": "https://mix-n-match.toolforge.org/#/catalog/7299",
+  "property": "https://www.wikidata.org/wiki/Property:P13470",
+  "exportUrl": "https://mix-n-match.toolforge.org/api/download2?catalogs=7299&columns=%7B%22exturl%22%3A1%2C%22username%22%3A0%2C%22aux%22%3A1%2C%22dates%22%3A0%2C%22location%22%3A0%2C%22multimatch%22%3A0%7D&format=json&as_file=1",
+  "retrievedAt": "2026-11-03",
+  "records": 21547,
+  "sha256": "f9c1bcf4bb4573e3812211bdb7c59552f7ec31276f8a4f295d0e040eb12915a9"
+}

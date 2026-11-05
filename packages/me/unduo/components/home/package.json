@@ -1,0 +1,19 @@
+{
+  "name": "@-/me.unduo.components.home",
+  "private": true,
+  "type": "module",
+  "imports": {
+    "#home-intro": "./home-intro.ts",
+    "#home-page": "./home-page.ts",
+    "#home-steps": "./home-steps.ts"
+  },
+  "exports": {
+    ".": "./+.ts"
+  },
+  "dependencies": {
+    "@-/me.unduo.components.university-picker": "workspace:*",
+    "@-/me.unduo.data.universities.entities": "workspace:*",
+    "@-/me.unduo.lib.dom": "workspace:*",
+    "@-/me.unduo.lib.universities": "workspace:*"
+  }
+}
