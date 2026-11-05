@@ -97,9 +97,9 @@ async function finishInstallation(config: GitHubAppConfig, cwd: string): Promise
   if (
     installation.app_id !== config.appId ||
     installation.account.login !== "UnDuoMe" ||
-    installation.repository_selection !== "selected"
+    !["selected", "all"].includes(installation.repository_selection)
   )
-    throw new Error("Install the App on UnDuoMe and select only the unduo.me repository.");
+    throw new Error("Install the App on UnDuoMe with access to the unduo.me repository.");
   const installed = { ...config, installationId: installation.id };
   await verifyInstallationToken(await installationToken(installed));
   saveGitHubAppConfig(installed);

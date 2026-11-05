@@ -206,63 +206,72 @@ test("the setup listener rejects invalid state and never exposes credentials", a
   }
 });
 
-test("the browser callback stores the key, verifies installation, and configures App-only Git", async () => {
-  const originalFetch = globalThis.fetch;
-  const logs = vi.spyOn(console, "log").mockImplementation(() => {});
-  const api = vi.spyOn(globalThis, "fetch").mockImplementation(async (input, init) => {
-    const url = typeof input === "string" ? input : input instanceof URL ? input.href : input.url;
-    if (!url.startsWith("https://api.github.com")) return originalFetch(input, init);
-    if (url.endsWith("/conversions"))
-      return Response.json({
-        id: config.appId,
-        client_id: config.clientId,
-        slug: config.slug,
-        pem: privateKey,
-        owner: { login: "UnDuoMe" },
-      });
-    if (url.endsWith("/installation"))
-      return Response.json({
-        id: 456,
-        app_id: 123,
-        account: { login: "UnDuoMe" },
-        repository_selection: "selected",
-      });
-    if (url.endsWith("/access_tokens")) return Response.json({ token: "test-installation-token" });
-    if (url.endsWith("/installation/repositories"))
-      return Response.json({ total_count: 1, repositories: [{ full_name: "UnDuoMe/unduo.me" }] });
-    throw new Error("Unexpected GitHub request");
-  });
-  const setup = await startGitHubAppSetup(repo);
-  try {
-    const registered = new URL(setup.url);
-    registered.pathname = "/registered";
-    registered.searchParams.set("code", "test-manifest-code");
-    const registration = await fetch(registered);
-    expect(registration.status).toBe(200);
-    expect(await registration.text()).not.toContain(privateKey);
-    expect(loadGitHubAppConfig().privateKey).toBe(privateKey);
-    const installed = new URL(setup.url);
-    installed.pathname = "/installed";
-    const response = await fetch(installed);
-    expect(response.status).toBe(200);
-    expect(await response.text()).toContain("App connected");
-    await setup.finished;
-    expect(loadGitHubAppConfig().installationId).toBe(456);
-    expect(
-      api.mock.calls.some(
-        ([url]) => typeof url === "string" && url.includes("/app/installations/456/access_tokens"),
-      ),
-    ).toBe(true);
-    const output = logs.mock.calls.flat().join(" ");
-    expect(output).not.toContain(privateKey);
-    expect(output).not.toContain("test-installation-token");
-    expect(
-      execFileSync("git", ["config", "--local", "--get", "credential.https://github.com.helper"], {
-        cwd: repo,
-        encoding: "utf8",
-      }).trim(),
-    ).toBe(githubCredentialHelper);
-  } finally {
-    await setup.close();
-  }
-});
+test.each(["selected", "all"])(
+  "the browser callback verifies %s installation with a token restricted to this repo",
+  async (selection) => {
+    const originalFetch = globalThis.fetch;
+    const logs = vi.spyOn(console, "log").mockImplementation(() => {});
+    const api = vi.spyOn(globalThis, "fetch").mockImplementation(async (input, init) => {
+      const url = typeof input === "string" ? input : input instanceof URL ? input.href : input.url;
+      if (!url.startsWith("https://api.github.com")) return originalFetch(input, init);
+      if (url.endsWith("/conversions"))
+        return Response.json({
+          id: config.appId,
+          client_id: config.clientId,
+          slug: config.slug,
+          pem: privateKey,
+          owner: { login: "UnDuoMe" },
+        });
+      if (url.endsWith("/installation"))
+        return Response.json({
+          id: 456,
+          app_id: 123,
+          account: { login: "UnDuoMe" },
+          repository_selection: selection,
+        });
+      if (url.endsWith("/access_tokens"))
+        return Response.json({ token: "test-installation-token" });
+      if (url.endsWith("/installation/repositories"))
+        return Response.json({ total_count: 1, repositories: [{ full_name: "UnDuoMe/unduo.me" }] });
+      throw new Error("Unexpected GitHub request");
+    });
+    const setup = await startGitHubAppSetup(repo);
+    try {
+      const registered = new URL(setup.url);
+      registered.pathname = "/registered";
+      registered.searchParams.set("code", "test-manifest-code");
+      const registration = await fetch(registered);
+      expect(registration.status).toBe(200);
+      expect(await registration.text()).not.toContain(privateKey);
+      expect(loadGitHubAppConfig().privateKey).toBe(privateKey);
+      const installed = new URL(setup.url);
+      installed.pathname = "/installed";
+      const response = await fetch(installed);
+      expect(response.status).toBe(200);
+      expect(await response.text()).toContain("App connected");
+      await setup.finished;
+      expect(loadGitHubAppConfig().installationId).toBe(456);
+      expect(
+        api.mock.calls.some(
+          ([url]) =>
+            typeof url === "string" && url.includes("/app/installations/456/access_tokens"),
+        ),
+      ).toBe(true);
+      const output = logs.mock.calls.flat().join(" ");
+      expect(output).not.toContain(privateKey);
+      expect(output).not.toContain("test-installation-token");
+      expect(
+        execFileSync(
+          "git",
+          ["config", "--local", "--get", "credential.https://github.com.helper"],
+          {
+            cwd: repo,
+            encoding: "utf8",
+          },
+        ).trim(),
+      ).toBe(githubCredentialHelper);
+    } finally {
+      await setup.close();
+    }
+  },
+);
