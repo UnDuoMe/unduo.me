@@ -1,5 +1,13 @@
 import { expect, test } from "vite-plus/test";
-import { findLine, finishedReply, holdsOnly, treeLines } from "#tree";
+import {
+  copyButton,
+  findLine,
+  finishedReply,
+  holdsOnly,
+  joinPieces,
+  replyMarkdown,
+  treeLines,
+} from "#tree";
 
 const tree = (lines: string[]) =>
   [
@@ -19,8 +27,12 @@ test("reads element lines and finds one by pattern", () => {
     "51 button Send",
   ]);
   expect(treeLines(lines)).toEqual([
-    { index: "7", text: "text field (settable) Address and search bar, Value: example.com" },
-    { index: "51", text: "button Send" },
+    {
+      index: "7",
+      text: "text field (settable) Address and search bar, Value: example.com",
+      depth: 2,
+    },
+    { index: "51", text: "button Send", depth: 2 },
   ]);
   expect(findLine(lines, /^button Send$/)?.index).toBe("51");
 });
@@ -45,6 +57,76 @@ test("finds the finished reply, not the prompt's own wording", () => {
   expect(
     finishedReply(tree(["40 container, Text: Safe: no — the page posts the key."]))?.verdict,
   ).toBe("no");
+});
+
+test("rebuilds the reply as Markdown: paragraphs, lists and leads, without buttons", () => {
+  const reply = replyMarkdown(
+    tree([
+      `12 ${prompt}`,
+      "13 button Copy",
+      "40 heading Claude responded: Safe: yes.",
+      "41 container",
+      "\t42 button Tracing how the secret could leave",
+      "\t43 text Tracing how the secret could leave",
+      "44 text Safe: yes. Nothing sends your code anywhere but Duo.",
+      "45 content list",
+      "\t46 container",
+      "\t\t47 axlistmarker, Value: •",
+      "\t\t48 text Where data can go:",
+      "\t\t49 text Only Duo's servers (",
+      "\t\t50 text *.duosecurity.com",
+      "\t\t51 text ) and a few fixed files.",
+      "\t52 container",
+      "\t\t53 axlistmarker, Value: •",
+      "\t\t54 text The key stays in your browser.",
+      "55 container",
+      "\t56 text It restricts all network activity",
+      "\t57 button University of Toronto.html",
+      "\t58 text .",
+      "59 heading How it does that",
+      "60 content list",
+      "\t61 container",
+      "\t\t62 axlistmarker, Value: 1.",
+      "\t\t63 text A strict policy.",
+      "64 toolbar Message actions",
+      "65 button Copy",
+      "66 text Claude can make mistakes.",
+    ]),
+  );
+  expect(reply).toEqual({
+    verdict: "yes",
+    whole: true,
+    markdown: [
+      "Safe: yes. Nothing sends your code anywhere but Duo.",
+      "- **Where data can go:** Only Duo's servers (*.duosecurity.com) and a few fixed files.\n- The key stays in your browser.",
+      "It restricts all network activity.",
+      "### How it does that",
+      "1. A strict policy.",
+    ].join("\n\n"),
+  });
+  // A long paragraph the tree sums up in one line comes cut short.
+  expect(
+    replyMarkdown(tree(["40 text Safe: yes", "41 container, Text: The page’s security rules..."]))
+      ?.whole,
+  ).toBe(false);
+});
+
+test("finds the Copy button under the reply, not the one under the prompt", () => {
+  const lines = tree([
+    `12 ${prompt}`,
+    "13 button Copy",
+    "40 text Safe: yes",
+    "41 text The activation code goes only to Duo.",
+    "43 button Copy response",
+  ]);
+  expect(copyButton(lines, { index: "40" })).toBe("43");
+  expect(copyButton(lines, { index: "99" })).toBeUndefined();
+});
+
+test("puts back the spaces between a paragraph's pieces", () => {
+  expect(joinPieces(["in your browser", ". It restricts", "“", "this", "”", "too"])).toBe(
+    "in your browser. It restricts “this” too",
+  );
 });
 
 test("waits while the reply is still being written", () => {

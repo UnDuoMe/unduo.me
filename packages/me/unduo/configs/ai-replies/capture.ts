@@ -11,10 +11,10 @@ import {
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { aiPrompt } from "@-/me.unduo.components.home/server";
-import { ChromeWindow, sleep } from "#chrome";
+import { bringToFront, ChromeWindow, frontApp, sleep } from "#chrome";
 import { cropToPage, toWebp } from "#crop";
 import { type Site, sites } from "#sites";
-import { finishedReply, holdsOnly, type Reply } from "#tree";
+import { copyButton, finishedReply, holdsOnly, type Reply, replyMarkdown } from "#tree";
 
 export interface CaptureOptions {
   /** The setup file to attach, and the name a student's browser saves it under. */
@@ -36,8 +36,13 @@ export interface Capture {
   name: string;
   model?: string;
   verdict?: Reply["verdict"];
-  /** The reply's text as the accessibility tree gives it. */
+  /**
+   * The reply as Markdown: what its Copy button copies with `focus`, else
+   * rebuilt from the accessibility tree.
+   */
   reply?: string;
+  /** Whether the reply is whole: the tree sums up some long paragraphs cut short. */
+  whole?: boolean;
   /** The screenshot's file name in `images`. */
   screenshot?: string;
   /** Why the site couldn't be asked, if it couldn't. */
@@ -47,8 +52,11 @@ export interface Capture {
   file: { name: string; sha256: string };
 }
 
-/** Wait until the reply has a verdict, nothing is still writing it, and it reads the same twice. */
-async function waitForReply(window: ChromeWindow, timeoutMs = 6 * 60_000) {
+/**
+ * Wait until the reply has a verdict, nothing is still writing it, and it reads
+ * the same twice. ChatGPT Pro can think for twenty minutes or more.
+ */
+async function waitForReply(window: ChromeWindow, timeoutMs = 45 * 60_000) {
   const end = Date.now() + timeoutMs;
   let last: Reply | undefined;
   for (;;) {
@@ -58,6 +66,27 @@ async function waitForReply(window: ChromeWindow, timeoutMs = 6 * 60_000) {
     if (Date.now() > end) throw new Error("No finished reply.");
     await sleep(3000);
   }
+}
+
+/**
+ * The reply as its Copy button copies it, Markdown, or nothing if the clipboard
+ * doesn't then hold a reply with a verdict. A page writes to the clipboard only
+ * while it has focus, so Chrome comes to the front for a moment.
+ */
+async function copyReply(window: ChromeWindow, tree: string, reply: Reply) {
+  const button = copyButton(tree, reply);
+  if (!button) return undefined;
+  const marker = `unduo-${Date.now()}`;
+  execFileSync("pbcopy", { input: marker });
+  const front = frontApp();
+  try {
+    window.click(button, { restore: true });
+    await sleep(1500);
+  } finally {
+    bringToFront(front);
+  }
+  const text = execFileSync("pbpaste", { encoding: "utf8" }).trim();
+  return text !== marker && /\bSafe:\W*(?:yes|no)\b/i.test(text) ? text : undefined;
 }
 
 /** Ask `site` about the file in a new temporary chat, then screenshot the conversation from its top. */
@@ -80,7 +109,13 @@ async function ask(window: ChromeWindow, site: Site, upload: string, options: Ca
   if (!holdsOnly(window.tree(), site.box, aiPrompt))
     throw new Error(`${site.name}'s prompt box doesn't hold exactly the prompt; nothing was sent.`);
   window.click(await window.waitFor(site.send, 30_000));
-  const reply = await waitForReply(window);
+  await waitForReply(window);
+  // Keep the tree the reply's text comes from, to check it against the page.
+  const tree = window.tree();
+  writeFileSync(join(options.raw, `${site.id}-tree.txt`), tree);
+  const reply = finishedReply(tree)!;
+  const copied = options.focus ? await copyReply(window, tree, reply) : undefined;
+  const { markdown, whole } = copied ? { markdown: copied, whole: true } : replyMarkdown(tree)!;
   // Show the conversation from the top: the file and prompt, then the verdict.
   window.scroll(reply.index, "up", 20);
   await sleep(1500);
@@ -96,7 +131,8 @@ async function ask(window: ChromeWindow, site: Site, upload: string, options: Ca
     name: site.name,
     model,
     verdict: reply.verdict,
-    reply: reply.text,
+    reply: markdown,
+    whole,
     screenshot,
   };
 }

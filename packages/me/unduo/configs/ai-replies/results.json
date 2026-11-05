@@ -4,40 +4,43 @@
     {
       "site": "chatgpt",
       "name": "ChatGPT",
-      "model": "the model chosen last (not checked)",
+      "model": "Pro",
       "verdict": "yes",
-      "reply": "Safe: yes\nThe file's code restricts where your Duo activation code and secret key can go. The activation code is sent directly to Duo over an encrypted connection, and the secret key is processed locally in your browser for your authenticator app.\nThe downloaded setup module is restricted from making its own network requests, and its outputs are checked before use. The external stylesheets and images cannot read your secrets, and the page blocks sending them to other websites.\nI found no code path that would send either secret to an unauthorized party. This conclusion assumes a modern browser that enforces the file's security restrictions; it does not guarantee the security of your browser or authenticator app.",
+      "reply": "Safe: yes — based on the restrictions this file enforces, I found no route for its code to send your secrets to an unrelated website. Activation is limited to the Duo server identified in your input, and the authenticator QR code is created locally.\n\nThe downloaded setup program cannot contact websites directly, and the page checks its results before allowing them to affect requests or links; downloaded styles and images are also restricted.\n\nI couldn’t retrieve that downloaded program itself, so this judgment rests on its enforced restrictions, not a complete inspection of its contents.",
+      "whole": true,
       "screenshot": "ai-reply-chatgpt.webp",
-      "capturedAt": "2026-11-05T22:50:32.276Z",
+      "capturedAt": "2026-11-05T23:54:17.464Z",
       "file": {
         "name": "University of Toronto.html",
-        "sha256": "9c0c0f3c267edc7166cd9f7b3486cde01269eacb51ba6916237c6131aeb64ec8"
+        "sha256": "40b94a63fda8b6ac36c0a46864f86e3395400121d0267b0994b82860ee9940de"
       }
     },
     {
       "site": "gemini",
       "name": "Gemini",
-      "model": "3.6 Flash",
+      "model": "3.1 Pro",
       "verdict": "yes",
-      "reply": "Safe: yes\nThis file keeps your activation code and secret key safely contained in your browser\n. It restricts all network activity so your sensitive data cannot reach any external server or third party except Duo itself\n.",
+      "reply": "Safe: yes.\n\nThe \"University of Toronto.html\" file uses strict security rules enforced by your web browser to guarantee it can only send information directly to Duo's official servers. All processing of your activation code and secret key happens locally on your own device. The file is explicitly programmed to block any outside network connections, meaning it is restricted from uploading or leaking your sensitive setup details to the tool's creator, any third party, or even your browser history.",
+      "whole": true,
       "screenshot": "ai-reply-gemini.webp",
-      "capturedAt": "2026-11-05T22:51:02.070Z",
+      "capturedAt": "2026-11-05T23:42:41.390Z",
       "file": {
         "name": "University of Toronto.html",
-        "sha256": "9c0c0f3c267edc7166cd9f7b3486cde01269eacb51ba6916237c6131aeb64ec8"
+        "sha256": "40b94a63fda8b6ac36c0a46864f86e3395400121d0267b0994b82860ee9940de"
       }
     },
     {
       "site": "claude",
       "name": "Claude",
-      "model": "Sonnet 5.5 Medium",
+      "model": "Fable 5.1 High",
       "verdict": "yes",
-      "reply": "Claude responded: Safe: yes.\nChecking the stylesheets and script hashes for leaks\nSafe: yes.\nNetwork access. The page’s security rules (a Content-Security-Policy set at the top of the file)...\nThe downloaded plugin. I can’t read the plugin’s internal logic, but the page runs it in a sealed sandb...\nDuo’s reply. The reply, which contains your secret key, appears in a locked-down box that can...\nStyles and images. The stylesheets come from jsDelivr but are fingerprint-checked. The page also bl...\nTwo things are outside the file’s control. If you click “Open Duo’s reply in a new tab”, your browser history keeps that address, which contains the code. Anything you copy to the clipboard, like the key, is readable by other programs on your computer until you copy something else.",
+      "reply": "**Safe: yes.**\n\nI read the whole file, and I can't find any path by which your activation code or secret key could leave your browser for anyone but Duo and your authenticator app. Here's why, in plain terms:\n\nThe page has a strict \"security policy\" (a set of rules the browser enforces) that acts like a locked door. It lets the page talk to exactly three places: Duo's own servers (only to send the activation, and only to the one Duo address that came from your QR code), a fixed handful of files on jsDelivr (its setup code, styles and five example screenshots, each pinned to an exact fingerprint so they can't be swapped), and nothing else. The page even tests that the browser is enforcing these rules before it starts, and refuses to run if it isn't.\n\nThe two things it loads from outside, the WebAssembly setup module and the stylesheets, can't leak anything even if they were malicious. The module is deliberately boxed in: it's handed text (what you paste, or the text read from a QR code) and can only hand text back, and every piece of text it returns is checked against a fixed list of allowed messages, Duo's address format, and what you actually pasted, before the page uses it. It has no way to make a network request, change the page's address, or run code. The stylesheets can't make requests either, because the policy only allows images and fonts that are embedded in the page itself.\n\nYour key itself arrives in Duo's reply, which shows in a sealed box (a sandboxed frame the page can't read); you copy it across by hand. From there it only becomes a QR code drawn locally, a link you tap to open your authenticator, or text copied to your clipboard when you press a button. None of that touches a server. The page also never writes anything to its web address or to browser storage, so refreshing or closing the tab wipes it.\n\nOne thing to be aware of, which the page itself warns about: if you choose the optional \"open Duo's reply in a new tab\" button, that tab's address contains your activation code and will land in your browser history. The code only works once and the key isn't in the address, but if your history syncs across devices, use the default in-page box instead.\n\nThe usual limits apply: I can only vouch for this exact file and the fixed files it pins, not for a modified copy or a different version from the site.",
+      "whole": true,
       "screenshot": "ai-reply-claude.webp",
-      "capturedAt": "2026-11-05T22:51:45.911Z",
+      "capturedAt": "2026-11-05T23:57:02.425Z",
       "file": {
         "name": "University of Toronto.html",
-        "sha256": "9c0c0f3c267edc7166cd9f7b3486cde01269eacb51ba6916237c6131aeb64ec8"
+        "sha256": "780ae70c90063cca6fe289645c584e3dd26aae972afc6b8cc86e5ebc0a2aa662"
       }
     }
   ]

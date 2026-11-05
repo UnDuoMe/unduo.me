@@ -5,8 +5,8 @@ student would, and saves a screenshot of each reply for the home page.
 
 ```sh
 vp run capture:ai                          # all three, the UofT file in www/files/020599
-vp run capture:ai -- --site claude         # one site; repeat --site for more
-vp run capture:ai -- --focus               # also set ChatGPT's model and use Claude's file picker
+vp run capture:ai --site claude            # one site; repeat --site for more
+vp run capture:ai --focus                  # also set ChatGPT to Pro and use Claude's file picker
 ```
 
 It drives your own Chrome, signed in to the three sites, through `orca computer`, in a
@@ -23,11 +23,15 @@ appears. ChatGPT keeps the model chosen last, recorded as not checked, and Claud
 pasted file with a timestamp in front (`1793919068903_University of Toronto.html`).
 
 `--focus` brings Chrome to the front twice: for a moment to set ChatGPT's model slider to
-its first stop, Instant, whose menu opens only for a foreground click, and for a few
+its last stop, Pro, whose menu opens only for a foreground click, and for a few
 seconds to choose the file in Claude's file picker, so Claude shows its plain name.
 **Anything you type meanwhile goes to Chrome**, so run it only when you're away from the
 keyboard. The prompt check stops a stray key from being sent, but the key still reaches
 the page. Gemini and Claude answer with whatever model is chosen, and the script records it.
+The home page features each site's strongest model: ChatGPT Pro, Gemini 3.1 Pro (Advanced
+reasoning) and Claude Fable 5.1 at High effort, so choose those two in Chrome first; they
+stay chosen. Their menus open only for a foreground click too. Pro can think for twenty
+minutes or more, so the script waits up to 45 minutes for a reply.
 
 Once a reply has its verdict and reads the same twice, the script scrolls the chat to the
 top, so the screenshot shows the attached file and the prompt above the reply. Gemini folds
@@ -41,15 +45,20 @@ gap between paragraphs above it.
   wide, which the home page shows under its hero. The build publishes them with the other
   assets, so run `vp run publish:assets` before pushing.
 - `results.json`: the prompt, and per site when it ran, the file's name and SHA-256, the
-  model, the verdict (`yes` or `no`) and the reply's text as the accessibility tree reads it
-  (long paragraphs come truncated), or why the site couldn't be asked. A run of some sites
-  keeps the other sites' entries.
+  model, the verdict (`yes` or `no`) and the whole reply as Markdown, or why the site
+  couldn't be asked. A run of some sites keeps the other sites' entries. `replyMarkdown()`
+  rebuilds the reply from the accessibility tree: its paragraphs, headings and lists, a list
+  item's lead such as "Where data can go:" in bold, and no buttons, such as a thinking
+  summary or a cited file. The tree sums up some long paragraphs in one line cut short with
+  "..."; then `whole` is false and the command says so. Copying the reply with the site's
+  Copy button doesn't work from the background: a page without focus can't write to the
+  clipboard.
 - `.output/ai-replies/<site>.png` and `<site>-cropped.png` at the repository root: the
-  window, uncropped and cropped.
+  window, uncropped and cropped, and `<site>-tree.txt`, the tree the reply was read from.
 
-The home page's cards quote a sentence of each reply, from `aiReplies` in
-`packages/me/unduo/components/home/ai-replies.ts`, with each model and date. Update them
-when a new screenshot shows a different reply.
+The home page's cards show each whole reply and its model, from `aiReplies` in
+`packages/me/unduo/components/home/ai-replies.ts`. Copy the replies there from
+`results.json` whenever the screenshots change.
 
 One site failing doesn't stop the others. The script exits with an error when a site fails
 or a reply says "Safe: no", after saving every screenshot it could.

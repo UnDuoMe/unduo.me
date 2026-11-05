@@ -997,6 +997,31 @@ describe.runIf(enabled)("browser", { timeout: 180_000 }, () => {
       ["Claude", "Safe: yes", 1],
       ["Gemini", "Safe: yes", 1],
     ]);
+    expect(evaluate("document.querySelector('#ai-replies-title').textContent")).toBe(
+      "Safe, but don't take our word for it.",
+    );
+    // Each card holds the whole reply, cut short until its chevron opens it in a box that scrolls.
+    expect(
+      evaluate(
+        "[...document.querySelectorAll('.reply-card')].map((card) => card.querySelector('.reply-text').textContent.startsWith('Safe: yes'))",
+      ),
+    ).toEqual([true, true, true]);
+    const opened = () =>
+      evaluate(
+        "[...document.querySelectorAll('.reply-toggle')].map((toggle) => [toggle.ariaExpanded, getComputedStyle(document.getElementById(toggle.getAttribute('aria-controls'))).overflowY])",
+      ) as [string, string][];
+    expect(opened()).toEqual([
+      ["false", "hidden"],
+      ["false", "hidden"],
+      ["false", "hidden"],
+    ]);
+    // VanJS updates the page after the click returns.
+    evaluate("document.querySelector('.reply-toggle').click()");
+    browser("wait", "--fn", "document.querySelector('.reply-toggle').ariaExpanded === 'true'");
+    expect(opened()[0]).toEqual(["true", "auto"]);
+    evaluate("document.querySelector('.reply-toggle').click()");
+    browser("wait", "--fn", "document.querySelector('.reply-toggle').ariaExpanded === 'false'");
+    expect(opened()[0]).toEqual(["false", "hidden"]);
     // A screenshot opens larger, and Escape closes it.
     evaluate("document.querySelector('.reply-shot-button').click()");
     expect(

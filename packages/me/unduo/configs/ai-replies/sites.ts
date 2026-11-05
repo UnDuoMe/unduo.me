@@ -4,7 +4,7 @@ import { findLine, treeLines } from "#tree";
 export interface SiteOptions {
   /**
    * Whether the run may bring Chrome to the front: for a moment to set
-   * ChatGPT's model, whose menu opens only for a foreground click, and for a few
+   * ChatGPT's model to Pro, whose menu opens only for a foreground click, and for a few
    * seconds to choose the file in Claude's file picker. Anything you type then
    * goes to Chrome, so pass it only when you're away from the keyboard. Without
    * it ChatGPT keeps the model chosen last, and Claude gets the file pasted.
@@ -37,25 +37,25 @@ export interface Site {
 const escape = (text: string) => text.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 
 /**
- * Set ChatGPT's model slider to its first stop, Instant, which ChatGPT's own
- * default leans on. The menu opens only for a foreground click, so Chrome comes
- * to the front for a moment; the app you were using goes back in front after.
+ * Set ChatGPT's model slider to its last stop, Pro, its strongest. The menu
+ * opens only for a foreground click, so Chrome comes to the front for a moment;
+ * the app you were using goes back in front after.
  */
-async function chatGptInstant(window: ChromeWindow) {
+async function chatGptPro(window: ChromeWindow) {
   const front = frontApp();
   try {
     window.click(window.find(/^pop up button Select ChatGPT model$/)!, { restore: true });
     await sleep(800);
     for (let step = 0; step < 6; step++) {
       const level = treeLines(window.tree())
-        .map(({ text }) => /^text (.+), (\d) of \d\.$/.exec(text))
+        .map(({ text }) => /^text (.+), (\d) of (\d)\.$/.exec(text))
         .find(Boolean);
       if (!level) throw new Error("ChatGPT's model menu didn't open.");
-      if (level[2] === "1") {
-        window.pressKey("Escape");
+      if (level[2] === level[3]) {
+        window.pressKey("Escape", { restore: true });
         return level[1]!;
       }
-      window.pressKey("Left");
+      window.pressKey("Right", { restore: true });
       await sleep(300);
     }
     throw new Error("ChatGPT's model slider didn't move.");
@@ -103,7 +103,7 @@ export const sites: Site[] = [
       await window.waitFor(/^heading Temporary chat$/);
       if (!window.find(/^pop up button Unpersonalized$/))
         throw new Error("ChatGPT's temporary chat isn't unpersonalized.");
-      return focus ? chatGptInstant(window) : "the model chosen last (not checked)";
+      return focus ? chatGptPro(window) : "the model chosen last (not checked)";
     },
     box: /^text entry area \(settable\) Ask ChatGPT/,
     attached: (fileName) => new RegExp(`^button Remove ${escape(fileName)}$`),

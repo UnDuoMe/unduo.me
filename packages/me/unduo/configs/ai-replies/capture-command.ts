@@ -25,13 +25,11 @@ const captures = await captureAiReplies({
   sites: (values.site ?? ["chatgpt", "gemini", "claude"]) as Site["id"][],
   focus: values.focus,
 });
-for (const { name, model, verdict, screenshot, error } of captures)
+for (const { name, model, verdict, screenshot, whole, error } of captures)
   console.log(
     error
       ? `${name}: failed: ${error}`
-      : `${name} (${model}): Safe: ${verdict}  ${join(values.images, screenshot!)}`,
+      : `${name} (${model}): Safe: ${verdict}  ${join(values.images, screenshot!)}${whole ? "" : "  (the tree cut part of the reply short)"}`,
   );
 if (captures.some(({ verdict }) => verdict !== "yes")) process.exitCode = 1;
-console.log(
-  "If a reply changed, update its quote in packages/me/unduo/components/home/ai-replies.ts.",
-);
+console.log("If a reply changed, update it in packages/me/unduo/components/home/ai-replies.ts.");
