@@ -2,7 +2,7 @@ import { universityPicker } from "@-/me.unduo.components.university-picker";
 import type { University } from "@-/me.unduo.data.universities.entities";
 import { button, dialog, div, h2, main, p, path, section, svg } from "@-/me.unduo.lib.dom";
 import { findUniversity } from "@-/me.unduo.lib.universities";
-import { homeHeader, homeSource, overviewStep } from "#home-intro";
+import { homeFooter, homeHeader, overviewStep } from "#home-intro";
 import { aiTestimonials, getStarted, howItWorks } from "#home-landing";
 import { continueStep, verifyStep } from "#home-steps";
 
@@ -40,7 +40,7 @@ function fromUrl() {
  * Build the home page in its `#root`, a landing page: the name, what UnDuo is
  * for and a searchable dropdown of institutions, filling the first screen; then
  * what ChatGPT, Claude and Gemini said about a file, how UnDuo works, a way back
- * to the search, and a link to the source. Choosing an institution opens a
+ * to the search, and a footer with a contact address and the source. Choosing an institution opens a
  * dialog that takes it from an overview to opening its file, which has its own
  * stepper for setup.
  */
@@ -167,7 +167,7 @@ export function startHomePage() {
         howItWorks(),
         getStarted(toSearch),
       ),
-      homeSource(),
+      homeFooter(),
       homeDialog,
     ),
   );

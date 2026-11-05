@@ -43,10 +43,11 @@ export function homeHeader() {
   );
 }
 
-/** A link to the source, as GitHub's mark at the bottom of the page. */
-export function homeSource() {
+/** The page's footer: an email link to contact UnDuo, and the source, as GitHub's mark. */
+export function homeFooter() {
   return footer(
     { class: "home-footer" },
+    a({ class: "home-contact", href: "mailto:contact@unduo.me" }, "contact@unduo.me"),
     a(
       {
         class: "home-source",

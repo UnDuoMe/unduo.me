@@ -463,6 +463,7 @@ describe.runIf(enabled)("static output", () => {
         'href: "https://claude.ai/"',
         'href: "https://gemini.google.com/"',
         'href: "https://github.com/UnDuoMe/unduo.me"',
+        'href: "mailto:contact@unduo.me"',
         "href: `./files/${school.id.slice(4)}`",
         "href: assistant.href",
       ]);
@@ -968,9 +969,14 @@ describe.runIf(enabled)("browser", { timeout: 180_000 }, () => {
       "The hero shows one search field",
     ).toEqual([["university", "combobox", "Select Your University", "Select Your University"]]);
     expect(
-      evaluate("(({ href, ariaLabel }) => [href, ariaLabel])(document.querySelector('footer a'))"),
-      "The source is GitHub's mark at the bottom",
-    ).toEqual(["https://github.com/UnDuoMe/unduo.me", "Source on GitHub"]);
+      evaluate(
+        "[...document.querySelectorAll('footer a')].map(({ href, ariaLabel, textContent }) => [href, ariaLabel ?? textContent])",
+      ),
+      "The footer has an email link to contact UnDuo and GitHub's mark for the source",
+    ).toEqual([
+      ["mailto:contact@unduo.me", "contact@unduo.me"],
+      ["https://github.com/UnDuoMe/unduo.me", "Source on GitHub"],
+    ]);
     expect(dropdownOpen()).toBe(false);
     expect(dialogOpen()).toBe(false);
     expect(evaluate("!!document.querySelector('.step-item')"), "No stepper").toBe(false);
