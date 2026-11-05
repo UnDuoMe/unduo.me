@@ -62,7 +62,9 @@ SHA-256 it names, and `vp run verify:cdn` compares it with GitHub's copy.
 All Git authors and committers must be
 `cursoragent <199161495+cursoragent@users.noreply.github.com>`.
 `vp install` configures this identity locally and installs Vite+ hooks; it does
-not change global Git settings. Run `vp run check:git` before pushing to
+not change global Git settings. Pushes require the UnDuoMe Automation GitHub App:
+run `vp run setup:github-app` once and approve installation on only `unduo.me`.
+Run `vp run check:git` and `vp run check:github-app` before pushing to
 `https://github.com/UnDuoMe/unduo.me.git`. See
 [the Git policy package](packages/me/unduo/configs/git/README.md) for enforcement
 and the distinction between commit attribution and push authentication.

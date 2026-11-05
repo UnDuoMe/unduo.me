@@ -54,5 +54,9 @@ release. Add a tool name to select part of the graph. For example, run
   enable` to restore Vite+ hooks. Never bypass the identity policy.
 - Run `vp run check:git` before every push. Do not push any history containing
   another author or committer, or any coauthor trailers. GitHub push authentication is separate;
-  use separate bot or GitHub App credentials when the personal account must not
-  appear as pusher.
+  all pushes must authenticate as the UnDuoMe Automation GitHub App. Never use
+  personal credentials, a personal HTTP Authorization header, or an SSH remote.
+- Run `vp run setup:github-app` to register/install the App and `vp run
+  check:github-app` before pushing. The repository credential helper creates
+  short-lived installation tokens restricted to this repo and never falls back
+  to personal credentials. Keep the App key outside the repository.

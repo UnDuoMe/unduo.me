@@ -1,4 +1,5 @@
 import { execFileSync, spawnSync } from "node:child_process";
+import { configureGitHubAuth } from "#github-app";
 
 export const gitIdentity = {
   name: "cursoragent",
@@ -83,4 +84,5 @@ export function configureGit(): void {
     "tag.gpgSign": "false",
   }))
     git(["config", "--local", key, value]);
+  configureGitHubAuth();
 }

@@ -53,6 +53,8 @@
   "scripts": {
     "prepare": "vp config && vp run setup:git",
     "setup:git": "vpx packages/me/unduo/configs/git/configure-git.ts",
+    "setup:github-app": "vpx packages/me/unduo/configs/git/setup-github-app.ts",
+    "check:github-app": "vpx packages/me/unduo/configs/git/github-app-command.ts",
     "check:git": "vpx packages/me/unduo/configs/git/git-hook.ts history",
     "build:web": "vp run --filter @-apps/unduo-web build",
     "build:web:self-contained": "vp run --filter @-/me.unduo.configs.web build:self-contained",

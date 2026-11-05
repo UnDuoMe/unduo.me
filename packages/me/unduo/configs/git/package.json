@@ -3,6 +3,8 @@
   "private": true,
   "type": "module",
   "imports": {
+    "#github-app": "./github-app.ts",
+    "#github-app-setup": "./github-app-setup.ts",
     "#git-policy": "./git-policy.ts"
   },
   "exports": {
