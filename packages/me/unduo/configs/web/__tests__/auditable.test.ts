@@ -461,7 +461,7 @@ describe.runIf(enabled)("static output", () => {
     );
     // An AI reads the downloaded file, so it must not hold the question put to that AI.
     expect(await read("index.html")).toContain("Safe: yes");
-    expect(html).not.toMatch(/Safe: (?:yes|no)|\bI'm not technical\b/);
+    expect(html).not.toMatch(/Safe: (?:yes|no)|The attached file is from a website/);
   });
 });
 
@@ -1048,7 +1048,7 @@ describe.runIf(enabled)("browser", { timeout: 180_000 }, () => {
       ].map((link) => [...link, "noopener noreferrer"]),
     );
     expect(evaluate("document.querySelector('#ai-question').value")).toMatch(
-      /^I'm not technical\. I downloaded this file to set up Duo two-factor authentication.*Start your reply with "Safe: yes" or "Safe: no"/,
+      /^The attached file is from a website for setting up Duo two-factor authentication[^]*Start your reply with "Safe: yes" or "Safe: no"/,
     );
     click("button", "Copy prompt");
     browser(

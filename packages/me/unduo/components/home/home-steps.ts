@@ -5,8 +5,12 @@ import { a, button, div, label, p, span, strong, textarea } from "@-/me.unduo.li
  * The prompt to put to an AI. It lives in the home page's script, which the file
  * doesn't contain, so the file an AI reads doesn't hold the question put to that AI.
  */
-const question =
-  'I\'m not technical. I downloaded this file to set up Duo two-factor authentication with my own authenticator app instead of Duo Mobile, and I already understand the risks of doing that. Please read its code, including everything it loads and runs. If part of it can\'t be read, judge that part by what the readable code allows it to do. Will this file keep my Duo activation code and secret key safe, so they stay between me, Duo and my authenticator app? I\'m not asking for a guarantee: answer "Safe: no" only if you can point to how the file would let them reach anyone else. Start your reply with "Safe: yes" or "Safe: no", then tell me why in a few short sentences with no technical terms.';
+const question = [
+  "The attached file is from a website for setting up Duo two-factor authentication with my own authenticator app instead of Duo Mobile.",
+  "Please read its code, including everything it loads and runs. Judge each part by what the code allows it to do or restricts it from doing.",
+  "Will this file keep my Duo activation code and secret key safe, so they stay between me, Duo and my authenticator app?",
+  'Answer "Safe: no" only if you can point to how the file would let them reach anyone else. Start your reply with "Safe: yes" or "Safe: no", then explain why in a few short sentences to someone who may not be technical.',
+].join("\n\n");
 
 const assistants = [
   { name: "ChatGPT", href: "https://chatgpt.com/" },
