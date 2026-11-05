@@ -1,6 +1,6 @@
 <!doctype html>
 <html lang="en">
-  <head><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'sha256-dZu710qV7pUozk9WNNw7Nr449YAqE6wv/arVKnsnH/Y=' 'sha256-pKdVThSsX2Q2L08nyZSjtUkaMzjTKNB+XRhVNJlbTa8='; script-src-attr 'none'; style-src-elem https://cdn.jsdelivr.net/npm/uikit@3.25.29/dist/css/uikit.min.css https://cdn.jsdelivr.net/gh/UnDuoMe/unduo.me@7d4a24f3d03757028f4860b58806086914a22a0a/setup-styles.KW69b-k9.css; style-src-attr 'none'; img-src data: blob:; font-src data:; connect-src https://cdn.jsdelivr.net/gh/UnDuoMe/unduo.me@7d4a24f3d03757028f4860b58806086914a22a0a/ai-reply-chatgpt.yPeCvnTm.webp https://cdn.jsdelivr.net/gh/UnDuoMe/unduo.me@7d4a24f3d03757028f4860b58806086914a22a0a/ai-reply-claude.KSM3Lkny.webp https://cdn.jsdelivr.net/gh/UnDuoMe/unduo.me@7d4a24f3d03757028f4860b58806086914a22a0a/ai-reply-gemini.jOj2zACA.webp; form-action https://*.duosecurity.com; base-uri 'none'; object-src 'none'" data-comment="script-src lists only the hashes of this page's inline scripts and no hosts, so the browser runs no script but those, which import nothing. No source allows inline handlers or eval. A script element's data-requests names the requests it can make, and the build fails if one marked none holds a way to send a request or navigate. Fetches may reach only the files in connect-src, and forms only Duo. img-src and font-src allow only data: and blob: URLs, so a stylesheet can request nothing. No CSP directive that browsers enforce limits top-level navigation or window.open, so only this page's own scripts can use them.">
+  <head><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'sha256-dZu710qV7pUozk9WNNw7Nr449YAqE6wv/arVKnsnH/Y=' 'sha256-99SNiXiA7E6bmjlUTGBpNTcUXPI9Wg7RtgX6qkS3kxU='; script-src-attr 'none'; style-src-elem https://cdn.jsdelivr.net/npm/uikit@3.25.29/dist/css/uikit.min.css https://cdn.jsdelivr.net/gh/UnDuoMe/unduo.me@7d4a24f3d03757028f4860b58806086914a22a0a/setup-styles.KW69b-k9.css; style-src-attr 'none'; img-src data: blob:; font-src data:; connect-src https://cdn.jsdelivr.net/gh/UnDuoMe/unduo.me@7d4a24f3d03757028f4860b58806086914a22a0a/ai-reply-chatgpt.yPeCvnTm.webp https://cdn.jsdelivr.net/gh/UnDuoMe/unduo.me@7d4a24f3d03757028f4860b58806086914a22a0a/ai-reply-claude.KSM3Lkny.webp https://cdn.jsdelivr.net/gh/UnDuoMe/unduo.me@7d4a24f3d03757028f4860b58806086914a22a0a/ai-reply-gemini.jOj2zACA.webp; form-action https://*.duosecurity.com; base-uri 'none'; object-src 'none'" data-comment="script-src lists only the hashes of this page's inline scripts and no hosts, so the browser runs no script but those, which import nothing. No source allows inline handlers or eval. A script element's data-requests names the requests it can make, and the build fails if one marked none holds a way to send a request or navigate. Fetches may reach only the files in connect-src, and forms only Duo. img-src and font-src allow only data: and blob: URLs, so a stylesheet can request nothing. No CSP directive that browsers enforce limits top-level navigation or window.open, so only this page's own scripts can use them.">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="referrer" content="no-referrer">
@@ -546,13 +546,16 @@ function howItWorks() {
 		"aria-hidden": "true"
 	}, String(index + 1)), p({ class: "how-text" }, text)))));
 }
-/** A way back to the search at the top, where every setup starts. */
+/**
+* Get Started, at the bottom of the page: it scrolls back up to the search,
+* where every setup starts, and focuses it.
+*/
 function getStarted(focusSearch) {
 	return section({ class: "landing-cta" }, button({
 		type: "button",
 		class: "uk-button uk-button-primary btn-accent cta-button",
 		onclick: focusSearch
-	}, "Select Your University"));
+	}, "Get Started"));
 }
 /**
 * The prompt the home page gives a student to put to an AI with the downloaded
@@ -690,7 +693,7 @@ function startHomePage() {
 	const current = van.state(start.current);
 	/** The search field, which takes focus back when the dialog closes. */
 	const focusSearch = () => document.getElementById("university")?.focus();
-	/** Bring the search back into view from further down the page, then focus it. */
+	/** Scroll the search back to the middle of the screen, smoothly unless motion is reduced, then focus it. */
 	const toSearch = () => {
 		const field = document.getElementById("university");
 		field?.scrollIntoView({ block: "center" });

@@ -6,7 +6,7 @@ Under the hero (`home-landing.ts`):
 
 - **We asked ChatGPT, Claude and Gemini**: a card per AI with its model, its verdict ("Safe: yes"), a sentence quoted from its reply and the date, from `aiReplies` in `ai-replies.ts`. Each card shows a screenshot of the whole conversation, the University of Toronto file and the prompt above the reply, which opens larger in a dialog. The screenshots are `ai-reply-<id>.webp` in `apps/unduo-web/src/assets/`, taken by `vp run capture:ai` ([`configs/ai-replies`](../../configs/ai-replies)). The build publishes them with the other assets and `homeMount()` (the `./server` entry) puts them in an `#ai-reply-images` template with their SHA-256; `showScreenshot()` fetches each only if its hash matches and shows it as a blob: URL, as the setup file does with its screenshots.
 - **How UnDuo Works**: the three steps, numbered.
-- A **Select Your University** button that scrolls back to the search and focuses it.
+- **Get Started**, a button at the bottom that scrolls back up to the search and focuses it.
 
 1. **Overview**: how UnDuo works, in three steps, and that the next step lets the student check it, with Continue.
 2. **Verify**: download `<institution name>.html` from `./files/<WHED number>` but don't run it yet, then drag it into an AI and copy the prompt.

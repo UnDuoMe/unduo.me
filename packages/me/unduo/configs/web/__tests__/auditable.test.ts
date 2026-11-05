@@ -1013,8 +1013,16 @@ describe.runIf(enabled)("browser", { timeout: 180_000 }, () => {
       "UnDuo converts it to a 2FA QR Code.",
       "Scan this 2FA QR Code with your favorite 2FA app.",
     ]);
-    // The last section's button brings back the search, without opening its list.
+    // Get Started, at the bottom, scrolls back up to the search and focuses it, without opening its list.
+    expect(evaluate("document.querySelector('.cta-button').textContent")).toBe("Get Started");
+    // Jump to the bottom at once, so the button's smooth scroll doesn't overlap another.
+    evaluate("document.querySelector('footer').scrollIntoView({ behavior: 'instant' })");
     evaluate("document.querySelector('.cta-button').click()");
+    browser(
+      "wait",
+      "--fn",
+      "(({ top, bottom }) => top >= 0 && bottom <= innerHeight)(document.querySelector('#university').getBoundingClientRect())",
+    );
     expect(focused()).toBe("university");
     expect(dropdownOpen()).toBe(false);
 

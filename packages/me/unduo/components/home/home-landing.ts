@@ -146,7 +146,10 @@ export function howItWorks() {
   );
 }
 
-/** A way back to the search at the top, where every setup starts. */
+/**
+ * Get Started, at the bottom of the page: it scrolls back up to the search,
+ * where every setup starts, and focuses it.
+ */
 export function getStarted(focusSearch: () => void) {
   return section(
     { class: "landing-cta" },
@@ -156,7 +159,7 @@ export function getStarted(focusSearch: () => void) {
         class: "uk-button uk-button-primary btn-accent cta-button",
         onclick: focusSearch,
       },
-      "Select Your University",
+      "Get Started",
     ),
   );
 }
