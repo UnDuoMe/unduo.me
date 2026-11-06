@@ -1,8 +1,8 @@
 # @-/me.unduo.components.result
 
 Shared authenticator result markup: the `otpauth://` QR code, a counter-based
-(HOTP, default) / time-based (TOTP) switch, the setup key (shown on request, with
-a note to clear the clipboard after copying it by hand), and test instructions.
+(HOTP, default) / time-based (TOTP) switch, the setup key (shown on request), and test
+instructions.
 Nothing copies the key or its link: some systems sync the clipboard to the cloud. It stores nothing itself.
 
 ## Usage

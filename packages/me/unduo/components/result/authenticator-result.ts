@@ -132,10 +132,6 @@ export function authenticatorResult({ view, qr, send }: SetupPage) {
           ),
         ),
         // No button copies the key or its link: some systems sync the clipboard to the cloud.
-        p(
-          { class: "hint" },
-          "If you copy the key by hand, clear your clipboard afterward: some computers sync it to your other devices.",
-        ),
       ),
     ),
     div(
