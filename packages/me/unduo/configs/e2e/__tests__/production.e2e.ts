@@ -243,7 +243,7 @@ test("from a blank browser to a passcode that signs in", async ({
   await instruction("3. verify it with your favorite AI", home, async () => {
     await expect(home.getByText(`Drag and drop ${fileName} into your favorite AI`)).toBeVisible();
     prompt = await home.getByLabel("Prompt for the AI").inputValue();
-    expect(prompt).toContain('"Safe: yes"');
+    expect(prompt).toContain("“Safe: yes”");
     await home.getByRole("button", { name: "Copy prompt" }).click();
     await expect(home.getByRole("button", { name: "Copied" })).toBeVisible();
 
@@ -465,7 +465,7 @@ test("from a blank browser to a passcode that signs in", async ({
       ]),
     );
     for (const value of secrets) expect(kept).not.toContain(value);
-    expect(new URL(setup.url()).hash).toBe("#step=add");
+    expect(new URL(setup.url()).hash, "The file names no step in its address").toBe("");
     expect(await context.cookies(site), "unduo.me sets no cookies").toEqual([]);
   });
 
