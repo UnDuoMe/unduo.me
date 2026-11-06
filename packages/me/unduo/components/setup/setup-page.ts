@@ -285,16 +285,13 @@ export function createSetupPage(load: (limits: PluginLimits) => Promise<SetupPlu
     sent.delete(view.val.value);
     send({ type: "retry" });
   }
-  /** Copy the setup key, the otpauth link, or the portal link in `#portal-url`. */
-  function copy(kind: "key" | "uri" | "portal") {
-    const { account } = view.val;
-    const copied =
-      kind === "key"
-        ? account?.secret
-        : kind === "uri"
-          ? account?.uri
-          : (document.getElementById("portal-url") as HTMLInputElement).value;
-    navigator.clipboard.writeText(copied ?? "").then(
+  /**
+   * Copy the portal link in `#portal-url`. The page never copies the setup key
+   * or its link: some systems sync the clipboard to the cloud.
+   */
+  function copy(kind: "portal") {
+    const link = (document.getElementById("portal-url") as HTMLInputElement).value;
+    navigator.clipboard.writeText(link).then(
       () => send({ type: "copied", kind }),
       () => send({ type: "copyFailed" }),
     );

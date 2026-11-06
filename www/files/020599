@@ -1,6 +1,6 @@
 <!doctype html>
 <html lang="en">
-  <head><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'sha256-dZu710qV7pUozk9WNNw7Nr449YAqE6wv/arVKnsnH/Y=' 'sha256-+Yp56U11EJFZUXDpR1uV+z5nUTr0bTTXYkfnuRg0fL8=' 'sha256-Rk8KnOZTGvkeJSeVJ5U/VJH8a5z6WToFyDV7exdMWPg=' 'sha256-VQKDtgxkNvjr4Z0D0gT31UFIGIzFRF11JzJHniQMBdc=' 'sha256-Isl+SSFu7pzTXRT2ZbrTEnXovFtesXdRwzqJYqDjlE4=' 'sha256-PFzvHWW9sRtTlyCWYGH9o+eMLZKLaNJXk3reht6TUq4=' 'wasm-unsafe-eval'; script-src-attr 'none'; style-src-elem https://cdn.jsdelivr.net/npm/uikit@3.25.29/dist/css/uikit.min.css https://cdn.jsdelivr.net/gh/UnDuoMe/unduo.me@a898ccd5105c2cc98422309c97a04293775ba203/setup-styles.xBOi-QzC.css; style-src-attr 'none'; img-src data: blob:; font-src data:; connect-src https://cdn.jsdelivr.net/gh/UnDuoMe/unduo.me@a898ccd5105c2cc98422309c97a04293775ba203/setup.7wz-vxOz.wasm https://cdn.jsdelivr.net/gh/UnDuoMe/unduo.me@a898ccd5105c2cc98422309c97a04293775ba203/setup-0-settings-devices.4D4E2Wph.webp https://cdn.jsdelivr.net/gh/UnDuoMe/unduo.me@a898ccd5105c2cc98422309c97a04293775ba203/setup-0-signed-in-narrow.Z7rieJFK.webp https://cdn.jsdelivr.net/gh/UnDuoMe/unduo.me@a898ccd5105c2cc98422309c97a04293775ba203/setup-0-signed-in-wide.5Y06En7R.webp https://cdn.jsdelivr.net/gh/UnDuoMe/unduo.me@a898ccd5105c2cc98422309c97a04293775ba203/setup-1-add-device.HfrEhtPk.webp https://cdn.jsdelivr.net/gh/UnDuoMe/unduo.me@a898ccd5105c2cc98422309c97a04293775ba203/setup-2-tablet.qSlLoa3c.webp https://cdn.jsdelivr.net/gh/UnDuoMe/unduo.me@a898ccd5105c2cc98422309c97a04293775ba203/setup-3-android.F5QoYAql.webp https://cdn.jsdelivr.net/gh/UnDuoMe/unduo.me@a898ccd5105c2cc98422309c97a04293775ba203/setup-4-duo-installed.gRuBBlLy.webp https://cdn.jsdelivr.net/gh/UnDuoMe/unduo.me@a898ccd5105c2cc98422309c97a04293775ba203/setup-5-copy-qr-url.0e4hdp7M.webp; form-action https://*.duosecurity.com; frame-src https://*.duosecurity.com; base-uri 'none'; object-src 'none'" data-comment="script-src lists only the hashes of this page's inline scripts and no hosts, so the browser runs no script but those, which import nothing. No source allows inline handlers or eval. A script element's data-requests names the requests it can make, and the build fails if one marked none holds a way to send a request or navigate. 'wasm-unsafe-eval' allows compiling WebAssembly only. Once the page accepts a Duo form, its script adds a second policy, form-action and frame-src https://api-XXXXXXXX.duosecurity.com for that form's host, and browsers enforce both. The script builds one frame, duo-reply, with the sandbox attribute, no permissions and no src. Only the Duo form loads anything in it, and scripts can't run there or read it from this page: you copy Duo's reply out of it by hand. A second button with formTarget _blank sends the same form to a new tab instead, if you choose it. Fetches may reach only the files in connect-src, and forms only Duo. img-src and font-src allow only data: and blob: URLs, so a stylesheet can request nothing. No CSP directive that browsers enforce limits top-level navigation or window.open, so only this page's own scripts can use them.">
+  <head><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'sha256-dZu710qV7pUozk9WNNw7Nr449YAqE6wv/arVKnsnH/Y=' 'sha256-+Yp56U11EJFZUXDpR1uV+z5nUTr0bTTXYkfnuRg0fL8=' 'sha256-Rk8KnOZTGvkeJSeVJ5U/VJH8a5z6WToFyDV7exdMWPg=' 'sha256-Tu2g++ZkcpREO46KzTDRa9LgJnIrmlJNdl4Tasnbv8I=' 'sha256-glrhIla3I3BGERr+kCcM4AGIZuNq/aA3ov3NCf2Udbs=' 'sha256-sAvL6cSU3mkZFxDR3mOwailfVD5g57ESncpW6lJx+30=' 'wasm-unsafe-eval'; script-src-attr 'none'; style-src-elem https://cdn.jsdelivr.net/npm/uikit@3.25.29/dist/css/uikit.min.css https://cdn.jsdelivr.net/gh/UnDuoMe/unduo.me@a898ccd5105c2cc98422309c97a04293775ba203/setup-styles.xBOi-QzC.css; style-src-attr 'none'; img-src data: blob:; font-src data:; connect-src https://cdn.jsdelivr.net/gh/UnDuoMe/unduo.me@a898ccd5105c2cc98422309c97a04293775ba203/setup.7wz-vxOz.wasm https://cdn.jsdelivr.net/gh/UnDuoMe/unduo.me@a898ccd5105c2cc98422309c97a04293775ba203/setup-0-settings-devices.4D4E2Wph.webp https://cdn.jsdelivr.net/gh/UnDuoMe/unduo.me@a898ccd5105c2cc98422309c97a04293775ba203/setup-0-signed-in-narrow.Z7rieJFK.webp https://cdn.jsdelivr.net/gh/UnDuoMe/unduo.me@a898ccd5105c2cc98422309c97a04293775ba203/setup-0-signed-in-wide.5Y06En7R.webp https://cdn.jsdelivr.net/gh/UnDuoMe/unduo.me@a898ccd5105c2cc98422309c97a04293775ba203/setup-1-add-device.HfrEhtPk.webp https://cdn.jsdelivr.net/gh/UnDuoMe/unduo.me@a898ccd5105c2cc98422309c97a04293775ba203/setup-2-tablet.qSlLoa3c.webp https://cdn.jsdelivr.net/gh/UnDuoMe/unduo.me@a898ccd5105c2cc98422309c97a04293775ba203/setup-3-android.F5QoYAql.webp https://cdn.jsdelivr.net/gh/UnDuoMe/unduo.me@a898ccd5105c2cc98422309c97a04293775ba203/setup-4-duo-installed.gRuBBlLy.webp https://cdn.jsdelivr.net/gh/UnDuoMe/unduo.me@a898ccd5105c2cc98422309c97a04293775ba203/setup-5-copy-qr-url.0e4hdp7M.webp; form-action https://*.duosecurity.com; frame-src https://*.duosecurity.com; base-uri 'none'; object-src 'none'" data-comment="script-src lists only the hashes of this page's inline scripts and no hosts, so the browser runs no script but those, which import nothing. No source allows inline handlers or eval. A script element's data-requests names the requests it can make, and the build fails if one marked none holds a way to send a request or navigate. 'wasm-unsafe-eval' allows compiling WebAssembly only. Once the page accepts a Duo form, its script adds a second policy, form-action and frame-src https://api-XXXXXXXX.duosecurity.com for that form's host, and browsers enforce both. The script builds one frame, duo-reply, with the sandbox attribute, no permissions and no src. Only the Duo form loads anything in it, and scripts can't run there or read it from this page: you copy Duo's reply out of it by hand. A second button with formTarget _blank sends the same form to a new tab instead, if you choose it. Fetches may reach only the files in connect-src, and forms only Duo. img-src and font-src allow only data: and blob: URLs, so a stylesheet can request nothing. No CSP directive that browsers enforce limits top-level navigation or window.open, so only this page's own scripts can use them.">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="referrer" content="no-referrer">
@@ -2054,7 +2054,7 @@ var { a, aside, button, code, details, dialog, div, em, fieldset, footer, form, 
 */
 var { g, path, rect, svg, text: svgText } = van.tags("http://www.w3.org/2000/svg");
 /** The last step: the `otpauth://` QR code, code type, setup key and how to test it. */
-function authenticatorResult({ view, qr, send, copy }) {
+function authenticatorResult({ view, qr, send }) {
 	const codeType = (type, name) => label({ class: () => `code-type ${view.val.codeType === type ? "code-type-on" : "code-type-off"}` }, input({
 		class: "uk-radio no-shrink",
 		type: "radio",
@@ -2093,22 +2093,7 @@ function authenticatorResult({ view, qr, send, copy }) {
 		type: "button",
 		class: "uk-button uk-button-text btn",
 		onclick: () => send({ type: "reveal" })
-	}, van.derive(() => view.val.account?.revealed ? "Hide" : "Show"))), code({ class: "setup-key" }, van.derive(() => view.val.account?.key ?? "")), p({ class: "hint" }, van.derive(() => view.val.codeType === "hotp" ? "Counter-based (HOTP) · counter 0 · 6 digits · SHA-1" : "Time-based (TOTP) · 30 seconds · 6 digits · SHA-1"))), div({ class: "row-2" }, button({
-		type: "button",
-		class: "uk-button uk-button-default btn",
-		onclick: () => copy("key")
-	}, van.derive(() => view.val.copied === "key" ? "Key copied" : "Copy key")), button({
-		type: "button",
-		class: "uk-button uk-button-text btn",
-		onclick: () => copy("uri")
-	}, van.derive(() => view.val.copied === "uri" ? "Link copied" : "Copy otpauth:// link"))), p({
-		class: "hint",
-		role: "alert",
-		hidden: () => !view.val.copyError
-	}, "Clipboard access isn't available. Select the key above to copy it."), span({
-		class: "sr-only",
-		role: "status"
-	}, van.derive(() => view.val.copied === "key" ? "Setup key copied." : view.val.copied === "uri" ? "Link copied." : "")))), div({ class: "next-test" }, h3({ class: "subheading" }, "Then test it"), p({ class: "body-note" }, "Sign in somewhere that uses Duo, choose ", em("Other options"), " → ", em("Duo Mobile passcode"), " (or ", em("Enter a passcode"), "), and type the code your app shows.")), aside({
+	}, van.derive(() => view.val.account?.revealed ? "Hide" : "Show"))), code({ class: "setup-key" }, van.derive(() => view.val.account?.key ?? "")), p({ class: "hint" }, van.derive(() => view.val.codeType === "hotp" ? "Counter-based (HOTP) · counter 0 · 6 digits · SHA-1" : "Time-based (TOTP) · 30 seconds · 6 digits · SHA-1"))), p({ class: "hint" }, "If you copy the key by hand, clear your clipboard afterward: some computers sync it to your other devices."))), div({ class: "next-test" }, h3({ class: "subheading" }, "Then test it"), p({ class: "body-note" }, "Sign in somewhere that uses Duo, choose ", em("Other options"), " → ", em("Duo Mobile passcode"), " (or ", em("Enter a passcode"), "), and type the code your app shows.")), aside({
 		class: "uk-alert-warning warning",
 		role: "note"
 	}, h3({ class: "warning-title" }, "Add it now — unduo forgets the key when you close this tab"), p({ class: "warning-text" }, "Keep your current Duo sign-in method until a code from your authenticator works.")));
@@ -2527,7 +2512,7 @@ function activateStep(page) {
 		formTarget: "_blank",
 		class: textButton,
 		disabled: () => !view.val.request
-	}, "Open Duo's reply in a new tab instead"), "Your browser history keeps a new tab's address, which holds the code. Use this if the box doesn't show the reply.")), form({
+	}, "Open Duo's reply in a new tab instead"), "Use this if the box doesn't show the reply. Your browser history keeps a new tab's address, which holds the activation code, but opening it uses the code up: Duo accepts each code once, so the copy in history can't activate anything.")), form({
 		class: "stack-4",
 		hidden: () => !view.val.submitted,
 		onsubmit: (event) => {
@@ -2537,7 +2522,7 @@ function activateStep(page) {
 				text: text.val
 			});
 		}
-	}, ol({ class: "reply-steps" }, li(span(van.derive(() => newTab.val ? "In the Duo tab, select everything with " : "Click in the box, then select everything with ")), shortcutKeys(page, "A")), li("Copy it with ", shortcutKeys(page, "C")), li(span(van.derive(() => newTab.val ? "Come back and paste it in the field below with " : "Click the field under the box and paste with ")), shortcutKeys(page, "V"))), iframe({
+	}, ol({ class: "reply-steps" }, li(span(van.derive(() => newTab.val ? "In the Duo tab, select everything with " : "Click in the box, then select everything with ")), shortcutKeys(page, "A")), li("Copy it with ", shortcutKeys(page, "C")), li(span(van.derive(() => newTab.val ? "Come back and paste it in the field below with " : "Click the field under the box and paste with ")), shortcutKeys(page, "V"))), p({ class: "hint" }, "Duo's reply holds your new key. If your clipboard syncs to your other devices or keeps a history, as Windows can, clear it after pasting."), iframe({
 		name: "duo-reply",
 		sandbox: "",
 		title: "Duo's reply",
@@ -2857,11 +2842,13 @@ function createSetupPage(load) {
 		sent.delete(view.val.value);
 		send({ type: "retry" });
 	}
-	/** Copy the setup key, the otpauth link, or the portal link in `#portal-url`. */
+	/**
+	* Copy the portal link in `#portal-url`. The page never copies the setup key
+	* or its link: some systems sync the clipboard to the cloud.
+	*/
 	function copy(kind) {
-		const { account } = view.val;
-		const copied = kind === "key" ? account?.secret : kind === "uri" ? account?.uri : document.getElementById("portal-url").value;
-		navigator.clipboard.writeText(copied ?? "").then(() => send({
+		const link = document.getElementById("portal-url").value;
+		navigator.clipboard.writeText(link).then(() => send({
 			type: "copied",
 			kind
 		}), () => send({ type: "copyFailed" }));

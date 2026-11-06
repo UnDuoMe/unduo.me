@@ -18,7 +18,7 @@ import {
 } from "@-/me.unduo.lib.dom";
 
 /** The last step: the `otpauth://` QR code, code type, setup key and how to test it. */
-export function authenticatorResult({ view, qr, send, copy }: SetupPage) {
+export function authenticatorResult({ view, qr, send }: SetupPage) {
   const codeType = (type: "hotp" | "totp", name: string) =>
     label(
       {
@@ -131,38 +131,10 @@ export function authenticatorResult({ view, qr, send, copy }: SetupPage) {
             ),
           ),
         ),
-        div(
-          { class: "row-2" },
-          button(
-            {
-              type: "button",
-              class: "uk-button uk-button-default btn",
-              onclick: () => copy("key"),
-            },
-            van.derive(() => (view.val.copied === "key" ? "Key copied" : "Copy key")),
-          ),
-          button(
-            {
-              type: "button",
-              class: "uk-button uk-button-text btn",
-              onclick: () => copy("uri"),
-            },
-            van.derive(() => (view.val.copied === "uri" ? "Link copied" : "Copy otpauth:// link")),
-          ),
-        ),
+        // No button copies the key or its link: some systems sync the clipboard to the cloud.
         p(
-          { class: "hint", role: "alert", hidden: () => !view.val.copyError },
-          "Clipboard access isn't available. Select the key above to copy it.",
-        ),
-        span(
-          { class: "sr-only", role: "status" },
-          van.derive(() =>
-            view.val.copied === "key"
-              ? "Setup key copied."
-              : view.val.copied === "uri"
-                ? "Link copied."
-                : "",
-          ),
+          { class: "hint" },
+          "If you copy the key by hand, clear your clipboard afterward: some computers sync it to your other devices.",
         ),
       ),
     ),

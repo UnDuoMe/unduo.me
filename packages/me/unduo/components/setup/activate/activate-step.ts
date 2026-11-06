@@ -76,7 +76,7 @@ export function activateStep(page: SetupPage) {
           },
           "Open Duo's reply in a new tab instead",
         ),
-        "Your browser history keeps a new tab's address, which holds the code. Use this if the box doesn't show the reply.",
+        "Use this if the box doesn't show the reply. Your browser history keeps a new tab's address, which holds the activation code, but opening it uses the code up: Duo accepts each code once, so the copy in history can't activate anything.",
       ),
     ),
     form(
@@ -113,6 +113,10 @@ export function activateStep(page: SetupPage) {
           ),
           shortcutKeys(page, "V"),
         ),
+      ),
+      p(
+        { class: "hint" },
+        "Duo's reply holds your new key. If your clipboard syncs to your other devices or keeps a history, as Windows can, clear it after pasting.",
       ),
       // Sandboxed with no permissions and no src: only the form above loads anything here.
       iframe({

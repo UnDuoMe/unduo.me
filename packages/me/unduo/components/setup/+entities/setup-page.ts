@@ -37,7 +37,8 @@ export interface SetupPage {
   newTab: State<boolean>;
   submit: (event: SubmitEvent) => void;
   retry: () => void;
-  copy: (kind: "key" | "uri" | "portal") => void;
+  /** Copy the portal link. Nothing copies the setup key or its link. */
+  copy: (kind: "portal") => void;
   popup: (event: MouseEvent) => void;
   screenshot: (image: HTMLImageElement) => void;
   focusStep: () => void;

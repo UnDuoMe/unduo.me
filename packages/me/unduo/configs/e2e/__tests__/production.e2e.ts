@@ -403,9 +403,8 @@ test("from a blank browser to a passcode that signs in", async ({
     expect(link.parameters).toEqual(["algorithm", "counter", "digits", "issuer", "secret"]);
     expect(link.secret.toString(), "The key the phone gets is the one Duo sent").toBe(secret);
 
-    await setup.getByRole("button", { name: "Copy otpauth:// link" }).click();
-    await expect(setup.getByRole("button", { name: "Link copied" })).toBeVisible();
-    expect(await pastedText(context)).toBe(counterLink);
+    // Nothing puts the key or its link on the clipboard, which some systems sync to the cloud.
+    await expect(setup.getByRole("button", { name: /^Copy/ })).toHaveCount(0);
 
     const setupKey = counterLink.match(/secret=([A-Z2-7]+)/)![1]!;
     const shown = setupKey.match(/.{1,4}/g)!.join(" ");
@@ -415,9 +414,6 @@ test("from a blank browser to a passcode that signs in", async ({
     ).not.toHaveText(shown);
     await setup.getByRole("button", { name: "Show" }).click();
     await expect(setup.locator(".setup-key")).toHaveText(shown);
-    await setup.getByRole("button", { name: "Copy key" }).click();
-    await expect(setup.getByRole("button", { name: "Key copied" })).toBeVisible();
-    expect(await pastedText(context)).toBe(setupKey);
 
     await setup.getByLabel("Time-based").check();
     await expect

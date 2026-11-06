@@ -1,8 +1,9 @@
 # @-/me.unduo.components.result
 
 Shared authenticator result markup: the `otpauth://` QR code, a counter-based
-(HOTP, default) / time-based (TOTP) switch, the setup key, copy actions, and
-test instructions. It stores nothing itself.
+(HOTP, default) / time-based (TOTP) switch, the setup key (shown on request, with
+a note to clear the clipboard after copying it by hand), and test instructions.
+Nothing copies the key or its link: some systems sync the clipboard to the cloud. It stores nothing itself.
 
 ## Usage
 
@@ -19,5 +20,5 @@ export { authenticatorResult } from "#authenticator-result";
 link has only the standard parameters and carries `account.secret`, so the QR
 code, the touch-only "Open in authenticator app" link and the copied text
 cannot send a phone's camera or an authenticator app to a web page. The host
-draws the QR code from that link. Code type, reveal and copy actions send
+draws the QR code from that link. Code type and reveal send
 events to the plugin, which keeps the code type in the address.
