@@ -293,21 +293,23 @@ function downloadsPanel(name: string) {
 }
 
 /**
- * The Download step's drawing: a click on the page's download button, and the
+ * The Download step's drawing: a click on the page's download link, and the
  * browser's Downloads panel popping up under its button with the file. Unless
  * motion is reduced, the panel pops up again and again.
  */
 export function downloadArt(file: string) {
   return dialogCanvas(
     browserWindow("#f8fafc"),
-    // unduo.me's dialog, its download button under the pointer.
+    // unduo.me's dialog, its underlined download link under the pointer.
     box(36, 132, 200, 116, 12, shadow, { opacity: "0.08" }),
     box(36, 126, 200, 116, 12, white, { stroke: faint, "stroke-width": "1.5" }),
     box(52, 144, 90, 8, 4, gray),
     box(52, 160, 120, 10, 5, ink),
-    box(52, 194, 150, 28, 8, accent),
-    box(70, 205, 114, 6, 3, white),
-    pointer(180, 204),
+    box(52, 194, 92, 9, 4.5, accent),
+    box(52, 207, 92, 2, 1, accent),
+    box(150, 194, 50, 9, 4.5, gray),
+    box(52, 222, 130, 7, 3.5, line),
+    pointer(118, 199),
     // Where the file shows up.
     path({
       d: "M206 196C232 186 244 160 238 128",

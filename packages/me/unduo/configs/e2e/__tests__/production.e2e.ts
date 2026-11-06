@@ -75,7 +75,7 @@ const namesIn = async (instructions: Locator) =>
 async function downloadFile(home: Page) {
   const [download] = await Promise.all([
     home.waitForEvent("download"),
-    home.getByRole("link", { name: `Download ${fileName}` }).click(),
+    home.getByRole("link", { name: "Download UnDuo's webpage" }).click(),
   ]);
   expect(download.suggestedFilename()).toBe(fileName);
   const path = test.info().outputPath(fileName);
@@ -223,14 +223,14 @@ test("from a blank browser to a passcode that signs in", async ({
   });
 
   await instruction("2. download the file but don't open it", home, async () => {
-    await expect(home.getByRole("dialog").getByText("Don't open it yet.")).toBeVisible();
+    await expect(home.getByRole("dialog").getByText("but don't open it yet:")).toBeVisible();
     const before = home.url();
     path = await downloadFile(home);
     expect(home.url(), "Downloading leaves the page where it was").toBe(before);
     // The address behind the link downloads rather than runs: that's why setup is safe from the site.
     const served = await context.request.get(
       await home
-        .getByRole("link", { name: `Download ${fileName}` })
+        .getByRole("link", { name: "Download UnDuo's webpage" })
         .evaluate((link: HTMLAnchorElement) => link.href),
     );
     expect(served.headers()["content-type"]).toBe("application/octet-stream");

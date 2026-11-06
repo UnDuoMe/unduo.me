@@ -1,5 +1,5 @@
 import type { University } from "@-/me.unduo.data.universities.entities";
-import { a, button, div, label, p, span, strong, textarea } from "@-/me.unduo.lib.dom";
+import { a, button, div, em, label, p, span, strong, textarea } from "@-/me.unduo.lib.dom";
 import { aiPrompt } from "#ai-prompt";
 import { type AiChoice, downloadArt, dragArt, openArt } from "#how-art";
 
@@ -26,19 +26,22 @@ export function downloadStep(school: University) {
     downloadArt(fileName(school)),
     div(
       { class: "dialog-copy" },
-      p({ class: "home-step-text" }, `Download the file for ${school.name}:`),
-      a(
-        {
-          class: "uk-button uk-button-primary btn-accent home-download",
-          href: `./files/${school.id.slice(4)}`,
-          download: fileName(school),
-        },
-        `Download ${fileName(school)}`,
+      p(
+        { class: "home-step-text" },
+        a(
+          {
+            class: "home-download",
+            href: `./files/${school.id.slice(4)}`,
+            download: fileName(school),
+          },
+          "Download UnDuo's webpage",
+        ),
+        ", ",
+        em("but don't open it yet:"),
       ),
       p(
         { class: "home-step-text" },
-        strong("Don't open it yet."),
-        " On the next step, we'll tell you how to audit it yourself (or with AI).",
+        "On the next step, we'll tell you how to audit it yourself (or with AI).",
       ),
     ),
   );

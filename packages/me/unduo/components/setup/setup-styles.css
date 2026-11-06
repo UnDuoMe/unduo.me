@@ -560,10 +560,11 @@ summary {
     @apply mb-1! pr-8! text-xs! font-medium! text-muted!;
   }
   .home-step-text {
-    @apply mb-4! text-sm! leading-[1.55]! text-muted! [&_strong]:text-foreground!;
+    @apply mb-4! text-sm! leading-[1.55]! text-muted! [&_em]:text-foreground! [&_strong]:text-foreground!;
   }
+  /* The download is a link, underlined, not a button. */
   .home-download {
-    @apply mb-5!;
+    @apply font-semibold! text-accent! underline! underline-offset-2! hover:text-accent-hover!;
   }
   /* The home dialog's steps: a drawing beside the text, in a wider dialog. Verify's tabs choose the AI. */
   .dialog[data-step] {

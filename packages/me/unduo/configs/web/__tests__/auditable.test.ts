@@ -1200,7 +1200,17 @@ describe.runIf(enabled)("browser", { timeout: 180_000 }, () => {
     expect(evaluate("document.querySelector('.dialog-school').textContent")).toBe(
       "University of Toronto",
     );
-    expect(dialogText()).toMatch(/Download the file for University of Toronto:/);
+    // One sentence: an underlined link that downloads the file, then "but don't open it yet:".
+    expect(
+      evaluate(
+        "(({ textContent }, link) => [textContent, link.textContent, link.className, getComputedStyle(link).textDecorationLine])(document.querySelector('#home-dialog .home-step-text'), document.querySelector('a[download]'))",
+      ),
+    ).toEqual([
+      "Download UnDuo's webpage, but don't open it yet:",
+      "Download UnDuo's webpage",
+      "home-download",
+      "underline",
+    ]);
     expect(
       evaluate("(({ href, download }) => [href, download])(document.querySelector('a[download]'))"),
     ).toEqual([`${hosted}/files/020599`, "UnDuo - University of Toronto.html"]);
@@ -1212,9 +1222,7 @@ describe.runIf(enabled)("browser", { timeout: 180_000 }, () => {
     ).toEqual(["true", true, true]);
     expect(
       evaluate("[...document.querySelectorAll('#home-dialog .home-step-text')].at(-1).textContent"),
-    ).toBe(
-      "Don't open it yet. On the next step, we'll tell you how to audit it yourself (or with AI).",
-    );
+    ).toBe("On the next step, we'll tell you how to audit it yourself (or with AI).");
     expect(
       evaluate("/Trust unduo/.test(document.body.textContent)"),
       "Setup isn't offered on the site",
