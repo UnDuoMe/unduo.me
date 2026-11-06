@@ -161,7 +161,7 @@ async function toQrStep(context: BrowserContext, path: string) {
   const portal = await openPortal(context, setup);
   await signIn(portal);
   await approveWithExistingDevice(portal);
-  await setup.getByRole("button", { name: "I'm signed in" }).click();
+  await setup.getByRole("button", { name: "Continue", exact: true }).click();
   await expect(stepTitle(setup)).toHaveText("Copy the activation QR code");
   const names = await namesIn(setup.locator(".instructions li").first());
   const code = await addDevice(duoFrame(portal), names);
@@ -295,7 +295,7 @@ test("from a blank browser to a passcode that signs in", async ({
     await signIn(portal);
     await approveWithExistingDevice(portal);
     await setup.bringToFront();
-    await setup.getByRole("button", { name: "I'm signed in" }).click();
+    await setup.getByRole("button", { name: "Continue", exact: true }).click();
     await expect(stepTitle(setup)).toHaveText("Copy the activation QR code");
   });
 

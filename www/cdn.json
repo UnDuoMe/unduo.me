@@ -1,12 +1,13 @@
 {
-  "commit": "50f3068f0bc0622ef65ef14b94a7f7b485ca2d60",
-  "base": "https://cdn.jsdelivr.net/gh/UnDuoMe/unduo.me@50f3068f0bc0622ef65ef14b94a7f7b485ca2d60/",
+  "commit": "61b51cb5b0b9f393fc94d432075821f26e3b3aed",
+  "base": "https://cdn.jsdelivr.net/gh/UnDuoMe/unduo.me@61b51cb5b0b9f393fc94d432075821f26e3b3aed/",
   "files": {
-    "setup-styles.9R2NkLai.css": "sha256-9R2NkLai+CLdTYWPd0bRHjzc1goXgUTMKk94Pda/HJA=",
+    "setup-styles.eStKK6j8.css": "sha256-eStKK6j8MI5mMYqbq5SMQr6Bph8wOubarS+8lHoNmx4=",
     "setup.9c6cpcDL.wasm": "sha256-9c6cpcDLzVe5f7S3a3lKAnOAJ0S1/3fM2jME6Tfpf4M=",
     "ai-reply-chatgpt.z9xmsHOa.webp": "sha256-z9xmsHOa6HCxbtW2zZ5a6FPR0ar2fbASWOC9JFoK1OA=",
     "ai-reply-claude.RGFz3eyJ.webp": "sha256-RGFz3eyJUNcK/XKLFaxKG/n6vbZXYDlyP43rGYztHho=",
     "ai-reply-gemini.UlbcQdA9.webp": "sha256-UlbcQdA9me0boaQNeZ1ztf7GAytiEyN+ayd/XV7Ri1o=",
+    "setup-0-signed-in.Z7rieJFK.webp": "sha256-Z7rieJFK5DIaauv5F2HgGra1tatSENlkPERs5h3VBmk=",
     "setup-1-add-device.HfrEhtPk.webp": "sha256-HfrEhtPk9c4GMWguU9TCXl43w9zp9bDwUoagxQZrOsI=",
     "setup-2-tablet.qSlLoa3c.webp": "sha256-qSlLoa3cOOu5hxK7FpPOf92oip/58zxaag4MKJt22dY=",
     "setup-3-android.F5QoYAql.webp": "sha256-F5QoYAqlJigm9qem3M78P0y4KQdLJXbQE8lvDthL3fQ=",

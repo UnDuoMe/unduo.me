@@ -1,5 +1,5 @@
 import type { SetupPage, SetupSchool } from "@-/me.unduo.components.setup.entities";
-import { a, button, div, em, input, label, li, p, span, strong, ul } from "@-/me.unduo.lib.dom";
+import { a, button, div, input, label, p, span, strong } from "@-/me.unduo.lib.dom";
 
 /** The institution's portal link, with a field and button to copy it. */
 function schoolPortal({ view, copy, popup }: SetupPage, name: string, portalUrl: string) {
@@ -54,8 +54,20 @@ function schoolPortal({ view, copy, popup }: SetupPage, name: string, portalUrl:
   ];
 }
 
-/** The step that opens the Duo device portal, with the institution's link if it has one. */
-export function portalStep(school: SetupSchool, home: string, page: SetupPage) {
+/** What Duo shows once the student is signed in, copied from the page's `<template>`, which holds its URL and pin. */
+function signedInExample({ screenshot }: SetupPage) {
+  const example = (
+    document.getElementById("portal-signed-in") as HTMLTemplateElement
+  ).content.cloneNode(true) as DocumentFragment;
+  example.querySelectorAll("img").forEach(screenshot);
+  return example;
+}
+
+/**
+ * The step that opens the Duo device portal, with the institution's link if it
+ * has one, and what the portal shows once the student is signed in.
+ */
+export function portalStep(school: SetupSchool, page: SetupPage) {
   return div(
     p(
       { class: "intro" },
@@ -67,7 +79,7 @@ export function portalStep(school: SetupSchool, home: string, page: SetupPage) {
         ? schoolPortal(page, school.name, school.portalUrl)
         : p(
             { class: "note" },
-            "We don't have a verified Duo portal link for this institution. It may use another MFA provider. Follow the guidance below or ask your IT help desk.",
+            "We don't have a verified Duo portal link for this institution. It may use another MFA provider. Ask your IT help desk where to manage your Duo devices.",
           ),
       school.note && p({ class: "school-note" }, school.note),
       a(
@@ -80,23 +92,7 @@ export function portalStep(school: SetupSchool, home: string, page: SetupPage) {
         "Source",
       ),
     ),
-    ul(
-      {
-        class: "portal-steps",
-      },
-      li(
-        strong("From a Duo sign-in prompt:"),
-        " choose ",
-        em("Other options"),
-        " → ",
-        em("Manage devices"),
-        ".",
-      ),
-      li(
-        strong("From your organization:"),
-        " look for “Duo”, “two-factor” or “MFA” on its IT help pages.",
-      ),
-    ),
-    a({ class: "uk-link other-school", href: home }, "Choose a different university"),
+    p({ class: "signed-in-text" }, "Press ", strong("Continue"), " when you see a page like this:"),
+    div({ class: "signed-in-example" }, signedInExample(page)),
   );
 }

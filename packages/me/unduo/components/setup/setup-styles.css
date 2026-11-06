@@ -237,11 +237,11 @@ summary {
   .school-link {
     @apply mt-2! inline-block! text-sm!;
   }
-  .other-school {
-    @apply mt-4! inline-block! text-sm!;
+  .signed-in-text {
+    @apply mb-2! text-sm! leading-[1.55]! [&_strong]:text-foreground!;
   }
-  .portal-steps {
-    @apply grid! list-none! gap-3.5! p-0! text-sm! leading-[1.55]! [&_em]:font-medium! [&_em]:text-foreground! [&_em]:not-italic!;
+  .signed-in-example {
+    @apply max-w-md!;
   }
   .instructions {
     @apply grid! list-none! gap-3.5! p-0! [counter-reset:guide]! [&_em]:font-medium! [&_em]:text-foreground! [&_em]:not-italic!;

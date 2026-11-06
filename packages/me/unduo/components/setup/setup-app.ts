@@ -19,7 +19,7 @@ function setupCard(page: SetupPage, school: SetupSchool) {
   // The step's elements rebuild only when the step changes, not on every view.
   const current = van.derive(() => view.val.current);
   const steps = [
-    () => portalStep(school, home, page),
+    () => portalStep(school, page),
     () => linkStep(page),
     () => "",
     () => authenticatorResult(page),
@@ -77,7 +77,7 @@ function setupCard(page: SetupPage, school: SetupSchool) {
               hidden: () => !(view.val.current < 3 && view.val.furthest > view.val.current),
               onclick: () => send({ type: "goTo", step: view.val.current + 1 }),
             },
-            van.derive(() => (view.val.current === 0 ? "I'm signed in" : "Next")),
+            van.derive(() => (view.val.current === 0 ? "Continue" : "Next")),
           ),
         ),
       ),

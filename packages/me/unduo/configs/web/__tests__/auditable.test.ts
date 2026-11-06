@@ -110,7 +110,7 @@ function expectLoadsNothingByUrl(document: string) {
   if (document.includes('aria-label="Duo portal example screenshots"'))
     expect(
       images.map(([, data]) => sri(Buffer.from(data!, "base64"))).sort(),
-      "The five portal screenshots, as published",
+      "The six portal screenshots, as published",
     ).toEqual(
       publishedFiles
         .filter((name) => name.endsWith(".webp"))
@@ -133,7 +133,7 @@ function expectPinned(document: string) {
     const screenshots = [
       ...document.matchAll(/\bdata-image-src="([^"]+)" data-image-integrity="([^"]+)"/g),
     ];
-    expect(screenshots, "The five portal screenshots").toHaveLength(5);
+    expect(screenshots, "The six portal screenshots").toHaveLength(6);
     for (const [, url, integrity] of screenshots)
       expect(integrity, url).toBe(assets.files[url!.slice(assets.base.length)]);
     expect(
@@ -158,7 +158,7 @@ function expectPinned(document: string) {
     const screenshots = [
       ...document.matchAll(/\bdata-image-src="([^"]+)" data-image-integrity="([^"]+)"/g),
     ];
-    expect(screenshots, "The five portal screenshots").toHaveLength(5);
+    expect(screenshots, "The six portal screenshots").toHaveLength(6);
     for (const [, url, integrity] of screenshots)
       expect(integrity, url).toBe(assets.files[url!.slice(assets.base.length)]);
     const fetched = [pluginUrl, ...screenshots.map(([, url]) => url!).sort()];
@@ -445,7 +445,6 @@ describe.runIf(enabled)("static output", () => {
         'href: "https://github.com/UnDuoMe/unduo.me"',
         'href: () => view.val.account?.uri ?? ""',
         "href: home",
-        "href: home",
         "href: portalUrl",
         "href: school.sourceUrl",
         "src: qr.val",
@@ -702,6 +701,22 @@ describe.runIf(enabled)("browser", { timeout: 180_000 }, () => {
       opener: null,
     });
     expect(openPortal("null")).toMatchObject({ followed: true, popup: true });
+    // Instead of guidance, an example of Duo once signed in, blurred but for the logo and Settings.
+    expect(evaluate("document.querySelector('.signed-in-text').textContent")).toBe(
+      "Press Continue when you see a page like this:",
+    );
+    browser("wait", "--fn", "document.querySelector('.signed-in-example img')?.naturalWidth > 0");
+    expect(
+      evaluate(
+        "(({ alt, src }) => [alt, src.slice(0, 5)])(document.querySelector('.signed-in-example img'))",
+      ),
+    ).toEqual([
+      "Duo's sign-in prompt, blurred except for the school's logo and its Settings button",
+      selfContained ? "data:" : "blob:",
+    ]);
+    expect(evaluate("document.querySelector('#setup-card').textContent")).not.toMatch(
+      /Choose a different university|Manage devices/,
+    );
     expect(evaluate("document.querySelector('#portal-url').value")).toBe(
       "https://enroll.utormfa.utoronto.ca/",
     );
@@ -712,7 +727,7 @@ describe.runIf(enabled)("browser", { timeout: 180_000 }, () => {
       "document.querySelector('#portal-url + button').textContent === 'Copied'",
     );
 
-    click("button", "I'm signed in");
+    click("button", "Continue");
     waitForHeading("Copy the activation QR code");
     // The page scrolls to the step's title and focuses it a task later; a click aimed before that can miss.
     browser("wait", "--fn", "document.activeElement.id === 'step-title'");
@@ -789,7 +804,7 @@ describe.runIf(enabled)("browser", { timeout: 180_000 }, () => {
     expect(evaluate("document.querySelectorAll('form').length")).toBe(0);
     expect(evaluate(query)).toBe("");
     expect(evaluate(guardsLeaving)).toBe(false);
-    click("button", "I'm signed in");
+    click("button", "Continue");
     waitForHeading("Copy the activation QR code");
     browser("upload", "input[type=file]", fixture);
     waitForHeading("Activate with Duo");
@@ -860,7 +875,7 @@ describe.runIf(enabled)("browser", { timeout: 180_000 }, () => {
     // Start a fresh page before reusing the synthetic fixture from the first flow.
     browser("reload");
     waitForHeading("Open your Duo device portal");
-    click("button", "I'm signed in");
+    click("button", "Continue");
     waitForHeading("Copy the activation QR code");
     browser("upload", "input[type=file]", fixture);
     waitForHeading("Activate with Duo");
@@ -1287,7 +1302,7 @@ describe.runIf(enabled)("browser", { timeout: 180_000 }, () => {
       ),
     ).toEqual(["1", "2", "3", "4"]);
     expect(evaluate("location.hash")).toBe("");
-    click("button", "I'm signed in");
+    click("button", "Continue");
     waitForHeading("Copy the activation QR code");
     expect(evaluate("location.hash")).toBe("");
     expect(browser("errors")).toBe("");

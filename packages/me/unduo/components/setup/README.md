@@ -9,8 +9,10 @@ move between steps too, and focus moves to the opened step's heading.
 It runs only from a file on the student's computer; the home page offers the download. It has
 four steps:
 
-1. **Open your Duo device portal** (`portalStep`). Where to find it, plus an
-   institution's verified portal when known and a link back to the university picker. **I'm signed in** moves on.
+1. **Open your Duo device portal** (`portalStep`). The institution's verified
+   portal when known, then an example of what Duo shows once you're signed in
+   (`setup-0-signed-in.webp`, blurred except for the school's logo and the
+   Settings button): press **Continue** when you see a page like it.
 2. **Copy the activation QR code** (`linkStep`). How to add a device, optional
    example screenshots, and one input. Anything pasted anywhere on the page
    (from the portal step too) is routed by the
