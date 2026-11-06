@@ -1,4 +1,5 @@
 import { execFileSync } from "node:child_process";
+import { createHash } from "node:crypto";
 
 /**
  * The first row of the page in a Chrome window screenshot: the row under the
@@ -126,4 +127,97 @@ export function toWebp(png: string, webp: string) {
     "webp:method=6",
     webp,
   ]);
+}
+
+/** Each row of a grayscale image `width` bytes wide, as a short digest, so rows compare as strings. */
+export function rowDigests(gray: Buffer, width: number) {
+  const rows: string[] = [];
+  for (let y = 0; y * width < gray.length; y++)
+    rows.push(
+      createHash("sha1")
+        .update(gray.subarray(y * width, (y + 1) * width))
+        .digest("base64"),
+    );
+  return rows;
+}
+
+/**
+ * How to join a screenshot of a conversation's top to one of its end, given
+ * their rows: `header`, the rows both start with, which is the site's bar that
+ * stays put as the page scrolls; and `overlap`, how many rows after that
+ * repeat the bottom of the top screenshot. `overlap` is 0 when fewer than
+ * `minimum` rows match, or when the rows that match are too alike to tell
+ * apart, as blank space is, and `fits` is true when the end shows nothing new.
+ */
+export function joinRows(top: string[], end: string[], minimum: number) {
+  let header = 0;
+  while (header < Math.min(top.length, end.length) && top[header] === end[header]) header++;
+  const rest = end.slice(header);
+  if (!rest.length) return { header, overlap: 0, fits: true };
+  for (let overlap = Math.min(top.length - header, rest.length); overlap >= minimum; overlap--) {
+    let same = true;
+    for (let row = 0; row < overlap && same; row++)
+      same = top[top.length - overlap + row] === rest[row];
+    // Only rows that differ from each other, such as lines of text, show where the two meet.
+    if (same && new Set(rest.slice(0, overlap)).size >= Math.ceil(minimum / 2))
+      return { header, overlap, fits: overlap === rest.length };
+  }
+  return { header, overlap: 0, fits: false };
+}
+
+/** An image's width and height in pixels. */
+function size(png: string) {
+  return execFileSync("magick", ["identify", "-format", "%w %h", png], { encoding: "utf8" })
+    .split(" ")
+    .map(Number) as [number, number];
+}
+
+/** An image's pixels, one gray byte each, row after row. */
+function grayBytes(png: string) {
+  return execFileSync("magick", [png, "-colorspace", "Gray", "-depth", "8", "gray:-"], {
+    maxBuffer: 1 << 28,
+  });
+}
+
+/**
+ * Join the cropped screenshot of a conversation's top, `top`, to the one of
+ * its end, `end`, so one image shows the file and prompt and the end of the
+ * reply. The end loses the site's bar and any rows the top already shows; if
+ * the two don't meet, a band of three dots marks the rows skipped between them.
+ * When the end shows nothing new, the image is the top alone.
+ */
+export function joinScreenshots(top: string, end: string, out: string, scale: number) {
+  const [width] = size(top);
+  const [endWidth, endHeight] = size(end);
+  if (endWidth !== width) throw new Error("The screenshots aren't the same width.");
+  const { header, overlap, fits } = joinRows(
+    rowDigests(grayBytes(top), width),
+    rowDigests(grayBytes(end), width),
+    Math.round(24 * scale),
+  );
+  if (fits) {
+    execFileSync("magick", [top, out]);
+    return;
+  }
+  const from = header + overlap;
+  const rest = ["(", end, "-crop", `${width}x${endHeight - from}+0+${from}`, "+repage", ")"];
+  const band = Math.round(28 * scale);
+  const dot = (offset: number) => {
+    const x = Math.round(width / 2 + offset * 10 * scale);
+    return `circle ${x},${band / 2} ${x + Math.round(2.5 * scale)},${band / 2}`;
+  };
+  const gap = overlap
+    ? []
+    : [
+        "(",
+        "-size",
+        `${width}x${band}`,
+        "xc:#f1f5f9",
+        "-fill",
+        "#94a3b8",
+        "-draw",
+        `${dot(-1)} ${dot(0)} ${dot(1)}`,
+        ")",
+      ];
+  execFileSync("magick", [top, ...gap, ...rest, "-append", out]);
 }

@@ -39,6 +39,14 @@ a long prompt to its first sentence, and the screenshot shows it that way. The c
 the browser's toolbar, ChatGPT's sidebar, and each site's prompt box, ending at the lowest
 gap between paragraphs above it.
 
+The prompt's P.S. asks for the attached file's SHA-256 at the end of the reply, so the
+script then scrolls to the end, takes a second screenshot, crops it the same way and joins
+it under the first (`joinScreenshots`): the site's bar, which stays at the top of both, and
+any rows the first already shows are dropped, and if the two don't meet, a band of three
+dots marks what's skipped. A reply short enough to show whole stays one screenshot. Each
+reply in `results.json` records `hash`: the last SHA-256 it gives and whether it matches the
+file's, and the script warns when it doesn't.
+
 ## Output
 
 - `apps/unduo-web/src/assets/ai-reply-<site>.webp`: each cropped screenshot, 1,400 pixels
@@ -54,7 +62,7 @@ gap between paragraphs above it.
   Copy button doesn't work from the background: a page without focus can't write to the
   clipboard.
 - `.output/ai-replies/<site>.png` and `<site>-cropped.png` at the repository root: the
-  window, uncropped and cropped, and `<site>-tree.txt`, the tree the reply was read from.
+  window, uncropped and cropped (`<site>-end*.png` for the reply's end, `<site>-joined.png` for both), and `<site>-tree.txt`, the tree the reply was read from.
 
 The home page's cards show each whole reply and its model, from `aiReplies` in
 `packages/me/unduo/components/home/ai-replies.ts`. Copy the replies there from

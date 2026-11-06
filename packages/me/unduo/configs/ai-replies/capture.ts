@@ -12,7 +12,7 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { aiPrompt } from "@-/me.unduo.components.home/server";
 import { bringToFront, ChromeWindow, frontApp, sleep } from "#chrome";
-import { cropToPage, toWebp } from "#crop";
+import { cropToPage, joinScreenshots, toWebp } from "#crop";
 import { type Site, sites } from "#sites";
 import { copyButton, finishedReply, holdsOnly, type Reply, replyMarkdown } from "#tree";
 
@@ -43,13 +43,24 @@ export interface Capture {
   reply?: string;
   /** Whether the reply is whole: the tree sums up some long paragraphs cut short. */
   whole?: boolean;
-  /** The screenshot's file name in `images`. */
+  /** The screenshot's file name in `images`: the conversation's top, joined to its end. */
   screenshot?: string;
+  /**
+   * The last SHA-256 the reply gives, which the prompt's P.S. asks for, and
+   * whether it's the attached file's.
+   */
+  hash?: { found?: string; matches: boolean };
   /** Why the site couldn't be asked, if it couldn't. */
   error?: string;
   capturedAt: string;
   /** The attached file's name and SHA-256. */
   file: { name: string; sha256: string };
+}
+
+/** The last SHA-256 in `reply`, and whether it's `sha256`, the attached file's. */
+export function replyHash(reply: string | undefined, sha256: string) {
+  const found = [...(reply ?? "").matchAll(/\b[0-9a-f]{64}\b/gi)].at(-1)?.[0].toLowerCase();
+  return { found, matches: found === sha256 };
 }
 
 /**
@@ -124,8 +135,18 @@ async function ask(window: ChromeWindow, site: Site, upload: string, options: Ca
   copyFileSync(shot.path, raw);
   const cropped = join(options.raw, `${site.id}-cropped.png`);
   cropToPage(raw, cropped, shot.scale, site.crop);
+  // Then its end, where the reply gives the file's SHA-256, joined under the top.
+  window.scroll(reply.index, "down", 20);
+  await sleep(1500);
+  const endShot = window.screenshot();
+  const endRaw = join(options.raw, `${site.id}-end.png`);
+  copyFileSync(endShot.path, endRaw);
+  const endCropped = join(options.raw, `${site.id}-end-cropped.png`);
+  cropToPage(endRaw, endCropped, endShot.scale, site.crop);
+  const joined = join(options.raw, `${site.id}-joined.png`);
+  joinScreenshots(cropped, endCropped, joined, shot.scale);
   const screenshot = `ai-reply-${site.id}.webp`;
-  toWebp(cropped, join(options.images, screenshot));
+  toWebp(joined, join(options.images, screenshot));
   return {
     site: site.id,
     name: site.name,
@@ -162,7 +183,14 @@ export async function captureAiReplies(options: CaptureOptions) {
       // One site failing, as when it renames a button, doesn't stop the others.
       captures.push(
         await ask(window, site, upload, options).then(
-          (capture) => ({ ...capture, capturedAt: new Date().toISOString(), file }),
+          (capture) => {
+            const hash = replyHash(capture.reply, file.sha256);
+            if (!hash.matches)
+              console.warn(
+                `${site.name}'s reply ${hash.found ? `gives ${hash.found}, not the file's SHA-256` : "gives no SHA-256"}.`,
+              );
+            return { ...capture, hash, capturedAt: new Date().toISOString(), file };
+          },
           (error: Error) => ({
             site: site.id,
             name: site.name,

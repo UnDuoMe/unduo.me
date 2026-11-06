@@ -442,7 +442,11 @@ summary {
     @apply -translate-x-[calc(200%+3rem)]!;
   }
   .reply-card {
-    @apply grid! w-full! shrink-0! items-start! gap-5! rounded-2xl! border! border-separator! bg-white! p-5! text-left! shadow-[0_1px_2px_rgb(15_23_42/0.04),0_12px_32px_-12px_rgb(15_23_42/0.12)]! min-[960px]:grid-cols-[minmax(0,1.1fr)_minmax(0,1fr)]! min-[960px]:gap-8! min-[960px]:p-6!;
+    @apply grid! max-h-[200rem]! w-full! shrink-0! transition-[max-height]! duration-0! items-start! gap-5! rounded-2xl! border! border-separator! bg-white! p-5! text-left! shadow-[0_1px_2px_rgb(15_23_42/0.04),0_12px_32px_-12px_rgb(15_23_42/0.12)]! min-[960px]:grid-cols-[minmax(0,1.1fr)_minmax(0,1fr)]! min-[960px]:gap-8! min-[960px]:p-6!;
+  }
+  /* Slides out of view fold away once the track has slid, so the carousel is as tall as the one in view. */
+  .reply-card[inert] {
+    @apply max-h-0! overflow-hidden! delay-500!;
   }
   .reply-body {
     @apply flex! min-w-0! flex-col! gap-4!;
@@ -481,26 +485,14 @@ summary {
     @apply relative! block! w-full! overflow-hidden! rounded-xl! border! border-separator! bg-surface-secondary! p-0! transition-[border-color,box-shadow]! hover:border-border! hover:shadow-md!;
   }
   .reply-shot {
-    @apply block! aspect-[4/3]! w-full! object-cover! object-bottom!;
+    @apply block! h-auto! w-full!;
   }
   .reply-shot-hint {
     @apply absolute! right-2.5! bottom-2.5! rounded-full! border! border-separator! bg-white/95! px-3! py-1! text-xs! font-medium! text-foreground! shadow-sm!;
   }
   /* The reply, its first lines fading out until the chevron opens it in a box that scrolls. */
   .reply-text {
-    @apply flex! max-h-64! flex-col! gap-3! overflow-hidden! text-[0.9375rem]! leading-[1.6]! text-foreground! [mask-image:linear-gradient(to_bottom,black_50%,transparent)]! [&_h3]:text-base! [&_h3]:font-semibold! [&_li]:mt-1.5! [&_ol]:list-decimal! [&_ol]:pl-5! [&_strong]:font-semibold! [&_ul]:list-disc! [&_ul]:pl-5!;
-  }
-  .reply-card[data-open="true"] .reply-text {
-    @apply max-h-[28rem]! overflow-y-auto! overscroll-contain! pr-2! [mask-image:none]!;
-  }
-  .reply-toggle {
-    @apply mx-auto! -mt-2! flex! size-9! items-center! justify-center! rounded-full! border! border-separator! bg-white! text-muted! transition-colors! hover:border-border! hover:text-foreground!;
-  }
-  .reply-toggle-icon {
-    @apply size-5! transition-transform! duration-200!;
-  }
-  .reply-card[data-open="true"] .reply-toggle-icon {
-    @apply rotate-180!;
+    @apply flex! flex-col! gap-3! text-[0.9375rem]! leading-[1.6]! text-foreground! [&_h3]:text-base! [&_h3]:font-semibold! [&_li]:mt-1.5! [&_ol]:list-decimal! [&_ol]:pl-5! [&_strong]:font-semibold! [&_ul]:list-disc! [&_ul]:pl-5!;
   }
   /* A reply's whole screenshot, as large as the screen allows. */
   .viewer {

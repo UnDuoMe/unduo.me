@@ -1082,28 +1082,27 @@ describe.runIf(enabled)("browser", { timeout: 180_000 }, () => {
       "You can audit UnDuo with all the major AIs: ChatGPT, Claude, and Gemini.",
       "All three classify it as fully safe.",
     ]);
-    // Each card holds the whole reply, cut short until its chevron opens it in a box that scrolls.
+    // Each card shows the whole reply, nothing cut off or scrolled, and the whole screenshot.
     expect(
       evaluate(
         "[...document.querySelectorAll('.reply-card')].map((card) => card.querySelector('.reply-text').textContent.startsWith('Safe: yes'))",
       ),
     ).toEqual([true, true, true]);
-    const opened = () =>
+    expect(
       evaluate(
-        "[...document.querySelectorAll('.reply-toggle')].map((toggle) => [toggle.ariaExpanded, getComputedStyle(document.getElementById(toggle.getAttribute('aria-controls'))).overflowY])",
-      ) as [string, string][];
-    expect(opened()).toEqual([
-      ["false", "hidden"],
-      ["false", "hidden"],
-      ["false", "hidden"],
+        "[...document.querySelectorAll('.reply-text')].map((text) => [getComputedStyle(text).overflowY, getComputedStyle(text).maxHeight, text.scrollHeight <= text.clientHeight + 1])",
+      ),
+    ).toEqual([
+      ["visible", "none", true],
+      ["visible", "none", true],
+      ["visible", "none", true],
     ]);
-    // VanJS updates the page after the click returns.
-    evaluate("document.querySelector('.reply-toggle').click()");
-    browser("wait", "--fn", "document.querySelector('.reply-toggle').ariaExpanded === 'true'");
-    expect(opened()[0]).toEqual(["true", "auto"]);
-    evaluate("document.querySelector('.reply-toggle').click()");
-    browser("wait", "--fn", "document.querySelector('.reply-toggle').ariaExpanded === 'false'");
-    expect(opened()[0]).toEqual(["false", "hidden"]);
+    expect(
+      evaluate(
+        "[...document.querySelectorAll('.reply-card .reply-shot')].every((image) => Math.abs(image.clientHeight / image.clientWidth - image.naturalHeight / image.naturalWidth) < 0.01)",
+      ),
+      "Screenshots keep their shape, uncropped",
+    ).toBe(true);
     // A screenshot opens larger, and Escape closes it.
     evaluate("document.querySelector('.reply-shot-button').click()");
     expect(
@@ -1127,6 +1126,12 @@ describe.runIf(enabled)("browser", { timeout: 180_000 }, () => {
     evaluate("document.querySelectorAll('.reply-pick')[1].click()");
     browser("wait", "--fn", "document.querySelector('.reply-track').dataset.slide === '1'");
     expect(slides()).toEqual(["1", [true, false, true], ["false", "true", "false"]]);
+    // Once the track has slid, the carousel is as tall as the reply in view, not the longest one.
+    browser(
+      "wait",
+      "--fn",
+      "Math.abs(document.querySelector('.reply-track').offsetHeight - document.querySelector('.reply-card:not([inert])').offsetHeight) < 2",
+    );
     // How UnDuo works: stacked cards, each with a drawing that's hidden from screen readers.
     expect(
       evaluate(
@@ -1248,6 +1253,7 @@ describe.runIf(enabled)("browser", { timeout: 180_000 }, () => {
         "Please read its code, including everything it loads and runs. Judge each part by what the code allows it to do or restricts it from doing.",
         "Will this file keep my Duo activation code and secret key safe, so they stay between me, Duo and my authenticator app?",
         "Answer “Safe: no” only if you can point to how the file would let them reach anyone else. Start your reply with “Safe: yes” or “Safe: no”, then explain why in a few short sentences to someone who may not be technical.",
+        "P.S. UnDuo has screenshots of other AIs responding to this exact prompt, but the file isn't visible. Attach the file's SHA256 hash at the end of your response (compute it by running code, not by guessing), and briefly explain why if the hashes match, it means the files are 100% the same.",
       ].join("\n\n"),
     );
     expect(

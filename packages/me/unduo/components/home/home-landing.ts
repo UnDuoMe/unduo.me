@@ -57,8 +57,8 @@ const closeIcon = () =>
     { width: "14", height: "14", viewBox: "0 0 14 14", "aria-hidden": "true" },
     path({ d: "M1 1l12 12M13 1L1 13", stroke: "currentColor", "stroke-width": "1.4" }),
   );
-/** A chevron pointing down, or left or right for the carousel's arrows. */
-const chevronIcon = (className = "reply-toggle-icon", d = "M5.5 8l4.5 4.5L14.5 8") =>
+/** A chevron for the carousel's arrows, pointing left or right as `d` draws it. */
+const chevronIcon = (className: string, d: string) =>
   svg(
     { class: className, viewBox: "0 0 20 20", "aria-hidden": "true" },
     path({
@@ -110,8 +110,7 @@ function replyText(markdown: string) {
 /**
  * What ChatGPT, Claude and Gemini said about the University of Toronto file, in
  * a carousel that shows one at a time: a screenshot of the conversation that
- * opens larger, and beside it the AI's verdict and its whole reply, cut short
- * until its chevron opens it in a box that scrolls. Arrows, a button per AI and
+ * opens larger, and beside it the AI's verdict and its whole reply. Arrows, a button per AI and
  * a swipe move between them.
  */
 export function aiTestimonials() {
@@ -147,15 +146,6 @@ export function aiTestimonials() {
   };
   const card = (reply: AiReply, index: number) => {
     const picture = screenshotOf(reply.id);
-    const open = van.state(false);
-    const text = div(
-      {
-        id: `reply-text-${reply.id}`,
-        class: "reply-text",
-        tabindex: () => (open.val ? "0" : "-1"),
-      },
-      replyText(reply.reply),
-    );
     return div(
       {
         class: "reply-card",
@@ -164,7 +154,6 @@ export function aiTestimonials() {
         "aria-label": `${index + 1} of ${count}: ${reply.name}`,
         // The other slides are out of view, so out of reach too.
         inert: () => current.val !== index,
-        "data-open": () => String(open.val),
       },
       picture &&
         button(
@@ -184,22 +173,8 @@ export function aiTestimonials() {
           div(p({ class: "reply-name" }, reply.name), p({ class: "reply-model" }, reply.model)),
           span({ class: "reply-verdict" }, checkIcon(), `Safe: ${reply.verdict}`),
         ),
-        text,
-        button(
-          {
-            type: "button",
-            class: "reply-toggle",
-            "aria-controls": text.id,
-            "aria-expanded": () => String(open.val),
-            "aria-label": () => `${open.val ? "Hide" : "Show"} ${reply.name}'s whole reply`,
-            onclick: () => {
-              open.val = !open.val;
-              // Closed, the reply shows its start again.
-              if (!open.val) text.scrollTop = 0;
-            },
-          },
-          chevronIcon(),
-        ),
+        // The whole reply, so its end, where the file's SHA-256 goes, is in view too.
+        div({ class: "reply-text" }, replyText(reply.reply)),
       ),
     );
   };
