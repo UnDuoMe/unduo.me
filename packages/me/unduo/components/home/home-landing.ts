@@ -333,8 +333,8 @@ export function howItWorks() {
 }
 
 /**
- * Get Started, at the bottom of the page: it scrolls back up to the search,
- * where every setup starts, and focuses it.
+ * Get Started, at the bottom of the page: it jumps back up to the search,
+ * where every setup starts, focuses it and opens its list.
  */
 export function getStarted(focusSearch: () => void) {
   return section(

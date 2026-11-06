@@ -51,11 +51,15 @@ export function startHomePage() {
   const current = van.state(start.current);
   /** The search field, which takes focus back when the dialog closes. */
   const focusSearch = () => document.getElementById("university")?.focus();
-  /** Scroll the search back to the middle of the screen, smoothly unless motion is reduced, then focus it. */
+  /**
+   * Jump the search to the middle of the screen at once, without the page's
+   * smooth scrolling, then focus it and open its list, as a click on it does.
+   */
   const toSearch = () => {
     const field = document.getElementById("university");
-    field?.scrollIntoView({ block: "center" });
+    field?.scrollIntoView({ block: "center", behavior: "instant" });
     field?.focus({ preventScroll: true });
+    field?.click();
   };
 
   /** After the step's elements update, as the setup file does. */

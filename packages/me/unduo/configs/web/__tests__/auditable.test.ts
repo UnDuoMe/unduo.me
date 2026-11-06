@@ -1137,18 +1137,21 @@ describe.runIf(enabled)("browser", { timeout: 180_000 }, () => {
       ["Step 2", "UnDuo converts it to a 2FA QR Code.", "true"],
       ["Step 3", "Scan this 2FA QR Code with your favorite 2FA app.", "true"],
     ]);
-    // Get Started, at the bottom, scrolls back up to the search and focuses it, without opening its list.
+    // Get Started, at the bottom, jumps straight back to the search, focuses it and opens its list.
     expect(evaluate("document.querySelector('.cta-button').textContent")).toBe("Get Started");
-    // Jump to the bottom at once, so the button's smooth scroll doesn't overlap another.
     evaluate("document.querySelector('footer').scrollIntoView({ behavior: 'instant' })");
     evaluate("document.querySelector('.cta-button').click()");
-    // Wait until the smooth scroll stops with the field in view, so the click below lands on it.
-    browser(
-      "wait",
-      "--fn",
-      "(() => { const { top, bottom } = document.querySelector('#university').getBoundingClientRect(); const still = globalThis.lastScrollY === scrollY; globalThis.lastScrollY = scrollY; return still && top >= 0 && bottom <= innerHeight; })()",
-    );
+    expect(
+      evaluate(
+        "(({ top, bottom }) => top >= 0 && bottom <= innerHeight)(document.querySelector('#university').getBoundingClientRect())",
+      ),
+      "The field is in view at once, with no smooth scroll to wait for",
+    ).toBe(true);
+    browser("wait", "--fn", "document.querySelector('#university').ariaExpanded === 'true'");
     expect(focused()).toBe("university");
+    expect(dropdownOpen()).toBe(true);
+    browser("press", "Escape");
+    browser("wait", "--fn", "document.querySelector('#university').ariaExpanded === 'false'");
     expect(dropdownOpen()).toBe(false);
 
     // A click on the field opens the list under it, and Escape closes it.
