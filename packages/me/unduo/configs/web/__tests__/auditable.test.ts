@@ -1113,12 +1113,15 @@ describe.runIf(enabled)("browser", { timeout: 180_000 }, () => {
     ).toEqual([true, true]);
     browser("press", "Escape");
     expect(evaluate("document.querySelector('#reply-viewer').open")).toBe(false);
+    // How UnDuo works: stacked cards, each with a drawing that's hidden from screen readers.
     expect(
-      evaluate("[...document.querySelectorAll('.how-text')].map((step) => step.textContent)"),
+      evaluate(
+        "[...document.querySelectorAll('.how-step')].map((step) => [step.querySelector('.how-number').textContent, step.querySelector('.how-title').textContent, step.querySelector('.how-art').getAttribute('aria-hidden')])",
+      ),
     ).toEqual([
-      "Get a new QR code from Duo.",
-      "UnDuo converts it to a 2FA QR Code.",
-      "Scan this 2FA QR Code with your favorite 2FA app.",
+      ["Step 1", "Get a new QR code from Duo.", "true"],
+      ["Step 2", "UnDuo converts it to a 2FA QR Code.", "true"],
+      ["Step 3", "Scan this 2FA QR Code with your favorite 2FA app.", "true"],
     ]);
     // Get Started, at the bottom, scrolls back up to the search and focuses it, without opening its list.
     expect(evaluate("document.querySelector('.cta-button').textContent")).toBe("Get Started");

@@ -16,6 +16,7 @@ import {
 } from "@-/me.unduo.lib.dom";
 import { type AiReply, aiReplies } from "#ai-replies";
 import { steps } from "#home-intro";
+import { convertArt, phoneArt, portalArt } from "#how-art";
 
 /** Each screenshot's blob: URL, by its `data-image-src`. */
 const images = new Map<string, Promise<string>>();
@@ -203,7 +204,26 @@ export function aiTestimonials() {
   );
 }
 
-/** The three steps of using UnDuo, numbered. */
+/** What each step involves, under its line, and its illustration. */
+const stepDetails = [
+  {
+    art: portalArt,
+    text: "Your UnDuo file walks you through your school's Duo device portal, where you add a new device. Duo then shows a QR code meant for its own app.",
+  },
+  {
+    art: convertArt,
+    text: "Paste that QR code into your UnDuo file. It activates the new device with Duo straight from your browser, then turns Duo's reply into a standard 2FA QR code.",
+  },
+  {
+    art: phoneArt,
+    text: "Any app that supports counter-based (HOTP) codes works, such as Google Authenticator, 2FAS, Aegis or FreeOTP. Its codes work wherever Duo asks for a passcode.",
+  },
+];
+
+/**
+ * The three steps of using UnDuo, stacked: each a card with an illustration on
+ * one side and its line and details on the other, the sides alternating.
+ */
 export function howItWorks() {
   return section(
     { class: "landing-section", "aria-labelledby": "how-title" },
@@ -213,11 +233,16 @@ export function howItWorks() {
     ),
     ol(
       { class: "how-steps" },
-      steps.map((text, index) =>
+      steps.map((title, index) =>
         li(
           { class: "how-step" },
-          span({ class: "how-number", "aria-hidden": "true" }, String(index + 1)),
-          p({ class: "how-text" }, text),
+          stepDetails[index]!.art(),
+          div(
+            { class: "how-copy" },
+            p({ class: "how-number" }, `Step ${index + 1}`),
+            h3({ class: "how-title" }, title),
+            p({ class: "how-text" }, stepDetails[index]!.text),
+          ),
         ),
       ),
     ),

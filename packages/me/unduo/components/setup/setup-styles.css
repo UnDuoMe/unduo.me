@@ -478,17 +478,45 @@ summary {
     @apply overflow-hidden! rounded-xl! border! border-separator! [&_.reply-shot]:aspect-auto! [&_.reply-shot]:h-auto!;
   }
   /* How UnDuo works, as three numbered cards. */
+  /* How UnDuo works: stacked cards, an illustration on one side and the text on the other, alternating. */
   .how-steps {
-    @apply m-0! grid! list-none! gap-4! p-0! min-[960px]:grid-cols-3!;
+    @apply m-0! mx-auto! grid! max-w-5xl! list-none! gap-8! p-0! min-[960px]:gap-12!;
   }
   .how-step {
-    @apply flex! items-start! gap-4! rounded-2xl! border! border-separator! bg-white! p-5! text-left!;
+    @apply grid! items-center! gap-2! rounded-[2rem]! border! border-separator! bg-white! p-3! text-left! shadow-[0_1px_2px_rgb(15_23_42/0.04),0_24px_48px_-24px_rgb(15_23_42/0.18)]! min-[960px]:grid-cols-[1.15fr_1fr]! min-[960px]:gap-6!;
+  }
+  .how-step:nth-child(even) {
+    @apply min-[960px]:grid-cols-[1fr_1.15fr]!;
+  }
+  .how-step:nth-child(even) > .how-visual {
+    @apply min-[960px]:order-last!;
+  }
+  .how-visual {
+    @apply flex! aspect-[4/3]! items-center! justify-center! overflow-hidden! rounded-3xl! p-4!;
+  }
+  .how-visual-portal {
+    @apply bg-linear-to-br! from-[#e7f0ff]! to-[#b7cff8]!;
+  }
+  .how-visual-convert {
+    @apply bg-linear-to-br! from-[#eceaff]! to-[#c4c6f5]!;
+  }
+  .how-visual-phone {
+    @apply bg-linear-to-br! from-[#e3f3fb]! to-[#b0d6ef]!;
+  }
+  .how-art {
+    @apply h-auto! w-full! max-w-[30rem]!;
+  }
+  .how-copy {
+    @apply flex! flex-col! gap-3! px-4! pt-4! pb-6! min-[960px]:px-6! min-[960px]:py-8!;
   }
   .how-number {
-    @apply flex! size-9! shrink-0! items-center! justify-center! rounded-full! bg-accent-soft! font-semibold! text-accent!;
+    @apply text-sm! font-semibold! tracking-wide! text-accent! uppercase!;
+  }
+  .how-title {
+    @apply text-2xl! leading-tight! font-bold! tracking-tight! text-balance! min-[641px]:text-3xl!;
   }
   .how-text {
-    @apply pt-1.5! text-[0.9375rem]! leading-[1.55]!;
+    @apply text-base! leading-[1.6]! text-muted!;
   }
   .landing-cta {
     @apply flex! justify-center! px-4! pt-4! pb-20!;

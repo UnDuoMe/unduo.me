@@ -9,7 +9,8 @@
     "#home-landing": "./home-landing.ts",
     "#home-mount": "./home-mount.server.ts",
     "#home-page": "./home-page.ts",
-    "#home-steps": "./home-steps.ts"
+    "#home-steps": "./home-steps.ts",
+    "#how-art": "./how-art.ts"
   },
   "exports": {
     ".": "./+.ts",

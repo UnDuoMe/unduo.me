@@ -27,11 +27,13 @@ export {
   p,
   path,
   pre,
+  rect,
   section,
   span,
   strong,
   summary,
   svg,
+  svgText,
   textarea,
   ul,
 } from "#dom";
