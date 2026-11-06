@@ -317,7 +317,7 @@ can take several minutes. Publish before deploying a build whose assets changed.
 
 The build copies `CNAME` and `.nojekyll` into `www/`.
 
-The home page's download link saves an institution's file as `<institution name>.html`. A file
+The home page's download link saves an institution's file as `UnDuo - <institution name>.html`. A file
 keeps setup state in memory, with only the step in hash history, and links home to
 `https://unduo.me/`.
 

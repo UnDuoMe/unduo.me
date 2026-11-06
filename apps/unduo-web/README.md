@@ -23,7 +23,7 @@ The build emits:
 - `www/index.html`: the home page, a short intro and a stepper from choosing an institution
   to its download, a prompt to ask an AI about it, and opening it.
 - `www/files/<WHED-number>`: each selected institution's setup UI, which the home page
-  downloads as `<institution name>.html`. It has no extension, so GitHub Pages serves it
+  downloads as `UnDuo - <institution name>.html`. It has no extension, so GitHub Pages serves it
   as a download: setup never runs on the website.
 - `www/cdn/` and `www/cdn.json`: the Tailwind CSS, WebP help images and setup
   plugin that pages load from a content-addressed jsDelivr commit. No JavaScript

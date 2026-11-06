@@ -565,8 +565,8 @@ summary {
   .home-download {
     @apply mb-5!;
   }
-  /* Verify: tabs choose the AI, and its drawing sits beside the text in a wider dialog. */
-  .dialog[data-step="verify"] {
+  /* The home dialog's steps: a drawing beside the text, in a wider dialog. Verify's tabs choose the AI. */
+  .dialog[data-step] {
     @apply min-[900px]:max-w-[56rem]!;
   }
   .ai-tabs {
@@ -575,16 +575,16 @@ summary {
   .ai-tab {
     @apply flex-1! rounded-lg! px-2! py-1.5! text-sm! font-medium! text-muted! transition-colors! hover:text-foreground! aria-selected:bg-white! aria-selected:text-foreground! aria-selected:shadow-sm!;
   }
-  .verify-layout {
+  .dialog-layout {
     @apply grid! gap-5! min-[900px]:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]! min-[900px]:items-start!;
   }
-  .verify-visual {
+  .dialog-visual {
     @apply flex! items-center! justify-center! rounded-2xl! bg-linear-to-br! from-[#e7f0ff]! to-[#c2d6f7]! p-3!;
   }
-  .verify-art {
+  .dialog-art {
     @apply h-auto! w-full!;
   }
-  .verify-text {
+  .dialog-copy {
     @apply min-w-0!;
   }
   .stay-safe {
@@ -671,7 +671,7 @@ summary {
  * box and dropped there. With reduced motion it stays halfway, with nothing dropped.
  */
 .drag-file {
-  transform: translate(96px, 130px);
+  transform: translate(90px, 130px);
 }
 .drop-file {
   opacity: 0;
@@ -688,11 +688,11 @@ summary {
   0%,
   12% {
     opacity: 0;
-    transform: translate(144px, 82px);
+    transform: translate(124px, 82px);
   }
   20% {
     opacity: 1;
-    transform: translate(144px, 82px);
+    transform: translate(124px, 82px);
   }
   62% {
     opacity: 1;
@@ -715,5 +715,103 @@ summary {
   }
   100% {
     opacity: 0;
+  }
+}
+
+/*
+ * The Download drawing: the Downloads button pulses and its panel pops up. The
+ * Continue drawing: two clicks ripple on the file and its window opens. With
+ * reduced motion, all of them hold still, shown.
+ */
+.download-pop {
+  transform-box: fill-box;
+  transform-origin: 100% 0;
+}
+.click-ring,
+.download-ring {
+  transform-box: fill-box;
+  transform-origin: center;
+}
+.click-ring {
+  opacity: 0.6;
+}
+@media (prefers-reduced-motion: no-preference) {
+  .download-ring {
+    animation: download-ring 3.6s ease-out infinite;
+  }
+  .download-pop {
+    animation: download-pop 3.6s ease-out infinite;
+  }
+  .click-ring {
+    animation: click-ring 4.2s ease-out infinite;
+  }
+  .click-ring-second {
+    animation-delay: 0.35s;
+  }
+  .open-window {
+    animation: open-window 4.2s ease-out infinite;
+  }
+}
+@keyframes download-ring {
+  0%,
+  10% {
+    opacity: 0;
+    transform: scale(0.8);
+  }
+  18% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  40%,
+  100% {
+    opacity: 0;
+    transform: scale(1.25);
+  }
+}
+@keyframes download-pop {
+  0%,
+  16% {
+    opacity: 0;
+    transform: scale(0.92);
+  }
+  26%,
+  88% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  100% {
+    opacity: 0;
+    transform: scale(1);
+  }
+}
+@keyframes click-ring {
+  0%,
+  10% {
+    opacity: 0;
+    transform: scale(0.6);
+  }
+  14% {
+    opacity: 1;
+  }
+  26%,
+  100% {
+    opacity: 0;
+    transform: scale(1.3);
+  }
+}
+@keyframes open-window {
+  0%,
+  36% {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  48%,
+  88% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  100% {
+    opacity: 0;
+    transform: translateY(0);
   }
 }

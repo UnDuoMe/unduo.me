@@ -15,7 +15,7 @@ run the same steps yourself [in a terminal](#in-a-terminal).
 ## Website
 
 Go to **[unduo.me](https://unduo.me)** and follow its steps: select your university,
-download its file, `<school name>.html`, without running it, then drag it into your
+download its file, `UnDuo - <school name>.html`, without running it, then drag it into your
 favorite AI with the prompt the page gives you. Once the AI gives the thumbs up, double
 click the file for a five-step guided setup with its own stepper. Setup runs only from
 that file, never on the website: students shouldn't get used to doing something
@@ -65,7 +65,7 @@ URL, browser history or browser storage, so refreshing or closing the tab clears
 them, and the browser asks before you leave with progress. The URL hash records
 only the step and code type. There are no accounts, analytics or cookies.
 
-The first step on a school's page saves it as `<school name>.html` to open
+The home page saves it as `UnDuo - <school name>.html` to open
 directly in your browser. The file is small enough to paste into an AI assistant and ask
 whether it is safe to run. All the JavaScript it runs is in the file, inline and
 readable: unduo's own code and [VanJS](https://vanjs.org), a small library that builds the page's elements. The setup logic runs in a WebAssembly
@@ -329,7 +329,7 @@ Each attestation is signed through Sigstore and names the commit and workflow
 run that built the file's SHA-256:
 
 ```sh
-gh attestation verify "University of Toronto.html" --repo UnDuoMe/unduo.me  # the downloaded file
+gh attestation verify "UnDuo - University of Toronto.html" --repo UnDuoMe/unduo.me  # the downloaded file
 gh attestation verify setup.*.wasm --repo UnDuoMe/unduo.me                   # the file at data-plugin-url
 ```
 

@@ -91,7 +91,7 @@ export function startHomePage() {
     {
       id: "home-dialog",
       class: "dialog",
-      // The Verify step is wider, for its drawing beside the text.
+      // Which step is open, for the tests; every step has a drawing beside its text.
       "data-step": () => steps[current.val]!.id,
       "aria-labelledby": "step-title",
       // Escape, the close button and Done all leave the dialog for the page, and the address follows.

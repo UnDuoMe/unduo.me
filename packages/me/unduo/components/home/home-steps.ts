@@ -1,7 +1,7 @@
 import type { University } from "@-/me.unduo.data.universities.entities";
 import { a, button, div, label, p, span, strong, textarea } from "@-/me.unduo.lib.dom";
 import { aiPrompt } from "#ai-prompt";
-import { type AiChoice, dragArt } from "#how-art";
+import { type AiChoice, downloadArt, dragArt, openArt } from "#how-art";
 
 /** The Verify step's tabs, ChatGPT first and selected; `Other` has no link. */
 const assistants: { id: AiChoice; name: string; href?: string }[] = [
@@ -11,28 +11,35 @@ const assistants: { id: AiChoice; name: string; href?: string }[] = [
   { id: "other", name: "Other" },
 ];
 
-/** The name a browser saves an institution's file under. */
-const fileName = (school: University) => `${school.name.replace(/[\\/:*?"<>|]+/g, "-")}.html`;
+/** The name a browser saves an institution's file under: `UnDuo - <name>.html`. */
+const fileName = (school: University) =>
+  `UnDuo - ${school.name.replace(/[\\/:*?"<>|]+/g, "-")}.html`;
 
 /**
  * Step 1: the institution's file, which the student downloads but mustn't open
- * yet, because the next step has them audit it first.
+ * yet, because the next step has them audit it first. A drawing beside the
+ * text shows where the browser lists the download.
  */
 export function downloadStep(school: University) {
   return div(
-    p({ class: "home-step-text" }, `Download the file for ${school.name}:`),
-    a(
-      {
-        class: "uk-button uk-button-primary btn-accent home-download",
-        href: `./files/${school.id.slice(4)}`,
-        download: fileName(school),
-      },
-      `Download ${fileName(school)}`,
-    ),
-    p(
-      { class: "home-step-text" },
-      strong("Don't open it yet."),
-      " On the next step, we'll tell you how to audit it yourself (or with AI).",
+    { class: "dialog-layout" },
+    downloadArt(fileName(school)),
+    div(
+      { class: "dialog-copy" },
+      p({ class: "home-step-text" }, `Download the file for ${school.name}:`),
+      a(
+        {
+          class: "uk-button uk-button-primary btn-accent home-download",
+          href: `./files/${school.id.slice(4)}`,
+          download: fileName(school),
+        },
+        `Download ${fileName(school)}`,
+      ),
+      p(
+        { class: "home-step-text" },
+        strong("Don't open it yet."),
+        " On the next step, we'll tell you how to audit it yourself (or with AI).",
+      ),
     ),
   );
 }
@@ -95,13 +102,13 @@ export function verifyStep(school: University) {
     div(
       {
         id: "ai-panel",
-        class: "verify-layout",
+        class: "dialog-layout",
         role: "tabpanel",
         "aria-labelledby": () => `ai-tab-${assistant.val.id}`,
       },
       () => dragArt(fileName(school), assistant.val.id),
       div(
-        { class: "verify-text" },
+        { class: "dialog-copy" },
         p(
           { class: "home-step-text" },
           van.derive(
@@ -155,18 +162,27 @@ export function verifyStep(school: University) {
   );
 }
 
-/** Step 3: open the file, which takes over from here with its own steps, and what to take away. */
+/**
+ * Step 3: open the file, which takes over from here with its own steps, and
+ * what to take away. A drawing beside the text shows the double click in the
+ * browser's downloads.
+ */
 export function continueStep(school: University) {
   return div(
-    p(
-      { class: "home-step-text" },
-      `Once your AI has given the thumbs up, double click ${fileName(school)} and follow its further instructions. If it doesn't, don't open the file.`,
-    ),
-    p({ class: "note" }, "It runs in your browser and starts at the Duo portal step."),
-    p(
-      { class: "home-step-text stay-safe" },
-      strong(
-        "Never trust any website with your sensitive school data without a way to fully audit and verify it, even if they claim to be secure.",
+    { class: "dialog-layout" },
+    openArt(fileName(school)),
+    div(
+      { class: "dialog-copy" },
+      p(
+        { class: "home-step-text" },
+        `Once your AI has given the thumbs up, double click ${fileName(school)} and follow its further instructions. If it doesn't, don't open the file.`,
+      ),
+      p({ class: "note" }, "It runs in your browser and starts at the Duo portal step."),
+      p(
+        { class: "home-step-text stay-safe" },
+        strong(
+          "Never trust any website with your sensitive school data without a way to fully audit and verify it, even if they claim to be secure.",
+        ),
       ),
     ),
   );

@@ -20,7 +20,7 @@ import { guardNetwork } from "#network-guard";
 import { realHosts, site } from "#site";
 
 const school = "University of Toronto";
-const fileName = `${school}.html`;
+const fileName = `UnDuo - ${school}.html`;
 const portalUrl = `https://${portalHost}/`;
 const assistants = {
   "chatgpt.com": "ChatGPT",

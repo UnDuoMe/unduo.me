@@ -1203,7 +1203,13 @@ describe.runIf(enabled)("browser", { timeout: 180_000 }, () => {
     expect(dialogText()).toMatch(/Download the file for University of Toronto:/);
     expect(
       evaluate("(({ href, download }) => [href, download])(document.querySelector('a[download]'))"),
-    ).toEqual([`${hosted}/files/020599`, "University of Toronto.html"]);
+    ).toEqual([`${hosted}/files/020599`, "UnDuo - University of Toronto.html"]);
+    // Every step has a drawing beside its text: here, the Downloads panel with the file.
+    expect(
+      evaluate(
+        "(({ textContent }, art) => [art.getAttribute('aria-hidden'), textContent.includes('Downloads'), !!art.querySelector('.download-pop')])(document.querySelector('.dialog-art'), document.querySelector('.dialog-art'))",
+      ),
+    ).toEqual(["true", true, true]);
     expect(
       evaluate("[...document.querySelectorAll('#home-dialog .home-step-text')].at(-1).textContent"),
     ).toBe(
@@ -1230,14 +1236,14 @@ describe.runIf(enabled)("browser", { timeout: 180_000 }, () => {
         "[...document.querySelectorAll('#home-dialog a[target=_blank]')].map((link) => [link.textContent, link.href, link.rel])",
       );
     const instruction = () =>
-      evaluate("document.querySelector('.verify-text .home-step-text').textContent");
+      evaluate("document.querySelector('.dialog-copy .home-step-text').textContent");
     expect(evaluate("document.querySelector('#home-dialog').dataset.step")).toBe("verify");
     expect(aiTabs()).toEqual(["ChatGPT*", "Claude", "Gemini", "Other"]);
     expect(instruction()).toBe(
-      "Drag and drop University of Toronto.html into ChatGPT and copy this prompt:",
+      "Drag and drop UnDuo - University of Toronto.html into ChatGPT and copy this prompt:",
     );
     expect(aiLinks()).toEqual([["Open ChatGPT", "https://chatgpt.com/", "noopener noreferrer"]]);
-    expect(evaluate("document.querySelector('.verify-art').getAttribute('aria-hidden')")).toBe(
+    expect(evaluate("document.querySelector('.dialog-art').getAttribute('aria-hidden')")).toBe(
       "true",
     );
     for (const [name, href] of [
@@ -1248,7 +1254,7 @@ describe.runIf(enabled)("browser", { timeout: 180_000 }, () => {
       evaluate(`document.querySelector('${tab}').click()`);
       browser("wait", "--fn", `document.querySelector('${tab}').ariaSelected === 'true'`);
       expect(instruction()).toBe(
-        `Drag and drop University of Toronto.html into ${name} and copy this prompt:`,
+        `Drag and drop UnDuo - University of Toronto.html into ${name} and copy this prompt:`,
       );
       expect(aiLinks()).toEqual([[`Open ${name}`, href, "noopener noreferrer"]]);
     }
@@ -1261,7 +1267,7 @@ describe.runIf(enabled)("browser", { timeout: 180_000 }, () => {
       "document.activeElement.id === 'ai-tab-other' && document.activeElement.ariaSelected === 'true'",
     );
     expect(instruction()).toBe(
-      "Drag and drop University of Toronto.html into your favorite AI and copy this prompt:",
+      "Drag and drop UnDuo - University of Toronto.html into your favorite AI and copy this prompt:",
     );
     expect(aiLinks()).toEqual([]);
     browser("press", "ArrowRight");
@@ -1289,8 +1295,13 @@ describe.runIf(enabled)("browser", { timeout: 180_000 }, () => {
     // 3: open it after the thumbs up, then the closing advice, and Done.
     waitForStep("Continue");
     expect(dialogText()).toMatch(
-      /Once your AI has given the thumbs up, double click University of Toronto\.html/,
+      /Once your AI has given the thumbs up, double click UnDuo - University of Toronto\.html/,
     );
+    expect(
+      evaluate(
+        "[document.querySelector('.dialog-art').getAttribute('aria-hidden'), !!document.querySelector('.dialog-art .open-window'), document.querySelectorAll('.dialog-art .click-ring').length]",
+      ),
+    ).toEqual(["true", true, 2]);
     expect(dialogText()).toMatch(/Never trust any website with your sensitive school data/);
     expect(visible("Done")).toBe(true);
     expect(visible("Back")).toBe(true);
@@ -1384,7 +1395,7 @@ describe.runIf(enabled)("browser", { timeout: 180_000 }, () => {
   test("the file opens at its portal under its download name, and links home to the site", async () => {
     const folder = join(temporary, "institution");
     await mkdir(folder);
-    const file = join(folder, "University of Toronto.html");
+    const file = join(folder, "UnDuo - University of Toronto.html");
     await writeFile(file, localCopy(html));
     browser("open", pathToFileURL(file).href);
     waitForHeading("Open your Duo device portal");

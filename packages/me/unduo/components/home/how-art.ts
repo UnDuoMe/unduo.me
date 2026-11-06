@@ -11,6 +11,9 @@ const soft = "#e7f0ff";
 const shadow = "#1e3a8a";
 const white = "#fff";
 
+/** What a drawing is made of: shapes, and lists of shapes, nested as deep as they come. */
+type Drawing = Element | Drawing[];
+
 /** A rounded rectangle, the shape every illustration is drawn with. */
 function box(
   x: number,
@@ -57,7 +60,7 @@ function qrDrawing(seed: number, x: number, y: number, size: number, color: stri
 }
 
 /** An illustration's canvas: decorative, since the text beside it says the same. */
-function canvas(...children: (Element | Element[])[]) {
+function canvas(...children: Drawing[]) {
   return svg({ class: "how-art", viewBox: "0 0 480 360", "aria-hidden": "true" }, children);
 }
 
@@ -220,6 +223,113 @@ const chatLooks: Record<
   },
 };
 
+/** A file name short enough for the drawings, keeping its start and `.html`. */
+const shortName = (file: string) =>
+  file.length > 36 ? `${file.slice(0, 30)}…${file.slice(-5)}` : file;
+
+const round = { fill: "none", "stroke-linecap": "round", "stroke-linejoin": "round" };
+
+/** A document with an accent stripe. */
+const fileIcon = (x: number, y: number, width: number, height: number) => [
+  box(x, y, width, height, 2, white, { stroke: gray, "stroke-width": "1.2" }),
+  box(x + 2, y + height / 2 - 1, width - 4, 3, 1, accent),
+];
+
+/** A file's name, beside its icon. */
+const fileLabel = (name: string, x: number, y: number) =>
+  svgText({ x, y, "font-size": "9", "font-weight": "500", fill: ink }, name);
+
+/** The pointer, its tip at `x`, `y`. */
+const pointer = (x: number, y: number) =>
+  path({
+    d: `M${x} ${y}v17l4.6-4.2 3.4 7.6 3.1-1.4-3.4-7.4 6.2-.2z`,
+    fill: ink,
+    stroke: white,
+    "stroke-width": "1",
+    "stroke-linejoin": "round",
+  });
+
+/** A dialog's drawing: decorative, since the text beside it says the same. */
+const dialogCanvas = (...children: Drawing[]) =>
+  div(
+    { class: "dialog-visual" },
+    svg({ class: "dialog-art", viewBox: "0 0 360 280", "aria-hidden": "true" }, children),
+  );
+
+/** A browser window over a page of color `page`, its Downloads button highlighted. */
+function browserWindow(page: string) {
+  return [
+    box(10, 22, 340, 252, 14, shadow, { opacity: "0.1" }),
+    box(10, 14, 340, 252, 14, page, { stroke: "#dbe3ed" }),
+    box(10, 14, 340, 40, 14, pale),
+    box(10, 40, 340, 14, 0, pale),
+    box(10, 54, 340, 1, 0, faint),
+    box(24, 30, 9, 9, 4.5, "#f87171"),
+    box(38, 30, 9, 9, 4.5, "#fbbf24"),
+    box(52, 30, 9, 9, 4.5, "#34d399"),
+    box(74, 25, 170, 18, 9, white),
+    box(258, 28, 12, 12, 3, line),
+    box(280, 24, 26, 20, 6, "#dbe7fb"),
+    path({
+      d: "M293 28v8m-4-3.5 4 4 4-4M287.5 40h11",
+      stroke: accent,
+      "stroke-width": "1.8",
+      ...round,
+    }),
+    box(318, 28, 12, 12, 3, line),
+  ];
+}
+
+/** The browser's Downloads panel, under its button, with the file in its list. */
+function downloadsPanel(name: string) {
+  return [
+    box(118, 58, 218, 66, 10, shadow, { opacity: "0.12" }),
+    box(118, 52, 218, 66, 10, white, { stroke: faint, "stroke-width": "1.5" }),
+    svgText({ x: 132, y: 71, "font-size": "11", "font-weight": "600", fill: ink }, "Downloads"),
+    box(126, 80, 202, 30, 7, soft),
+    fileIcon(134, 86, 13, 17),
+    fileLabel(name, 154, 99),
+  ];
+}
+
+/**
+ * The Download step's drawing: a click on the page's download button, and the
+ * browser's Downloads panel popping up under its button with the file. Unless
+ * motion is reduced, the panel pops up again and again.
+ */
+export function downloadArt(file: string) {
+  return dialogCanvas(
+    browserWindow("#f8fafc"),
+    // unduo.me's dialog, its download button under the pointer.
+    box(36, 132, 200, 116, 12, shadow, { opacity: "0.08" }),
+    box(36, 126, 200, 116, 12, white, { stroke: faint, "stroke-width": "1.5" }),
+    box(52, 144, 90, 8, 4, gray),
+    box(52, 160, 120, 10, 5, ink),
+    box(52, 194, 150, 28, 8, accent),
+    box(70, 205, 114, 6, 3, white),
+    pointer(180, 204),
+    // Where the file shows up.
+    path({
+      d: "M206 196C232 186 244 160 238 128",
+      stroke: accent,
+      "stroke-width": "1.8",
+      "stroke-dasharray": "4 4",
+      ...round,
+    }),
+    path({
+      d: "M235.3 135.5L238 128L243.2 134.1",
+      stroke: accent,
+      "stroke-width": "1.8",
+      ...round,
+    }),
+    g(
+      { class: "download-ring" },
+      box(275, 19, 36, 30, 9, "none", { stroke: accent, "stroke-width": "2" }),
+    ),
+    g({ class: "download-pop" }, downloadsPanel(shortName(file))),
+  );
+}
+
 /**
  * The Verify step's drawing: a browser with its Downloads panel open over
  * `ai`'s start page, and `file` dragged from the panel into the message box.
@@ -227,107 +337,111 @@ const chatLooks: Record<
  */
 export function dragArt(file: string, ai: AiChoice) {
   const look = chatLooks[ai];
-  const name = file.length > 26 ? `${file.slice(0, 20)}…${file.slice(-5)}` : file;
-  const fileIcon = (x: number, y: number, width: number, height: number) => [
-    box(x, y, width, height, 2, white, { stroke: gray, "stroke-width": "1.2" }),
-    box(x + 2, y + height / 2 - 1, width - 4, 3, 1, accent),
-  ];
-  const label = (x: number, y: number, size = "9.5") =>
-    svgText({ x, y, "font-size": size, "font-weight": "500", fill: ink }, name);
-  const round = { fill: "none", "stroke-linecap": "round", "stroke-linejoin": "round" };
-  return div(
-    { class: "verify-visual" },
-    svg(
-      { class: "verify-art", viewBox: "0 0 360 280", "aria-hidden": "true" },
-      box(10, 22, 340, 252, 14, shadow, { opacity: "0.1" }),
-      box(10, 14, 340, 252, 14, look.page, { stroke: "#dbe3ed" }),
-      // The browser's toolbar, its Downloads button highlighted.
-      box(10, 14, 340, 40, 14, pale),
-      box(10, 40, 340, 14, 0, pale),
-      box(10, 54, 340, 1, 0, faint),
-      box(24, 30, 9, 9, 4.5, "#f87171"),
-      box(38, 30, 9, 9, 4.5, "#fbbf24"),
-      box(52, 30, 9, 9, 4.5, "#34d399"),
-      box(74, 25, 170, 18, 9, white),
-      box(258, 28, 12, 12, 3, line),
-      box(280, 24, 26, 20, 6, "#dbe7fb"),
-      path({
-        d: "M293 28v8m-4-3.5 4 4 4-4M287.5 40h11",
-        stroke: accent,
-        "stroke-width": "1.8",
-        ...round,
-      }),
-      box(318, 28, 12, 12, 3, line),
-      // The AI's start page: a greeting over its message box.
-      look.greeting
-        ? svgText(
-            {
-              x: 180,
-              y: 146,
-              "text-anchor": "middle",
-              "font-size": look.greetingSize,
-              "font-weight": look.serif ? "400" : "500",
-              "font-family": look.serif ? "Georgia, 'Times New Roman', serif" : "inherit",
-              fill: look.greetingFill,
-            },
-            look.greeting,
-          )
-        : box(120, 136, 120, 12, 6, faint),
-      box(30, 170, 300, 70, 18, look.box, { stroke: look.boxStroke, "stroke-width": "1.5" }),
-      svgText({ x: 48, y: 228, "font-size": "11", fill: "#8f8f8f" }, look.placeholder),
-      box(298, 210, 24, 24, ai === "claude" ? 7 : 12, look.send),
-      path({
-        d: "M310 228v-11m-4.5 4.5 4.5-4.5 4.5 4.5",
-        stroke: white,
-        "stroke-width": "1.8",
-        ...round,
-      }),
-      box(24, 164, 312, 82, 22, "none", {
-        stroke: accent,
-        "stroke-width": "1.5",
-        "stroke-dasharray": "6 5",
-      }),
-      g(
-        { class: "drop-file" },
-        box(44, 178, 184, 22, 7, soft),
-        fileIcon(51, 182, 10, 14),
-        label(67, 193, "9"),
-      ),
-      // The Downloads panel, with the file to drag.
-      box(134, 58, 202, 66, 10, shadow, { opacity: "0.12" }),
-      box(134, 52, 202, 66, 10, white, { stroke: faint, "stroke-width": "1.5" }),
-      svgText({ x: 148, y: 71, "font-size": "11", "font-weight": "600", fill: ink }, "Downloads"),
-      box(142, 80, 186, 30, 7, soft),
-      fileIcon(150, 86, 13, 17),
-      label(170, 99),
-      // Where the file goes, and the file on its way under the pointer.
-      path({
-        d: "M206 120C200 142 152 148 134 164",
-        stroke: accent,
-        "stroke-width": "1.8",
-        "stroke-dasharray": "4 4",
-        ...round,
-      }),
-      path({
-        d: "M141.8 162.4L134 164L136.5 156.4",
-        stroke: accent,
-        "stroke-width": "1.8",
-        ...round,
-      }),
-      g(
-        { class: "drag-file" },
-        box(2, 4, 184, 26, 8, shadow, { opacity: "0.12" }),
-        box(0, 0, 184, 26, 8, white, { stroke: accent, "stroke-width": "1.5" }),
-        fileIcon(8, 5, 11, 15),
-        label(26, 17),
-        path({
-          d: "M166 12v17l4.6-4.2 3.4 7.6 3.1-1.4-3.4-7.4 6.2-.2z",
-          fill: ink,
-          stroke: white,
-          "stroke-width": "1",
-          "stroke-linejoin": "round",
-        }),
-      ),
+  const name = shortName(file);
+  return dialogCanvas(
+    browserWindow(look.page),
+    // The AI's start page: a greeting over its message box.
+    look.greeting
+      ? svgText(
+          {
+            x: 180,
+            y: 146,
+            "text-anchor": "middle",
+            "font-size": look.greetingSize,
+            "font-weight": look.serif ? "400" : "500",
+            "font-family": look.serif ? "Georgia, 'Times New Roman', serif" : "inherit",
+            fill: look.greetingFill,
+          },
+          look.greeting,
+        )
+      : box(120, 136, 120, 12, 6, faint),
+    box(30, 170, 300, 70, 18, look.box, { stroke: look.boxStroke, "stroke-width": "1.5" }),
+    svgText({ x: 48, y: 228, "font-size": "11", fill: "#8f8f8f" }, look.placeholder),
+    box(298, 210, 24, 24, ai === "claude" ? 7 : 12, look.send),
+    path({
+      d: "M310 228v-11m-4.5 4.5 4.5-4.5 4.5 4.5",
+      stroke: white,
+      "stroke-width": "1.8",
+      ...round,
+    }),
+    box(24, 164, 312, 82, 22, "none", {
+      stroke: accent,
+      "stroke-width": "1.5",
+      "stroke-dasharray": "6 5",
+    }),
+    g(
+      { class: "drop-file" },
+      box(44, 178, 206, 22, 7, soft),
+      fileIcon(51, 182, 10, 14),
+      fileLabel(name, 67, 193),
+    ),
+    downloadsPanel(name),
+    // Where the file goes, and the file on its way under the pointer.
+    path({
+      d: "M206 120C200 142 152 148 134 164",
+      stroke: accent,
+      "stroke-width": "1.8",
+      "stroke-dasharray": "4 4",
+      ...round,
+    }),
+    path({
+      d: "M141.8 162.4L134 164L136.5 156.4",
+      stroke: accent,
+      "stroke-width": "1.8",
+      ...round,
+    }),
+    g(
+      { class: "drag-file" },
+      box(2, 4, 206, 26, 8, shadow, { opacity: "0.12" }),
+      box(0, 0, 206, 26, 8, white, { stroke: accent, "stroke-width": "1.5" }),
+      fileIcon(8, 5, 11, 15),
+      fileLabel(name, 26, 17),
+      pointer(190, 12),
+    ),
+  );
+}
+
+/**
+ * The Continue step's drawing: a double click on the file in the Downloads
+ * panel, which opens it in a new window at its first step. Unless motion is
+ * reduced, the clicks ripple and the window opens again and again.
+ */
+export function openArt(file: string) {
+  return dialogCanvas(
+    browserWindow("#f8fafc"),
+    box(30, 78, 70, 8, 4, faint),
+    box(30, 94, 52, 8, 4, faint),
+    downloadsPanel(shortName(file)),
+    g(
+      { class: "click-ring" },
+      box(229, 85, 26, 26, 13, "none", { stroke: accent, "stroke-width": "2" }),
+    ),
+    g(
+      { class: "click-ring click-ring-second" },
+      box(223, 79, 38, 38, 19, "none", { stroke: accent, "stroke-width": "1.5" }),
+    ),
+    pointer(242, 96),
+    // The file, open in a window of its own at its first step.
+    g(
+      { class: "open-window" },
+      box(30, 136, 208, 134, 12, shadow, { opacity: "0.14" }),
+      box(26, 128, 208, 134, 12, white, { stroke: "#dbe3ed", "stroke-width": "1.5" }),
+      box(26, 128, 208, 20, 12, pale),
+      box(26, 140, 208, 8, 0, pale),
+      box(36, 135, 7, 7, 3.5, "#f87171"),
+      box(47, 135, 7, 7, 3.5, "#fbbf24"),
+      box(58, 135, 7, 7, 3.5, "#34d399"),
+      svgText({ x: 42, y: 168, "font-size": "12", "font-weight": "700", fill: accent }, "unduo."),
+      box(46, 181, 96, 1.5, 0.75, line),
+      box(41, 177, 10, 10, 5, accent),
+      box(65, 177, 10, 10, 5, line),
+      box(89, 177, 10, 10, 5, line),
+      box(113, 177, 10, 10, 5, line),
+      box(137, 177, 10, 10, 5, line),
+      box(42, 196, 176, 56, 8, white, { stroke: faint, "stroke-width": "1.5" }),
+      box(54, 207, 104, 8, 4, ink),
+      box(54, 221, 140, 5, 2.5, line),
+      box(54, 233, 88, 12, 4, accent),
     ),
   );
 }
