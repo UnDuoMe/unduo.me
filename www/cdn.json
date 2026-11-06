@@ -1,12 +1,12 @@
 {
-  "commit": "715d613062ac41f950e2ab204920825a5b6ddc9a",
-  "base": "https://cdn.jsdelivr.net/gh/UnDuoMe/unduo.me@715d613062ac41f950e2ab204920825a5b6ddc9a/",
+  "commit": "a898ccd5105c2cc98422309c97a04293775ba203",
+  "base": "https://cdn.jsdelivr.net/gh/UnDuoMe/unduo.me@a898ccd5105c2cc98422309c97a04293775ba203/",
   "files": {
-    "setup-styles.8Fg9hBaw.css": "sha256-8Fg9hBawYrt2GqEIJ6xcAlQElbHxJyAXBfnzW0Tc+OM=",
+    "setup-styles.xBOi-QzC.css": "sha256-xBOi+QzCe2xAR8RvvgUVxEV0OtILa6GrUBwFNQskYfY=",
     "setup.7wz-vxOz.wasm": "sha256-7wz+vxOzfqx4LEs5QVsqwM2TMAJHkXAJisveKoD7omE=",
-    "ai-reply-chatgpt.4sPB2LtS.webp": "sha256-4sPB2LtS5hI2Hxmf2qExicuZ/BFrygas8vWwSVs9jmg=",
-    "ai-reply-claude.66MMAtnb.webp": "sha256-66MMAtnbMRpUY2IHRP86+ml7S/BXxIJBeVvXAYK/6/U=",
-    "ai-reply-gemini.KwNC8EG7.webp": "sha256-KwNC8EG7Q4HIQ+r2xmCOawx88c6r1bRqLXZ8MCkBUmc=",
+    "ai-reply-chatgpt.z9xmsHOa.webp": "sha256-z9xmsHOa6HCxbtW2zZ5a6FPR0ar2fbASWOC9JFoK1OA=",
+    "ai-reply-claude.RGFz3eyJ.webp": "sha256-RGFz3eyJUNcK/XKLFaxKG/n6vbZXYDlyP43rGYztHho=",
+    "ai-reply-gemini.UlbcQdA9.webp": "sha256-UlbcQdA9me0boaQNeZ1ztf7GAytiEyN+ayd/XV7Ri1o=",
     "setup-0-settings-devices.4D4E2Wph.webp": "sha256-4D4E2Wph7w8a7GLxJubPIOC7+TM6pXqPPrg+QMut7jw=",
     "setup-0-signed-in-narrow.Z7rieJFK.webp": "sha256-Z7rieJFK5DIaauv5F2HgGra1tatSENlkPERs5h3VBmk=",
     "setup-0-signed-in-wide.5Y06En7R.webp": "sha256-5Y06En7RF8dnKsK1y1N0VXG58FYbmG2Pz5IcmL3WTz8=",

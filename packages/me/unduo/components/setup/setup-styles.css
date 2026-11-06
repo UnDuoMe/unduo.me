@@ -492,7 +492,7 @@ summary {
   }
   /* The reply, its first lines fading out until the chevron opens it in a box that scrolls. */
   .reply-text {
-    @apply flex! flex-col! gap-3! text-[0.9375rem]! leading-[1.6]! text-foreground! [overflow-wrap:anywhere]! [&_h3]:text-base! [&_h3]:font-semibold! [&_li]:mt-1.5! [&_ol]:list-decimal! [&_ol]:pl-5! [&_strong]:font-semibold! [&_ul]:list-disc! [&_ul]:pl-5!;
+    @apply flex! flex-col! gap-3! text-[0.9375rem]! leading-[1.6]! text-foreground! [&_h3]:text-base! [&_h3]:font-semibold! [&_li]:mt-1.5! [&_ol]:list-decimal! [&_ol]:pl-5! [&_strong]:font-semibold! [&_ul]:list-disc! [&_ul]:pl-5!;
   }
   /* A reply's whole screenshot, as large as the screen allows. */
   .viewer {
