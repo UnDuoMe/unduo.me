@@ -1,0 +1,10 @@
+{
+  "commit": "335fdb65e83f28b9f0e51da1d368b8ffa33301b1",
+  "base": "https://cdn.jsdelivr.net/gh/UnDuoMe/unduo.me@335fdb65e83f28b9f0e51da1d368b8ffa33301b1/",
+  "files": {
+    "home-styles.jc7t46JJ.css": "sha256-jc7t46JJ4SRrABL72I5RERB1JDXe/8iai0+ri7kFdYU=",
+    "ai-reply-chatgpt.z9xmsHOa.webp": "sha256-z9xmsHOa6HCxbtW2zZ5a6FPR0ar2fbASWOC9JFoK1OA=",
+    "ai-reply-claude.RGFz3eyJ.webp": "sha256-RGFz3eyJUNcK/XKLFaxKG/n6vbZXYDlyP43rGYztHho=",
+    "ai-reply-gemini.UlbcQdA9.webp": "sha256-UlbcQdA9me0boaQNeZ1ztf7GAytiEyN+ayd/XV7Ri1o="
+  }
+}

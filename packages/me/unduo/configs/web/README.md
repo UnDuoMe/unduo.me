@@ -35,9 +35,11 @@ full directory. Use the same scope for building and running `test:web`.
 fails the build if the page's code imports an npm package or a URL, and `auditable-build.ts` is the Vite plugin that serves the adapter's pages in
 development and, in a build, keeps the CSS Vite compiled, embeds the application's
 code in each HTML document, and points the
-stylesheet, images and setup plugin at the content-addressed jsDelivr commit
-that `cdn-assets.ts` computes. `publish-assets.mjs` pushes that commit (from
-`www/cdn/`) as an `assets/<sha>` tag and checks jsDelivr serves it.
+stylesheet, images and setup plugin at the content-addressed jsDelivr commits
+that `cdn-assets.ts` computes: one for the setup files (`www/cdn/`) and one for
+the home page (`www/cdn-home/`), so home-page changes never change a setup file.
+`publish-assets.mjs` pushes each commit as an `assets/<sha>` tag and checks
+jsDelivr serves it.
 `build-plugin.mjs` compiles `crates/setup` reproducibly into the committed
 `setup.wasm`; `--check` rebuilds it in a temporary directory and compares.
 `rustc-wrapper.mjs` replaces Cargo's host-dependent crate metadata so builds

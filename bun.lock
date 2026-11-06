@@ -96,6 +96,7 @@
     "packages/me/unduo/components/home": {
       "name": "@-/me.unduo.components.home",
       "dependencies": {
+        "@-/me.unduo.components.setup": "workspace:*",
         "@-/me.unduo.components.university-picker": "workspace:*",
         "@-/me.unduo.data.universities.entities": "workspace:*",
         "@-/me.unduo.lib.dom": "workspace:*",

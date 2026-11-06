@@ -277,37 +277,72 @@ async function devResources(stylesheet: string): Promise<PageResources> {
   };
 }
 
+/** The setup files' assets and the home page's, each in a commit of its own. */
+type AssetGroup = "setup" | "home";
+/** Where each group's commit is written: `vp run publish:assets` pushes both. */
+const assetOutputs: Record<AssetGroup, { directory: string; manifest: string }> = {
+  setup: { directory: "cdn", manifest: "cdn.json" },
+  home: { directory: "cdn-home", manifest: "cdn-home.json" },
+};
+
 /**
- * Write the site from the compiled stylesheet: every page, each with its whole
- * script inline so it's reviewable from the HTML alone, and `cdn/`, the
- * stylesheet, images and setup plugin at their content-addressed jsDelivr commit.
+ * Write the site from the compiled stylesheets: every page, each with its whole
+ * script inline so it's reviewable from the HTML alone, and two content-addressed
+ * jsDelivr commits. `cdn/` holds what the setup files load (their stylesheet,
+ * the setup plugin and the setup screenshots) and `cdn-home/` what the home
+ * page loads (its stylesheet and the AI replies' screenshots), so nothing on
+ * the home page changes a setup file's bytes.
  */
-async function writeSite(output: string, css: string, pages: readonly SitePage[]) {
-  validateStylesheet(css);
-  const files = new Map<string, Buffer>();
-  /** Add a file to the assets commit and return its URL. */
-  let base = "";
-  const publish = (name: string, bytes: Buffer) => {
+async function writeSite(
+  output: string,
+  css: Record<PageEntry, string>,
+  pages: readonly SitePage[],
+) {
+  validateStylesheet(css.setup);
+  validateStylesheet(css.home);
+  const groups = Object.fromEntries(
+    (Object.keys(assetOutputs) as AssetGroup[]).map((group) => [
+      group,
+      { files: new Map<string, Buffer>(), base: "", commit: "" },
+    ]),
+  ) as Record<AssetGroup, { files: Map<string, Buffer>; base: string; commit: string }>;
+  /** Add a file to a group's commit and return its URL. */
+  const publish = (group: AssetGroup, name: string, bytes: Buffer) => {
     const { name: stem, ext } = parse(name);
     const hash = createHash("sha256").update(bytes).digest("base64url").slice(0, 8);
     const published = `${stem}.${hash}${ext}`;
-    files.set(published, bytes);
-    return { name: published, bytes, url: () => base + published };
+    groups[group].files.set(published, bytes);
+    return { name: published, bytes, url: () => groups[group].base + published };
   };
-  const stylesheet = publish("setup-styles.css", Buffer.from(css));
-  const plugin = publish("setup.wasm", readSetupPlugin().bytes);
+  const stylesheets = {
+    setup: publish("setup", "setup-styles.css", Buffer.from(css.setup)),
+    home: publish("home", "home-styles.css", Buffer.from(css.home)),
+  };
+  const plugin = publish("setup", "setup.wasm", readSetupPlugin().bytes);
   const images = new Map<string, ReturnType<typeof publish>>();
   for (const name of (await readdir(new URL("src/assets/", webRoot))).sort()) {
     const stem = pageImage.exec(name)?.[1];
-    if (stem) images.set(stem, publish(name, await readFile(imageFile(stem))));
+    if (stem)
+      images.set(
+        stem,
+        publish(
+          stem.startsWith("setup-") ? "setup" : "home",
+          name,
+          await readFile(imageFile(stem)),
+        ),
+      );
   }
   const image = (name: string) => {
     const published = images.get(name);
     if (!published) throw new Error(`Missing image: ${name}`);
     return published;
   };
-  const commit = cdnCommit(files);
-  base = cdnBase(commit);
+  for (const group of Object.values(groups)) {
+    group.commit = cdnCommit(group.files);
+    group.base = cdnBase(group.commit);
+  }
+  /** The group whose commit a page's assets come from. */
+  const groupOf = (entry: PageEntry): AssetGroup => (entry === "home" ? "home" : "setup");
 
   // Bundle each entry independently: setup pages never need the catalog.
   const home = (await bundleScript(pageEntries.home)).code;
@@ -319,23 +354,25 @@ async function writeSite(output: string, css: string, pages: readonly SitePage[]
   const script = (entry: PageEntry) => elements[entry];
 
   const uikitLink = (await readFile(template, "utf8")).trim().replaceAll("\n", "\n    ");
-  const appLink = `<link rel="stylesheet" data-vendor="app" href="${stylesheet.url()}" integrity="${sri(stylesheet.bytes)}" crossorigin="anonymous" referrerpolicy="no-referrer" ${integrityAttributes(stylesheet.url())} data-comment="${stylesheetComment}">`;
-  const resources: PageResources = {
-    head: `${uikitLink}\n    ${appLink}`,
-    plugin: jsPlugin
-      ? undefined
-      : {
-          "data-plugin-url": plugin.url(),
-          "data-plugin-integrity": sri(plugin.bytes),
-          "data-integrity-source": assetIntegritySource(plugin.url())!.source,
-          "data-integrity-file": assetIntegritySource(plugin.url())!.file,
-        },
+  const appLink = (stylesheet: ReturnType<typeof publish>) =>
+    `<link rel="stylesheet" data-vendor="app" href="${stylesheet.url()}" integrity="${sri(stylesheet.bytes)}" crossorigin="anonymous" referrerpolicy="no-referrer" ${integrityAttributes(stylesheet.url())} data-comment="${stylesheetComment}">`;
+  const resourcesFor = (entry: PageEntry): PageResources => ({
+    head: `${uikitLink}\n    ${appLink(stylesheets[entry])}`,
+    plugin:
+      jsPlugin || entry !== "setup"
+        ? undefined
+        : {
+            "data-plugin-url": plugin.url(),
+            "data-plugin-integrity": sri(plugin.bytes),
+            "data-integrity-source": assetIntegritySource(plugin.url())!.source,
+            "data-integrity-file": assetIntegritySource(plugin.url())!.file,
+          },
     image: (file) => ({
       "data-image-src": image(file).url(),
       "data-image-integrity": sri(image(file).bytes),
     }),
     script,
-  };
+  });
 
   /** UIkit trimmed to each set of classes a page uses. */
   const trimmed = new Map<string, string>();
@@ -368,17 +405,25 @@ async function writeSite(output: string, css: string, pages: readonly SitePage[]
       const comment = `UIkit ${version}'s ${file.slice(1)} from the npm registry, whose SHA-256 is ${integrity}, trimmed to the selectors whose .uk- classes all appear in this page's class attributes and script, the selectors with no .uk- class, and the @keyframes they name. The CSP allows this element by the hash of its contents.`;
       return style("uikit", comment, trimmed.get(key)!);
     });
+    const stylesheet = stylesheets[page.entry];
     const comment = `The page's own stylesheet, compiled with Tailwind CSS from github.com/UnDuoMe/unduo.me: the bytes the normal build pins at ${stylesheet.url()}, whose SHA-256 is ${sri(stylesheet.bytes)}. The CSP allows this element by the hash of its contents.`;
-    return { ...contained, head: [...reviewed, style("app", comment, css)].join("\n    ") };
+    return {
+      ...contained,
+      head: [...reviewed, style("app", comment, css[page.entry])].join("\n    "),
+    };
   };
 
   let totalBytes = 0;
   const secure = async (page: SitePage) => {
-    const html = finalizeHtml(page.render(selfContained ? containedResources(page) : resources), {
-      stylesheets: selfContained ? {} : { [stylesheet.url()]: sri(stylesheet.bytes) },
-      assetBase: base,
-      selfContained: selfContained ? selfContainedRequests[page.entry] : undefined,
-    });
+    const stylesheet = stylesheets[page.entry];
+    const html = finalizeHtml(
+      page.render(selfContained ? containedResources(page) : resourcesFor(page.entry)),
+      {
+        stylesheets: selfContained ? {} : { [stylesheet.url()]: sri(stylesheet.bytes) },
+        assetBase: groups[groupOf(page.entry)].base,
+        selfContained: selfContained ? selfContainedRequests[page.entry] : undefined,
+      },
+    );
     const path = resolve(output, page.path);
     await mkdir(dirname(path), { recursive: true });
     await writeFile(path, html);
@@ -392,28 +437,34 @@ async function writeSite(output: string, css: string, pages: readonly SitePage[]
       );
   }
 
-  // `vp run publish:assets` pushes www/cdn/ as the commit the pages reference.
-  const published = resolve(output, "cdn");
-  await mkdir(published, { recursive: true });
-  for (const [name, bytes] of files) await writeFile(resolve(published, name), bytes);
-  await writeFile(
-    resolve(output, "cdn.json"),
-    `${JSON.stringify({ commit, base, files: Object.fromEntries([...files].map(([name, bytes]) => [name, sri(bytes)])) }, null, 2)}\n`,
-  );
+  // `vp run publish:assets` pushes each group's directory as the commit its pages reference.
+  for (const [group, { directory, manifest }] of Object.entries(assetOutputs)) {
+    const { files, commit, base } = groups[group as AssetGroup];
+    const published = resolve(output, directory);
+    await mkdir(published, { recursive: true });
+    for (const [name, bytes] of files) await writeFile(resolve(published, name), bytes);
+    await writeFile(
+      resolve(output, manifest),
+      `${JSON.stringify({ commit, base, files: Object.fromEntries([...files].map(([name, bytes]) => [name, sri(bytes)])) }, null, 2)}\n`,
+    );
+  }
   for (const name of ["CNAME", ".nojekyll"])
     await writeFile(resolve(output, name), await readFile(new URL(name, repoRoot)));
   console.log(
-    `Secured ${pages.length.toLocaleString("en-US")} documents (${(totalBytes / 1e6).toFixed(2)} MB); assets are pinned to ${base}`,
+    `Secured ${pages.length.toLocaleString("en-US")} documents (${(totalBytes / 1e6).toFixed(2)} MB); setup files' assets are pinned to ${groups.setup.base}, the home page's to ${groups.home.base}`,
   );
 }
 
 /**
  * The site's pages. The dev server serves them at their paths. In a build Vite
- * compiles only `stylesheet`, and this plugin keeps its CSS, drops the rest of
- * the bundle, and writes the site.
+ * compiles only `stylesheets`, one per page entry, and this plugin keeps their
+ * CSS, drops the rest of the bundle, and writes the site.
  */
-export function auditableBuild(pages: readonly SitePage[], stylesheet: string): Plugin {
-  let css = "";
+export function auditableBuild(
+  pages: readonly SitePage[],
+  stylesheets: Record<PageEntry, string>,
+): Plugin {
+  const css: Partial<Record<PageEntry, string>> = {};
   return {
     name: "unduo-auditable-build",
     config() {
@@ -434,7 +485,7 @@ export function auditableBuild(pages: readonly SitePage[], stylesheet: string): 
           next();
           return;
         }
-        devResources(stylesheet)
+        devResources(stylesheets[page.entry])
           .then((resources) => server.transformIndexHtml(url, page.render(resources)))
           .then((html) => {
             response.setHeader("Content-Type", "text/html; charset=utf-8");
@@ -446,14 +497,15 @@ export function auditableBuild(pages: readonly SitePage[], stylesheet: string): 
     generateBundle(_, bundled) {
       for (const [name, file] of Object.entries(bundled)) {
         // Vite marks a stylesheet with a comment that only its own minifier removes.
-        if (file.type === "asset" && name.endsWith(".css"))
-          css = file.source.toString().replace(/\/\*\$vite\$:\d+\*\/$/, "");
+        const entry = /(?:^|\/)(setup|home)-[\w-]*\.css$/.exec(name)?.[1] as PageEntry | undefined;
+        if (file.type === "asset" && entry)
+          css[entry] = file.source.toString().replace(/\/\*\$vite\$:\d+\*\/$/, "");
         delete bundled[name];
       }
     },
     async writeBundle(options) {
-      if (!css) throw new Error("Vite compiled no stylesheet.");
-      await writeSite(options.dir!, css, pages);
+      if (!css.setup || !css.home) throw new Error("Vite compiled no setup or no home stylesheet.");
+      await writeSite(options.dir!, { setup: css.setup, home: css.home }, pages);
     },
   };
 }

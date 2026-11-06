@@ -51,9 +51,11 @@ jobs:
           subject-path: |
             www/files/*
             www/cdn/*
+            www/cdn-home/*
 
-      # Pages pin their stylesheet, images and setup plugin to a content-addressed
-      # commit on jsDelivr. Publish it before any page that references it.
+      # Pages pin their stylesheet, images and setup plugin to content-addressed
+      # commits on jsDelivr, one for the setup files and one for the home page.
+      # Publish them before any page that references them.
       - run: vp run publish:assets
 
       - uses: actions/configure-pages@v5

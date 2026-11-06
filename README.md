@@ -269,7 +269,9 @@ In **Settings → Pages**, select **GitHub Actions** as the source. The build co
 Commit source changes and push to `main` to publish. Generated HTML is kept in `www/` for inspection and downloads. The home page contains the university picker; each selected institution
 has its own file, `www/files/<WHED-number>`, with no extension so that GitHub Pages serves it as a download
 and never runs it. Each document embeds its application script inline;
-`www/cdn/` holds only the shared Tailwind stylesheet, help images and setup plugin, never JavaScript.
+`www/cdn/` holds only the setup files' Tailwind stylesheet, help images and setup plugin, and `www/cdn-home/`
+the home page's stylesheet and images, never JavaScript. They are separate commits, so a change to the home page never
+changes a setup file or its SHA-256.
 
 A file opens directly via `file://`. It loads its stylesheets,
 help images and setup plugin from integrity-checked jsDelivr files, so it needs
@@ -323,8 +325,8 @@ which Bun verifies against the lockfile.
 
 ### Build provenance
 
-The Deploy workflow attests every file in `www/files/` and `www/cdn/`
-(the stylesheet, help images and `setup.*.wasm`) with
+The Deploy workflow attests every file in `www/files/`, `www/cdn/`
+(the setup files' stylesheet, help images and `setup.*.wasm`) and `www/cdn-home/` with
 [GitHub artifact attestations](https://docs.github.com/en/actions/security-for-github-actions/using-artifact-attestations).
 Each attestation is signed through Sigstore and names the commit and workflow
 run that built the file's SHA-256:

@@ -40,6 +40,9 @@ let outputFiles: string[];
 let schoolFiles: string[];
 let assets: { base: string; files: Record<string, string> };
 let publishedFiles: string[];
+/** The home page's assets commit, apart from the setup files'. */
+let homeAssets: { base: string; files: Record<string, string> };
+let homePublishedFiles: string[];
 let pluginName: string;
 let pluginBytes: Buffer;
 let html: string;
@@ -51,10 +54,20 @@ beforeAll(async () => {
   schoolFiles = await readdir(new URL("files/", output));
   assets = JSON.parse(await read("cdn.json"));
   publishedFiles = (await readdir(new URL("cdn/", output))).sort();
+  homeAssets = JSON.parse(await read("cdn-home.json"));
+  homePublishedFiles = (await readdir(new URL("cdn-home/", output))).sort();
   pluginName = publishedFiles.find((name) => name.endsWith(".wasm"))!;
   pluginBytes = await readFile(new URL(`cdn/${pluginName}`, output));
   html = await read("files/020599");
 });
+
+/** Whether a built page is a setup file, which mounts in `#setup`. */
+const isSetupPage = (document: string) => /<div id="setup"/.test(document);
+/** The assets commit a page pins: the setup files' or the home page's. */
+const pinsOf = (document: string) =>
+  isSetupPage(document)
+    ? { ...assets, published: publishedFiles }
+    : { ...homeAssets, published: homePublishedFiles };
 
 /** The setup page's program runs as this many script elements; see `setupParts`. */
 const setupPartCount = jsPlugin ? 7 : 6;
@@ -98,9 +111,10 @@ function expectLoadsNothingByUrl(document: string) {
       ([, vendor, css]) => [vendor!, css!],
     ),
   );
-  const appStyle = publishedFiles.find((name) => name.endsWith(".css"))!;
+  const pins = pinsOf(document);
+  const appStyle = pins.published.find((name) => name.endsWith(".css"))!;
   expect(sri(Buffer.from(styles.app!)), "The app stylesheet's published bytes").toBe(
-    assets.files[appStyle],
+    pins.files[appStyle],
   );
   const uikit = reviewedStylesheet(Object.keys(cdn.assets)[0]!);
   expect(styles.uikit, "UIkit, trimmed to the classes the markup uses").toBe(
@@ -181,7 +195,7 @@ function expectPinned(document: string) {
         "The AI replies' screenshots",
       ).toEqual(["ai-reply-chatgpt", "ai-reply-claude", "ai-reply-gemini"]);
     for (const [, url, integrity] of replies)
-      expect(integrity, url).toBe(assets.files[url!.slice(assets.base.length)]);
+      expect(integrity, url).toBe(homeAssets.files[url!.slice(homeAssets.base.length)]);
     const fetched = replies.map(([, url]) => url!).sort();
     expect(
       document.includes(`connect-src ${fetched.join(" ") || "'none'"};`),
@@ -220,10 +234,9 @@ function expectPinned(document: string) {
       expect(attributes).toContain(`integrity="${cdn.assets[url!]!.integrity}"`);
       continue;
     }
-    expect(url!.startsWith(assets.base), "Only reviewed CDN styles and published assets").toBe(
-      true,
-    );
-    const integrity = assets.files[url!.slice(assets.base.length)];
+    const pins = pinsOf(document);
+    expect(url!.startsWith(pins.base), "Only reviewed CDN styles and published assets").toBe(true);
+    const integrity = pins.files[url!.slice(pins.base.length)];
     expect(
       Boolean(integrity) && attributes.includes(`integrity="${integrity}"`),
       "Published styles require SRI",
@@ -263,15 +276,28 @@ describe.runIf(enabled)("static output", () => {
       expectSelfContained(await read(name), name);
   });
 
-  test("www/cdn/ matches cdn.json, and pages load nothing same-origin", async () => {
-    expect(publishedFiles).toEqual(Object.keys(assets.files).sort());
-    for (const name of publishedFiles)
-      expect(sri(await readFile(new URL(`cdn/${name}`, output))), name).toBe(assets.files[name]);
+  test("www/cdn/ and www/cdn-home/ match their manifests, and pages load nothing same-origin", async () => {
+    for (const [directory, manifest, files] of [
+      ["cdn", assets, publishedFiles],
+      ["cdn-home", homeAssets, homePublishedFiles],
+    ] as const) {
+      expect(files).toEqual(Object.keys(manifest.files).sort());
+      for (const name of files)
+        expect(sri(await readFile(new URL(`${directory}/${name}`, output))), name).toBe(
+          manifest.files[name],
+        );
+    }
+    // A setup file pins only the setup files' commit, so nothing on the home page changes it.
+    expect(html.includes(homeAssets.base), "The setup file pins nothing of the home page's").toBe(
+      false,
+    );
+    expect(Object.keys(homeAssets.files).filter((name) => name.startsWith("setup"))).toEqual([]);
+    expect(Object.keys(assets.files).filter((name) => name.startsWith("ai-reply"))).toEqual([]);
     expect(outputFiles, "Pages load published assets, never same-origin ones").not.toContain(
       "assets",
     );
     expect(
-      publishedFiles.filter((name) => /\.m?js$/.test(name)),
+      [...publishedFiles, ...homePublishedFiles].filter((name) => /\.m?js$/.test(name)),
       "Application code is inline in each page, never a published script",
     ).toEqual([]);
   });
@@ -299,17 +325,22 @@ describe.runIf(enabled)("static output", () => {
   );
 
   test.skipIf(selfContained)("every class the pages name has a rule in a stylesheet", async () => {
-    const appCss = await read(`cdn/${publishedFiles.find((name) => name.endsWith(".css"))!}`);
     const url = Object.keys(readCdnSource().assets)[0]!;
-    const css = `${appCss}${reviewedStylesheet(url).css}`;
-    const defined = new Set([...css.matchAll(/\.([a-zA-Z][\w-]*)/g)].map(([, name]) => name!));
-    // UIkit also styles some classes through selectors such as [class*=uk-modal-close-].
-    const partial = [...css.matchAll(/\[class\*=["']?([\w-]+)["']?\]/g)].map(([, part]) => part!);
-    const hasRule = (token: string) =>
-      defined.has(token) || partial.some((part) => token.includes(part));
-    for (const state of ["code-type-on", "code-type-off"]) expect(defined).toContain(state);
+    const uikitCss = reviewedStylesheet(url).css;
     for (const name of ["index.html", "files/020599"]) {
       const document = await read(name);
+      // Each page's own stylesheet: the setup files' or the home page's.
+      const { published } = pinsOf(document);
+      const directory = isSetupPage(document) ? "cdn" : "cdn-home";
+      const appCss = await read(`${directory}/${published.find((file) => file.endsWith(".css"))!}`);
+      const css = `${appCss}${uikitCss}`;
+      const defined = new Set([...css.matchAll(/\.([a-zA-Z][\w-]*)/g)].map(([, found]) => found!));
+      // UIkit also styles some classes through selectors such as [class*=uk-modal-close-].
+      const partial = [...css.matchAll(/\[class\*=["']?([\w-]+)["']?\]/g)].map(([, part]) => part!);
+      const hasRule = (token: string) =>
+        defined.has(token) || partial.some((part) => token.includes(part));
+      if (isSetupPage(document))
+        for (const state of ["code-type-on", "code-type-off"]) expect(defined).toContain(state);
       const used = new Set(
         [
           ...document.matchAll(/\bclass(?:Name)?(?:: (?:\(\) =>\s*)?|=)["'`]([^"'`]*)["'`]/g),
@@ -492,6 +523,7 @@ describe.runIf(enabled)("browser", { timeout: 180_000 }, () => {
   let config: string;
   let hosted: string;
   let cdnBase: string;
+  let homeCdnBase: string;
   let preview: ReturnType<typeof spawn> | undefined;
   const session = `unduo-auditable-${process.pid}`;
   const environment = { ...process.env };
@@ -505,7 +537,9 @@ describe.runIf(enabled)("browser", { timeout: 180_000 }, () => {
     delete environment[key];
 
   const localCopy = (document: string) =>
-    published ? document : document.replaceAll(assets.base, cdnBase);
+    published
+      ? document
+      : document.replaceAll(assets.base, cdnBase).replaceAll(homeAssets.base, homeCdnBase);
 
   function browser(...args: string[]): string {
     if (args[0] === "wait") browser("tab", "t1");
@@ -572,6 +606,7 @@ describe.runIf(enabled)("browser", { timeout: 180_000 }, () => {
       });
     });
     cdnBase = published ? assets.base : `${hosted}/cdn/`;
+    homeCdnBase = published ? homeAssets.base : `${hosted}/cdn-home/`;
     await writeFile(join(isolated, "index.html"), localCopy(html));
     expect(await readdir(isolated), "The download is one file").toEqual(["index.html"]);
   }, 60_000);
@@ -967,7 +1002,9 @@ describe.runIf(enabled)("browser", { timeout: 180_000 }, () => {
       expect(
         Boolean(
           cdn.assets[url] ||
-          (url.startsWith(cdnBase) && Object.hasOwn(assets.files, url.slice(cdnBase.length))),
+          (url.startsWith(cdnBase) && Object.hasOwn(assets.files, url.slice(cdnBase.length))) ||
+          (url.startsWith(homeCdnBase) &&
+            Object.hasOwn(homeAssets.files, url.slice(homeCdnBase.length))),
         ),
         `Unexpected runtime request: ${url}`,
       ).toBe(true);

@@ -8,7 +8,7 @@ const root = resolve(process.env.UNDUO_WEB_OUTPUT ?? fileURLToPath(webOutput));
 const host = "127.0.0.1";
 const port = Number(process.env.PORT ?? 3000);
 // With UNDUO_LOCAL_CDN=1, pages load their published assets from this server's
-// /cdn/ copy, so a build can be tested before `vp run publish:assets`.
+// /cdn/ and /cdn-home/ copies, so a build can be tested before `vp run publish:assets`.
 const localCdn = process.env.UNDUO_LOCAL_CDN === "1";
 const types = {
   ".html": "text/html; charset=utf-8",
@@ -42,16 +42,19 @@ const server = createServer(async (request, response) => {
     }
     let bytes = await readFile(path);
     if (localCdn && (extname(path) === ".html" || pathname.startsWith("/files/"))) {
-      const { base } = JSON.parse(await readFile(resolve(root, "cdn.json"), "utf8"));
-      bytes = Buffer.from(
-        bytes.toString("utf8").replaceAll(base, `http://${host}:${server.address().port}/cdn/`),
-      );
+      let text = bytes.toString("utf8");
+      // The setup files' assets and the home page's, each from its own commit.
+      for (const name of ["cdn", "cdn-home"]) {
+        const { base } = JSON.parse(await readFile(resolve(root, `${name}.json`), "utf8"));
+        text = text.replaceAll(base, `http://${host}:${server.address().port}/${name}/`);
+      }
+      bytes = Buffer.from(text);
     }
     response.writeHead(200, {
       "Content-Type": types[extname(path)] ?? "application/octet-stream",
       "Content-Length": bytes.byteLength,
       // Downloaded copies opened from file:// load these with CORS, as from jsDelivr.
-      ...(pathname.startsWith("/cdn/") ? { "Access-Control-Allow-Origin": "*" } : {}),
+      ...(/^\/cdn(?:-home)?\//.test(pathname) ? { "Access-Control-Allow-Origin": "*" } : {}),
     });
     response.end(request.method === "HEAD" ? undefined : bytes);
   } catch {

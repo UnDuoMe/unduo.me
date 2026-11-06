@@ -146,7 +146,7 @@ Tailwind scans no source files; a class needs a rule there, and a test fails if 
 has none.
 `setup-styles.css` declares the small application palette. Its rules are important,
 through `!` on each utility, to compose with UIkit's unlayered stylesheet. The adapter compiles Tailwind and
-publishes its CSS as an SRI-checked stylesheet in the pinned assets commit. The app uses
+publishes its CSS as an SRI-checked stylesheet in the setup files' pinned assets commit. The app uses
 the system font; no Tailwind compiler runs in the browser. Steps use the `hidden`
 property to hide elements, because Tailwind's rule for it beats important display utilities.
 

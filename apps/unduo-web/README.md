@@ -26,8 +26,11 @@ The build emits:
   downloads as `UnDuo - <institution name>.html`. It has no extension, so GitHub Pages serves it
   as a download: setup never runs on the website.
 - `www/cdn/` and `www/cdn.json`: the Tailwind CSS, WebP help images and setup
-  plugin that pages load from a content-addressed jsDelivr commit. No JavaScript
-  is published here; `vp run publish:assets` pushes the commit.
+  plugin that setup files load from a content-addressed jsDelivr commit.
+- `www/cdn-home/` and `www/cdn-home.json`: the home page's Tailwind CSS (the setup
+  files' rules plus its own) and images, in a commit of their own, so a home-page
+  change never changes a setup file. No JavaScript is published in either;
+  `vp run publish:assets` pushes both commits.
 - `www/CNAME` and `www/.nojekyll`: static hosting metadata.
 
 Each setup page's script elements are inline and import nothing, and the home page's are too. VanJS is the only third-party code, in its own element, byte for byte as published.

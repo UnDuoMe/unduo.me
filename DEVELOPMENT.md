@@ -89,7 +89,7 @@ vp run test:e2e          # a student's whole path on https://unduo.me/, with a m
 vp run test:plugin       # Rust tests for crates/setup
 vp run build:plugin      # after changing crates/setup
 vp run check:plugin      # rebuild and compare with the committed setup.wasm
-vp run publish:assets    # push www/cdn/ as the pinned jsDelivr commit
+vp run publish:assets    # push www/cdn/ and www/cdn-home/ as the pinned jsDelivr commits
 vp run verify:cdn        # check www/ CDN files against jsDelivr's API and npm
 ```
 
@@ -97,7 +97,7 @@ Changing `crates/setup` needs Rust (rustup installs the pinned toolchain).
 Other web changes use the committed `setup.wasm`.
 
 The web build outputs `www/index.html` for the home page,
-`www/files/<WHED-number>`, the setup file to download, for each published institution (UofT by default), and `www/cdn/` with `www/cdn.json`: the stylesheet, images and setup plugin that pages load from a pinned jsDelivr commit.
+`www/files/<WHED-number>`, the setup file to download, for each published institution (UofT by default), `www/cdn/` with `www/cdn.json`: the stylesheet, images and setup plugin that setup files load from a pinned jsDelivr commit, and `www/cdn-home/` with `www/cdn-home.json`: the home page's stylesheet and images, in a commit of their own. A home-page change never changes a setup file's bytes or its SHA-256.
 Generated HTML is kept in `www/` for inspection and downloads.
 `vp run preview` serves the whole `www/` directory at `http://127.0.0.1:3000`; with
 `UNDUO_LOCAL_CDN=1` pages load their pinned assets from its `/cdn/` copy.
@@ -366,7 +366,7 @@ are merged only into unambiguous institutions; no enrollment URL is inferred.
 `vp test` skips. Run it after `vp run build:web`. It checks the generated pages and
 their pinned assets, then uses an isolated headless agent-browser session to check the
 home page, its downloads, branch files, legacy query links and the setup flow from a
-local file. Its preview server serves `www/cdn/` in place of jsDelivr, so a build
+local file. Its preview server serves `www/cdn/` and `www/cdn-home/` in place of jsDelivr, so a build
 can be checked before publishing; `UNDUO_PUBLISHED=1 vp run test:web` uses jsDelivr. It exercises
 help popovers, screenshots, QR decoding in the page, synthetic reply import,
 TOTP, history, reset and that refreshing clears progress, plus rejection of changed styles,
