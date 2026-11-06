@@ -101,8 +101,10 @@ export const sites: Site[] = [
     async start(window, { focus }) {
       await window.go("https://chatgpt.com/?temporary-chat=true");
       await window.waitFor(/^heading Temporary chat$/);
-      if (!window.find(/^pop up button Unpersonalized$/))
+      // The Unpersonalized control can show a moment after the heading.
+      await window.waitFor(/^pop up button Unpersonalized$/, 15_000).catch(() => {
         throw new Error("ChatGPT's temporary chat isn't unpersonalized.");
+      });
       return focus ? chatGptPro(window) : "the model chosen last (not checked)";
     },
     box: /^text entry area \(settable\) Ask ChatGPT/,
@@ -150,6 +152,7 @@ export const sites: Site[] = [
     // A pasted file's name gets a timestamp in front.
     attached: (fileName) => new RegExp(`^button Remove (?:\\d+_)?${escape(fileName)}$`),
     send: /^button Send( message)?$/,
-    crop: { left: 0, bottom: 150 },
+    // Incognito's prompt box is short: more would cut the reply's last paragraph.
+    crop: { left: 0, bottom: 100 },
   },
 ];

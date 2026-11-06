@@ -220,13 +220,21 @@ export async function captureAiReplies(options: CaptureOptions) {
               );
             return { ...capture, hash, capturedAt: new Date().toISOString(), file };
           },
-          (error: Error) => ({
-            site: site.id,
-            name: site.name,
-            error: error.message,
-            capturedAt: new Date().toISOString(),
-            file,
-          }),
+          (error: Error) => {
+            // What the page showed when it failed, to tell a slow reply from a changed page.
+            try {
+              writeFileSync(join(options.raw, `${site.id}-failed-tree.txt`), window.tree());
+            } catch {
+              // The window may be gone.
+            }
+            return {
+              site: site.id,
+              name: site.name,
+              error: error.message,
+              capturedAt: new Date().toISOString(),
+              file,
+            };
+          },
         ),
       );
     }

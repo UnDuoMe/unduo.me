@@ -43,9 +43,10 @@ The prompt's P.S. asks for the attached file's SHA-256 at the end of the reply, 
 can compute it, so the screenshot shows the whole conversation: from the top, the script
 scrolls half a window at a time, re-finding the reply each time, and joins each new
 screenshot under the last (`joinScreenshots`) until the page stops moving. Joining drops
-the site's bar, which stays at the top of each, and the rows already shown; rows count as
-the same when their mean gray is within half a level, since text renders a little
-differently after a scroll, and blank space alone never counts as a match. If two
+the site's bar, which stays at the top of each, and the rows already shown; rows never match
+exactly, since text renders a little differently after a scroll and the scroll bar shows
+over some rows, so the overlap is the one whose rows' mean gray differs least, if it differs
+little and clearly less than any other, and blank space alone never counts as a match. If two
 screenshots don't meet, a band of three dots marks what's skipped. Chrome's bar across the
 page, such as "isn't your default browser", is closed first. Each reply in `results.json`
 records `hash`: the last SHA-256 in the reply or anywhere on the page under it, as in a code

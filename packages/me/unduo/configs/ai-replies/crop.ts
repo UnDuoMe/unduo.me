@@ -139,16 +139,16 @@ export function rowMeans(gray: Buffer, width: number) {
   return rows;
 }
 
-/** How far apart two rows' means may be and still be the same row: text renders a little differently after a scroll. */
-const sameRow = 0.5;
-
 /**
  * How to join a screenshot of a conversation to the next one down, given each
  * row's mean gray: `header`, the rows both start with, which is the site's bar
  * that stays put as the page scrolls; and `overlap`, how many rows after that
- * repeat the bottom of the first, the overlap that matches best. `overlap` is
- * 0 when fewer than `minimum` rows match, or when the rows that match are too
- * alike to tell apart, as blank space is. `fits` is true when the next shows
+ * repeat the bottom of the first. Text renders a little differently after a
+ * scroll, and the scroll bar shows over some rows, so rows never match
+ * exactly: the overlap is the one whose rows differ least, if they differ by
+ * under 3 gray levels on average and by half as much as any other overlap a few
+ * rows away. It must be `minimum` rows or more, and rows too alike to tell
+ * apart, as blank space is, never count. `fits` is true when the next shows
  * nothing new.
  */
 export function joinRows(top: number[], end: number[], minimum: number) {
@@ -157,23 +157,27 @@ export function joinRows(top: number[], end: number[], minimum: number) {
     header++;
   const rest = end.slice(header);
   if (!rest.length) return { header, overlap: 0, fits: true };
-  let best = { overlap: 0, difference: sameRow };
+  const candidates: { overlap: number; difference: number }[] = [];
   for (let overlap = Math.min(top.length - header, rest.length); overlap >= minimum; overlap--) {
-    const from = top.length - overlap;
-    let sum = 0;
-    for (let row = 0; row < overlap && sum < best.difference * overlap; row++)
-      sum += Math.abs(top[from + row]! - rest[row]!);
-    const difference = sum / overlap;
-    if (difference >= best.difference) continue;
-    // Only rows that differ from each other, such as lines of text, show where the two meet.
     const rows = rest.slice(0, overlap);
     const mean = rows.reduce((total, value) => total + value, 0) / overlap;
     const spread = Math.sqrt(
       rows.reduce((total, value) => total + (value - mean) ** 2, 0) / overlap,
     );
-    if (spread >= 1) best = { overlap, difference };
+    if (spread < 1) continue;
+    let sum = 0;
+    for (let row = 0; row < overlap; row++)
+      sum += Math.abs(top[top.length - overlap + row]! - rest[row]!);
+    candidates.push({ overlap, difference: sum / overlap });
   }
-  return { header, overlap: best.overlap, fits: best.overlap === rest.length };
+  const best = candidates.reduce<(typeof candidates)[number] | undefined>(
+    (found, candidate) => (!found || candidate.difference < found.difference ? candidate : found),
+    undefined,
+  );
+  const others = candidates.filter(({ overlap }) => Math.abs(overlap - (best?.overlap ?? 0)) > 3);
+  const next = Math.min(...others.map(({ difference }) => difference));
+  const overlap = best && best.difference < 3 && best.difference * 2 <= next ? best.overlap : 0;
+  return { header, overlap, fits: overlap === rest.length };
 }
 
 /** An image's width and height in pixels. */
