@@ -1113,6 +1113,20 @@ describe.runIf(enabled)("browser", { timeout: 180_000 }, () => {
     ).toEqual([true, true]);
     browser("press", "Escape");
     expect(evaluate("document.querySelector('#reply-viewer').open")).toBe(false);
+    // A carousel shows one reply at a time: the arrows wrap around, and each AI's button jumps to it.
+    const slides = () =>
+      evaluate(
+        "[document.querySelector('.reply-track').dataset.slide, [...document.querySelectorAll('.reply-card')].map((card) => card.inert), [...document.querySelectorAll('.reply-pick')].map((pick) => pick.ariaCurrent)]",
+      );
+    expect(slides()).toEqual(["0", [false, true, true], ["true", "false", "false"]]);
+    evaluate("document.querySelector('[aria-label=\"Previous reply\"]').click()");
+    browser("wait", "--fn", "document.querySelector('.reply-track').dataset.slide === '2'");
+    expect(slides()).toEqual(["2", [true, true, false], ["false", "false", "true"]]);
+    evaluate("document.querySelector('[aria-label=\"Next reply\"]').click()");
+    browser("wait", "--fn", "document.querySelector('.reply-track').dataset.slide === '0'");
+    evaluate("document.querySelectorAll('.reply-pick')[1].click()");
+    browser("wait", "--fn", "document.querySelector('.reply-track').dataset.slide === '1'");
+    expect(slides()).toEqual(["1", [true, false, true], ["false", "true", "false"]]);
     // How UnDuo works: stacked cards, each with a drawing that's hidden from screen readers.
     expect(
       evaluate(

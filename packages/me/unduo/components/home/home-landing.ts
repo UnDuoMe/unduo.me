@@ -57,11 +57,12 @@ const closeIcon = () =>
     { width: "14", height: "14", viewBox: "0 0 14 14", "aria-hidden": "true" },
     path({ d: "M1 1l12 12M13 1L1 13", stroke: "currentColor", "stroke-width": "1.4" }),
   );
-const chevronIcon = () =>
+/** A chevron pointing down, or left or right for the carousel's arrows. */
+const chevronIcon = (className = "reply-toggle-icon", d = "M5.5 8l4.5 4.5L14.5 8") =>
   svg(
-    { class: "reply-toggle-icon", viewBox: "0 0 20 20", "aria-hidden": "true" },
+    { class: className, viewBox: "0 0 20 20", "aria-hidden": "true" },
     path({
-      d: "M5.5 8l4.5 4.5L14.5 8",
+      d,
       fill: "none",
       stroke: "currentColor",
       "stroke-width": "1.6",
@@ -107,11 +108,17 @@ function replyText(markdown: string) {
 }
 
 /**
- * What ChatGPT, Claude and Gemini said about the University of Toronto file:
- * each one's verdict, a screenshot of the conversation that opens larger, and
- * the whole reply, cut short until its chevron opens it in a box that scrolls.
+ * What ChatGPT, Claude and Gemini said about the University of Toronto file, in
+ * a carousel that shows one at a time: a screenshot of the conversation that
+ * opens larger, and beside it the AI's verdict and its whole reply, cut short
+ * until its chevron opens it in a box that scrolls. Arrows, a button per AI and
+ * a swipe move between them.
  */
 export function aiTestimonials() {
+  const current = van.state(0);
+  const count = aiReplies.length;
+  /** Show reply `index`, wrapping around at either end. */
+  const show = (index: number) => (current.val = (index + count) % count);
   const enlarged = div({ class: "viewer-image" });
   const viewer = dialog(
     {
@@ -138,7 +145,7 @@ export function aiTestimonials() {
     viewer.setAttribute("aria-label", `${reply.name}'s reply`);
     viewer.showModal();
   };
-  const card = (reply: AiReply) => {
+  const card = (reply: AiReply, index: number) => {
     const picture = screenshotOf(reply.id);
     const open = van.state(false);
     const text = div(
@@ -150,12 +157,15 @@ export function aiTestimonials() {
       replyText(reply.reply),
     );
     return div(
-      { class: "reply-card", "data-open": () => String(open.val) },
-      div(
-        { class: "reply-head" },
-        div(p({ class: "reply-name" }, reply.name), p({ class: "reply-model" }, reply.model)),
-        span({ class: "reply-verdict" }, checkIcon(), `Safe: ${reply.verdict}`),
-      ),
+      {
+        class: "reply-card",
+        role: "group",
+        "aria-roledescription": "slide",
+        "aria-label": `${index + 1} of ${count}: ${reply.name}`,
+        // The other slides are out of view, so out of reach too.
+        inert: () => current.val !== index,
+        "data-open": () => String(open.val),
+      },
       picture &&
         button(
           {
@@ -167,24 +177,97 @@ export function aiTestimonials() {
           picture,
           span({ class: "reply-shot-hint", "aria-hidden": "true" }, "Enlarge"),
         ),
-      text,
-      button(
-        {
-          type: "button",
-          class: "reply-toggle",
-          "aria-controls": text.id,
-          "aria-expanded": () => String(open.val),
-          "aria-label": () => `${open.val ? "Hide" : "Show"} ${reply.name}'s whole reply`,
-          onclick: () => {
-            open.val = !open.val;
-            // Closed, the reply shows its start again.
-            if (!open.val) text.scrollTop = 0;
+      div(
+        { class: "reply-body" },
+        div(
+          { class: "reply-head" },
+          div(p({ class: "reply-name" }, reply.name), p({ class: "reply-model" }, reply.model)),
+          span({ class: "reply-verdict" }, checkIcon(), `Safe: ${reply.verdict}`),
+        ),
+        text,
+        button(
+          {
+            type: "button",
+            class: "reply-toggle",
+            "aria-controls": text.id,
+            "aria-expanded": () => String(open.val),
+            "aria-label": () => `${open.val ? "Hide" : "Show"} ${reply.name}'s whole reply`,
+            onclick: () => {
+              open.val = !open.val;
+              // Closed, the reply shows its start again.
+              if (!open.val) text.scrollTop = 0;
+            },
           },
-        },
-        chevronIcon(),
+          chevronIcon(),
+        ),
       ),
     );
   };
+  /** Where a touch began, so a sideways swipe can move to the next or previous reply. */
+  let touch: { x: number; y: number } | undefined;
+  const carousel = div(
+    {
+      class: "reply-carousel",
+      role: "region",
+      "aria-roledescription": "carousel",
+      "aria-label": "What the AIs said",
+    },
+    div(
+      {
+        class: "reply-viewport",
+        ontouchstart: (event: TouchEvent) => {
+          const { clientX: x, clientY: y } = event.touches[0]!;
+          touch = { x, y };
+        },
+        ontouchend: (event: TouchEvent) => {
+          const { clientX: x, clientY: y } = event.changedTouches[0]!;
+          const dx = x - (touch?.x ?? x);
+          if (Math.abs(dx) > 48 && Math.abs(dx) > Math.abs(y - (touch?.y ?? y)))
+            show(current.val + (dx < 0 ? 1 : -1));
+          touch = undefined;
+        },
+      },
+      div(
+        { class: "reply-track", "aria-live": "polite", "data-slide": () => String(current.val) },
+        aiReplies.map(card),
+      ),
+    ),
+    div(
+      { class: "reply-controls" },
+      button(
+        {
+          type: "button",
+          class: "reply-arrow",
+          "aria-label": "Previous reply",
+          onclick: () => show(current.val - 1),
+        },
+        chevronIcon("reply-arrow-icon", "M12 5.5L7.5 10l4.5 4.5"),
+      ),
+      div(
+        { class: "reply-picker" },
+        aiReplies.map((reply, index) =>
+          button(
+            {
+              type: "button",
+              class: "reply-pick",
+              "aria-current": () => String(current.val === index),
+              onclick: () => show(index),
+            },
+            reply.name,
+          ),
+        ),
+      ),
+      button(
+        {
+          type: "button",
+          class: "reply-arrow",
+          "aria-label": "Next reply",
+          onclick: () => show(current.val + 1),
+        },
+        chevronIcon("reply-arrow-icon", "M8 5.5l4.5 4.5L8 14.5"),
+      ),
+    ),
+  );
   return section(
     { class: "landing-section", "aria-labelledby": "ai-replies-title" },
     div(
@@ -199,7 +282,7 @@ export function aiTestimonials() {
       ),
       p({ class: "section-lead" }, "All three classify it as fully safe."),
     ),
-    div({ class: "reply-grid" }, aiReplies.map(card)),
+    carousel,
     viewer,
   );
 }
