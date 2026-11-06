@@ -75,7 +75,7 @@ const namesIn = async (instructions: Locator) =>
 async function downloadFile(home: Page) {
   const [download] = await Promise.all([
     home.waitForEvent("download"),
-    home.getByRole("link", { name: "Download UnDuo's webpage" }).click(),
+    home.getByRole("link", { name: fileName, exact: true }).click(),
   ]);
   expect(download.suggestedFilename()).toBe(fileName);
   const path = test.info().outputPath(fileName);
@@ -230,7 +230,7 @@ test("from a blank browser to a passcode that signs in", async ({
     // The address behind the link downloads rather than runs: that's why setup is safe from the site.
     const served = await context.request.get(
       await home
-        .getByRole("link", { name: "Download UnDuo's webpage" })
+        .getByRole("link", { name: fileName, exact: true })
         .evaluate((link: HTMLAnchorElement) => link.href),
     );
     expect(served.headers()["content-type"]).toBe("application/octet-stream");

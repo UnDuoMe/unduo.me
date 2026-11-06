@@ -80,16 +80,22 @@ export function downloadStep(school: University) {
       { class: "dialog-copy" },
       p(
         { class: "home-step-text" },
+        "Click the link below to download UnDuo's secure webpage, ",
+        fileBadge(fileName(school)),
+        ", ",
+        em("but don't open it yet:"),
+      ),
+      // The link is the file's name, on a line of its own.
+      p(
+        { class: "home-step-text" },
         a(
           {
             class: "home-download",
             href: `./files/${school.id.slice(4)}`,
             download: fileName(school),
           },
-          "Download UnDuo's webpage",
+          fileName(school),
         ),
-        ", ",
-        em("but don't open it yet:"),
       ),
       p({ class: "home-step-text" }, "Next, we'll show you how to verify it's safe to use."),
     ),

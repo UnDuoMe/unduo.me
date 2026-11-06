@@ -1200,17 +1200,22 @@ describe.runIf(enabled)("browser", { timeout: 180_000 }, () => {
     expect(evaluate("document.querySelector('.dialog-school').textContent")).toBe(
       "University of Toronto",
     );
-    // One sentence: an underlined link that downloads the file, then "but don't open it yet:".
+    // Three lines: the sentence with the file's name as a badge, the link, which is the
+    // file's name, underlined, and what comes next.
     expect(
       evaluate(
-        "(({ textContent }, link) => [textContent, link.textContent, link.className, getComputedStyle(link).textDecorationLine])(document.querySelector('#home-dialog .home-step-text'), document.querySelector('a[download]'))",
+        "[...document.querySelectorAll('#home-dialog .dialog-copy > p')].map((line) => line.textContent)",
       ),
     ).toEqual([
-      "Download UnDuo's webpage, but don't open it yet:",
-      "Download UnDuo's webpage",
-      "home-download",
-      "underline",
+      "Click the link below to download UnDuo's secure webpage, UnDuo - University of Toronto.html, but don't open it yet:",
+      "UnDuo - University of Toronto.html",
+      "Next, we'll show you how to verify it's safe to use.",
     ]);
+    expect(
+      evaluate(
+        "(({ className }, badge) => [className, badge.textContent, getComputedStyle(document.querySelector('a[download]')).textDecorationLine])(document.querySelector('a[download]'), document.querySelector('.dialog-copy .file-badge'))",
+      ),
+    ).toEqual(["home-download", "UnDuo - University of Toronto.html", "underline"]);
     expect(
       evaluate("(({ href, download }) => [href, download])(document.querySelector('a[download]'))"),
     ).toEqual([`${hosted}/files/020599`, "UnDuo - University of Toronto.html"]);
