@@ -1247,10 +1247,14 @@ describe.runIf(enabled)("browser", { timeout: 180_000 }, () => {
       evaluate("document.querySelector('.dialog-copy .home-step-text').textContent");
     expect(evaluate("document.querySelector('#home-dialog').dataset.step")).toBe("verify");
     expect(aiTabs()).toEqual(["ChatGPT*", "Claude", "Gemini", "Other"]);
-    expect(instruction()).toBe(
-      "Drag and drop UnDuo - University of Toronto.html into ChatGPT and copy this prompt:",
-    );
-    expect(aiLinks()).toEqual([["Open ChatGPT", "https://chatgpt.com/", "noopener noreferrer"]]);
+    expect(instruction()).toBe("Drag and drop UnDuo's file into ChatGPT and paste in this prompt:");
+    expect(aiLinks()).toEqual([
+      ["Open ChatGPT (opens in a new tab)", "https://chatgpt.com/", "noopener noreferrer"],
+    ]);
+    expect(
+      evaluate("!!document.querySelector('#home-dialog a[target=_blank] .new-tab-icon')"),
+      "An icon says the link opens in a new tab",
+    ).toBe(true);
     expect(evaluate("document.querySelector('.dialog-art').getAttribute('aria-hidden')")).toBe(
       "true",
     );
@@ -1262,9 +1266,11 @@ describe.runIf(enabled)("browser", { timeout: 180_000 }, () => {
       evaluate(`document.querySelector('${tab}').click()`);
       browser("wait", "--fn", `document.querySelector('${tab}').ariaSelected === 'true'`);
       expect(instruction()).toBe(
-        `Drag and drop UnDuo - University of Toronto.html into ${name} and copy this prompt:`,
+        `Drag and drop UnDuo's file into ${name} and paste in this prompt:`,
       );
-      expect(aiLinks()).toEqual([[`Open ${name}`, href, "noopener noreferrer"]]);
+      expect(aiLinks()).toEqual([
+        [`Open ${name} (opens in a new tab)`, href, "noopener noreferrer"],
+      ]);
     }
     // Arrow keys move between the tabs and wrap around.
     browser("focus", "#ai-tab-gemini");
@@ -1275,7 +1281,7 @@ describe.runIf(enabled)("browser", { timeout: 180_000 }, () => {
       "document.activeElement.id === 'ai-tab-other' && document.activeElement.ariaSelected === 'true'",
     );
     expect(instruction()).toBe(
-      "Drag and drop UnDuo - University of Toronto.html into your favorite AI and copy this prompt:",
+      "Drag and drop UnDuo's file into your favorite AI and paste in this prompt:",
     );
     expect(aiLinks()).toEqual([]);
     browser("press", "ArrowRight");

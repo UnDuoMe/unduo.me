@@ -242,7 +242,7 @@ test("from a blank browser to a passcode that signs in", async ({
     await expect(stepTitle(home)).toHaveText("Verify");
     await expect(home).toHaveURL(/\?university=.+#step=verify$/);
     await expect(home.getByRole("tab", { name: "ChatGPT", selected: true })).toBeVisible();
-    await expect(home.getByText(`Drag and drop ${fileName} into ChatGPT`)).toBeVisible();
+    await expect(home.getByText("Drag and drop UnDuo's file into ChatGPT")).toBeVisible();
     prompt = await home.getByLabel("Prompt for the AI").inputValue();
     expect(prompt).toContain("“Safe: yes”");
     await home.getByRole("button", { name: "Copy prompt" }).click();

@@ -1,5 +1,17 @@
 import type { University } from "@-/me.unduo.data.universities.entities";
-import { a, button, div, em, label, p, span, strong, textarea } from "@-/me.unduo.lib.dom";
+import {
+  a,
+  button,
+  div,
+  em,
+  label,
+  p,
+  path,
+  span,
+  strong,
+  svg,
+  textarea,
+} from "@-/me.unduo.lib.dom";
 import { aiPrompt } from "#ai-prompt";
 import { type AiChoice, downloadArt, dragArt, openArt } from "#how-art";
 
@@ -10,6 +22,20 @@ const assistants: { id: AiChoice; name: string; href?: string }[] = [
   { id: "gemini", name: "Gemini", href: "https://gemini.google.com/" },
   { id: "other", name: "Other" },
 ];
+
+/** An arrow out of a box: the link opens in a new tab. */
+const newTabIcon = () =>
+  svg(
+    { class: "new-tab-icon", viewBox: "0 0 16 16", "aria-hidden": "true" },
+    path({
+      d: "M9.5 2.5h4v4M13.5 2.5 7.5 8.5M11.5 9.5v3a1 1 0 0 1-1 1h-7a1 1 0 0 1-1-1v-7a1 1 0 0 1 1-1h3",
+      fill: "none",
+      stroke: "currentColor",
+      "stroke-width": "1.5",
+      "stroke-linecap": "round",
+      "stroke-linejoin": "round",
+    }),
+  );
 
 /** The name a browser saves an institution's file under: `UnDuo - <name>.html`. */
 const fileName = (school: University) =>
@@ -113,7 +139,7 @@ export function verifyStep(school: University) {
           { class: "home-step-text" },
           van.derive(
             () =>
-              `Drag and drop ${fileName(school)} into ${assistant.val.href ? assistant.val.name : "your favorite AI"} and copy this prompt:`,
+              `Drag and drop UnDuo's file into ${assistant.val.href ? assistant.val.name : "your favorite AI"} and paste in this prompt:`,
           ),
         ),
         label({ for: "ai-question", class: "sr-only" }, "Prompt for the AI"),
@@ -139,12 +165,14 @@ export function verifyStep(school: University) {
             return choice.href
               ? a(
                   {
-                    class: "uk-button uk-button-default btn",
+                    class: "uk-button uk-button-default btn new-tab",
                     href: choice.href,
                     target: "_blank",
                     rel: "noopener noreferrer",
                   },
                   `Open ${choice.name}`,
+                  newTabIcon(),
+                  span({ class: "sr-only" }, " (opens in a new tab)"),
                 )
               : "";
           },

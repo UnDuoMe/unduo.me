@@ -570,6 +570,13 @@ summary {
   .dialog[data-step] {
     @apply min-[900px]:max-w-[56rem]!;
   }
+  /* A link that opens in a new tab, with an icon that says so. */
+  .new-tab {
+    @apply inline-flex! items-center! gap-1.5!;
+  }
+  .new-tab-icon {
+    @apply size-3.5! shrink-0!;
+  }
   .ai-tabs {
     @apply mb-4! flex! gap-1! rounded-xl! bg-surface-secondary! p-1!;
   }
