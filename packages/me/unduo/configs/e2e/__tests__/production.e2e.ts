@@ -404,7 +404,10 @@ test("from a blank browser to a passcode that signs in", async ({
     expect(link.secret.toString(), "The key the phone gets is the one Duo sent").toBe(secret);
 
     // Nothing puts the key or its link on the clipboard, which some systems sync to the cloud.
-    await expect(setup.getByRole("button", { name: /^Copy/ })).toHaveCount(0);
+    // (The stepper's "Copy QR code" step is a button too, so look in the step's card.)
+    await expect(setup.locator("#setup-card").getByRole("button", { name: /copy/i })).toHaveCount(
+      0,
+    );
 
     const setupKey = counterLink.match(/secret=([A-Z2-7]+)/)![1]!;
     const shown = setupKey.match(/.{1,4}/g)!.join(" ");
