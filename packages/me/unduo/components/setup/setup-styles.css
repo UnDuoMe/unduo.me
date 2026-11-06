@@ -241,7 +241,13 @@ summary {
     @apply mb-2! text-sm! leading-[1.55]! [&_strong]:text-foreground!;
   }
   .signed-in-example {
+    @apply grid! gap-4!;
+  }
+  .signed-in-narrow {
     @apply max-w-md!;
+  }
+  .signed-in-wide {
+    @apply max-w-full!;
   }
   .instructions {
     @apply grid! list-none! gap-3.5! p-0! [counter-reset:guide]! [&_em]:font-medium! [&_em]:text-foreground! [&_em]:not-italic!;

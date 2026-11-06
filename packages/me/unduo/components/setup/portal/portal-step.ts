@@ -54,7 +54,7 @@ function schoolPortal({ view, copy, popup }: SetupPage, name: string, portalUrl:
   ];
 }
 
-/** What Duo shows once the student is signed in, copied from the page's `<template>`, which holds its URL and pin. */
+/** What Duo shows once the student is signed in, narrow and wide, copied from the page's `<template>`, which holds their URLs and pins. */
 function signedInExample({ screenshot }: SetupPage) {
   const example = (
     document.getElementById("portal-signed-in") as HTMLTemplateElement

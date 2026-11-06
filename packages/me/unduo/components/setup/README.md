@@ -11,7 +11,8 @@ four steps:
 
 1. **Open your Duo device portal** (`portalStep`). The institution's verified
    portal when known, then an example of what Duo shows once you're signed in
-   (`setup-0-signed-in.webp`, blurred except for the school's logo and the
+   in a narrow and a wide window (`setup-0-signed-in-narrow.webp` and
+   `setup-0-signed-in-wide.webp`, blurred except for the school's logo and the
    Settings button): press **Continue** when you see a page like it.
 2. **Copy the activation QR code** (`linkStep`). How to add a device, optional
    example screenshots, and one input. Anything pasted anywhere on the page

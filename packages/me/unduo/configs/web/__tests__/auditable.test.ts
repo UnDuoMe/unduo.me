@@ -110,7 +110,7 @@ function expectLoadsNothingByUrl(document: string) {
   if (document.includes('aria-label="Duo portal example screenshots"'))
     expect(
       images.map(([, data]) => sri(Buffer.from(data!, "base64"))).sort(),
-      "The six portal screenshots, as published",
+      "The seven portal screenshots, as published",
     ).toEqual(
       publishedFiles
         .filter((name) => name.endsWith(".webp"))
@@ -133,7 +133,7 @@ function expectPinned(document: string) {
     const screenshots = [
       ...document.matchAll(/\bdata-image-src="([^"]+)" data-image-integrity="([^"]+)"/g),
     ];
-    expect(screenshots, "The six portal screenshots").toHaveLength(6);
+    expect(screenshots, "The seven portal screenshots").toHaveLength(7);
     for (const [, url, integrity] of screenshots)
       expect(integrity, url).toBe(assets.files[url!.slice(assets.base.length)]);
     expect(
@@ -158,7 +158,7 @@ function expectPinned(document: string) {
     const screenshots = [
       ...document.matchAll(/\bdata-image-src="([^"]+)" data-image-integrity="([^"]+)"/g),
     ];
-    expect(screenshots, "The six portal screenshots").toHaveLength(6);
+    expect(screenshots, "The seven portal screenshots").toHaveLength(7);
     for (const [, url, integrity] of screenshots)
       expect(integrity, url).toBe(assets.files[url!.slice(assets.base.length)]);
     const fetched = [pluginUrl, ...screenshots.map(([, url]) => url!).sort()];
@@ -705,15 +705,27 @@ describe.runIf(enabled)("browser", { timeout: 180_000 }, () => {
     expect(evaluate("document.querySelector('.signed-in-text').textContent")).toBe(
       "Press Continue when you see a page like this:",
     );
-    browser("wait", "--fn", "document.querySelector('.signed-in-example img')?.naturalWidth > 0");
+    browser(
+      "wait",
+      "--fn",
+      "[...document.querySelectorAll('.signed-in-example img')].every((img) => img.naturalWidth > 0)",
+    );
     expect(
       evaluate(
-        "(({ alt, src }) => [alt, src.slice(0, 5)])(document.querySelector('.signed-in-example img'))",
+        "[...document.querySelectorAll('.signed-in-example figure')].map((figure) => [figure.querySelector('figcaption').textContent, figure.querySelector('img').alt, figure.querySelector('img').src.slice(0, 5)])",
       ),
-    ).toEqual([
-      "Duo's sign-in prompt, blurred except for the school's logo and its Settings button",
-      selfContained ? "data:" : "blob:",
-    ]);
+    ).toEqual(
+      [
+        [
+          "In a narrow window",
+          "Duo's sign-in prompt in a narrow window, blurred except for the school's logo and its Settings button",
+        ],
+        [
+          "In a wide window",
+          "Duo's sign-in prompt in a wide window, blurred except for the school's logo",
+        ],
+      ].map((figure) => [...figure, selfContained ? "data:" : "blob:"]),
+    );
     expect(evaluate("document.querySelector('#setup-card').textContent")).not.toMatch(
       /Choose a different university|Manage devices/,
     );

@@ -1,10 +1,24 @@
 import { attributes, escapeText } from "@-/me.unduo.lib.dom/server";
 
-/** What Duo shows once the student is signed in: blurred, but for the school's logo and the Settings button. */
-const signedIn = {
-  file: "0-signed-in",
-  label: "Duo's sign-in prompt, blurred except for the school's logo and its Settings button",
-};
+/**
+ * What Duo shows once the student is signed in, in a narrow window and a wide
+ * one: blurred, but for the school's logo and, where it has one, the Settings button.
+ */
+const signedIn = [
+  {
+    file: "0-signed-in-narrow",
+    caption: "In a narrow window",
+    label:
+      "Duo's sign-in prompt in a narrow window, blurred except for the school's logo and its Settings button",
+    size: "narrow",
+  },
+  {
+    file: "0-signed-in-wide",
+    caption: "In a wide window",
+    label: "Duo's sign-in prompt in a wide window, blurred except for the school's logo",
+    size: "wide",
+  },
+];
 
 const screenshots = [
   { file: "1-add-device", label: "1. Choose “Add another device”" },
@@ -20,7 +34,13 @@ const screenshots = [
  * `portalInstructions` copies. `image` gives the attributes that load each file.
  */
 export function portalScreenshots(image: (file: string) => Record<string, string>) {
-  const example = `<img class="screenshot"${attributes({ ...image(`setup-${signedIn.file}`), alt: signedIn.label })}>`;
+  const examples = signedIn.map(
+    ({ file, caption, label, size }) => `
+    <figure class="signed-in-${size}">
+      <figcaption class="figure-caption">${escapeText(caption)}</figcaption>
+      <img class="screenshot"${attributes({ ...image(`setup-${file}`), alt: label })}>
+    </figure>`,
+  );
   const figures = screenshots.map(
     ({ file, label }) => `
     <figure>
@@ -28,7 +48,8 @@ export function portalScreenshots(image: (file: string) => Record<string, string
       <img class="screenshot"${attributes({ ...image(`setup-${file}`), alt: label })}>
     </figure>`,
   );
-  return `<template id="portal-signed-in">${example}</template>
+  return `<template id="portal-signed-in">${examples.join("")}
+  </template>
       <template id="portal-screenshot-figures">${figures.join("")}
   </template>`;
 }
