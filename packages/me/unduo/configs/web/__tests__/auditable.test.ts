@@ -1142,7 +1142,10 @@ describe.runIf(enabled)("browser", { timeout: 180_000 }, () => {
       ["Step 2", "UnDuo converts it to a 2FA QR Code.", "true"],
       ["Step 3", "Scan this 2FA QR Code with your favorite 2FA app.", "true"],
     ]);
-    // Get Started, at the bottom, jumps straight back to the search, focuses it and opens its list.
+    // Get Started, at the bottom under its call to action, jumps straight back to the search, focuses it and opens its list.
+    expect(evaluate("document.querySelector('.cta-title').textContent")).toBe(
+      "Ready to replace Duo with a secure 2FA app?",
+    );
     expect(evaluate("document.querySelector('.cta-button').textContent")).toBe("Get Started");
     evaluate("document.querySelector('footer').scrollIntoView({ behavior: 'instant' })");
     evaluate("document.querySelector('.cta-button').click()");

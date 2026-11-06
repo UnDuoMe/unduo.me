@@ -308,12 +308,13 @@ export function howItWorks() {
 }
 
 /**
- * Get Started, at the bottom of the page: it jumps back up to the search,
- * where every setup starts, focuses it and opens its list.
+ * Get Started, at the bottom of the page under a bold question, jumps back up
+ * to the search, where every setup starts, focuses it and opens its list.
  */
 export function getStarted(focusSearch: () => void) {
   return section(
-    { class: "landing-cta" },
+    { class: "landing-cta", "aria-labelledby": "cta-title" },
+    h2({ class: "cta-title", id: "cta-title" }, "Ready to replace Duo with a secure 2FA app?"),
     button(
       {
         type: "button",

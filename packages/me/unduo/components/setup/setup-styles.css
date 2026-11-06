@@ -542,8 +542,12 @@ summary {
   .how-text {
     @apply text-base! leading-[1.6]! text-muted!;
   }
+  /* The call to action above Get Started. */
   .landing-cta {
-    @apply flex! justify-center! px-4! pt-4! pb-20!;
+    @apply flex! flex-col! items-center! gap-6! px-4! pt-4! pb-20! text-center!;
+  }
+  .cta-title {
+    @apply text-2xl! font-bold! tracking-tight! text-balance! min-[641px]:text-3xl!;
   }
   .cta-button {
     @apply h-12! px-7! text-base! font-semibold! shadow-sm!;
