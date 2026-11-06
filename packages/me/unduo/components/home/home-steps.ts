@@ -37,6 +37,32 @@ const newTabIcon = () =>
     }),
   );
 
+/**
+ * A file's name in a sentence, as a badge with a document icon so it reads as
+ * a file. The icon keeps to the name's first word when the line wraps.
+ */
+const fileBadge = (name: string) => {
+  const [first, ...rest] = name.split(" ");
+  return span(
+    { class: "file-badge" },
+    span(
+      { class: "file-badge-start" },
+      svg(
+        { class: "file-badge-icon", viewBox: "0 0 12 14", "aria-hidden": "true" },
+        path({
+          d: "M2 .75h5.25L10.25 3.75v8.5a1 1 0 0 1-1 1h-7.25a1 1 0 0 1-1-1V1.75a1 1 0 0 1 1-1ZM7 .75v3.25h3.25",
+          fill: "none",
+          stroke: "currentColor",
+          "stroke-width": "1.2",
+          "stroke-linejoin": "round",
+        }),
+      ),
+      first,
+    ),
+    rest.length ? ` ${rest.join(" ")}` : "",
+  );
+};
+
 /** The name a browser saves an institution's file under: `UnDuo - <name>.html`. */
 const fileName = (school: University) =>
   `UnDuo - ${school.name.replace(/[\\/:*?"<>|]+/g, "-")}.html`;
@@ -137,9 +163,11 @@ export function verifyStep(school: University) {
         { class: "dialog-copy" },
         p(
           { class: "home-step-text" },
+          "Drag and drop ",
+          fileBadge(fileName(school)),
           van.derive(
             () =>
-              `Drag and drop UnDuo's file into ${assistant.val.href ? assistant.val.name : "your favorite AI"} and paste in this prompt:`,
+              ` into ${assistant.val.href ? assistant.val.name : "your favorite AI"} and paste in this prompt:`,
           ),
         ),
         label({ for: "ai-question", class: "sr-only" }, "Prompt for the AI"),
@@ -203,13 +231,15 @@ export function continueStep(school: University) {
       { class: "dialog-copy" },
       p(
         { class: "home-step-text" },
-        `Once your AI has given the thumbs up, double click ${fileName(school)} and follow its further instructions. If it doesn't, don't open the file.`,
+        "Once your AI has given the green light, double click ",
+        fileBadge(fileName(school)),
+        " to open UnDuo's secure webpage and follow its instructions.",
       ),
-      p({ class: "note" }, "It runs in your browser and starts at the Duo portal step."),
       p(
         { class: "home-step-text stay-safe" },
-        strong(
-          "Never trust any website with your sensitive school data without a way to fully audit and verify it, even if they claim to be secure.",
+        em(
+          strong("Remember:"),
+          " Never trust any website with your sensitive school login credentials without a way for you to verify it's 100% safe. Stay safe out there!",
         ),
       ),
     ),

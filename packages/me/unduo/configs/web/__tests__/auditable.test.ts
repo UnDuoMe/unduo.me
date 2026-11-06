@@ -1247,7 +1247,13 @@ describe.runIf(enabled)("browser", { timeout: 180_000 }, () => {
       evaluate("document.querySelector('.dialog-copy .home-step-text').textContent");
     expect(evaluate("document.querySelector('#home-dialog').dataset.step")).toBe("verify");
     expect(aiTabs()).toEqual(["ChatGPT*", "Claude", "Gemini", "Other"]);
-    expect(instruction()).toBe("Drag and drop UnDuo's file into ChatGPT and paste in this prompt:");
+    // The file's name, in full, is a badge in the sentence, as on the Continue step.
+    expect(
+      evaluate("document.querySelector('.dialog-copy .home-step-text .file-badge').textContent"),
+    ).toBe("UnDuo - University of Toronto.html");
+    expect(instruction()).toBe(
+      "Drag and drop UnDuo - University of Toronto.html into ChatGPT and paste in this prompt:",
+    );
     expect(aiLinks()).toEqual([
       ["Open ChatGPT (opens in a new tab)", "https://chatgpt.com/", "noopener noreferrer"],
     ]);
@@ -1266,7 +1272,7 @@ describe.runIf(enabled)("browser", { timeout: 180_000 }, () => {
       evaluate(`document.querySelector('${tab}').click()`);
       browser("wait", "--fn", `document.querySelector('${tab}').ariaSelected === 'true'`);
       expect(instruction()).toBe(
-        `Drag and drop UnDuo's file into ${name} and paste in this prompt:`,
+        `Drag and drop UnDuo - University of Toronto.html into ${name} and paste in this prompt:`,
       );
       expect(aiLinks()).toEqual([
         [`Open ${name} (opens in a new tab)`, href, "noopener noreferrer"],
@@ -1281,7 +1287,7 @@ describe.runIf(enabled)("browser", { timeout: 180_000 }, () => {
       "document.activeElement.id === 'ai-tab-other' && document.activeElement.ariaSelected === 'true'",
     );
     expect(instruction()).toBe(
-      "Drag and drop UnDuo's file into your favorite AI and paste in this prompt:",
+      "Drag and drop UnDuo - University of Toronto.html into your favorite AI and paste in this prompt:",
     );
     expect(aiLinks()).toEqual([]);
     browser("press", "ArrowRight");
@@ -1306,17 +1312,22 @@ describe.runIf(enabled)("browser", { timeout: 180_000 }, () => {
     );
     click("button", "Continue");
 
-    // 3: open it after the thumbs up, then the closing advice, and Done.
+    // 3: open it after the green light, then the closing advice, and Done.
     waitForStep("Continue");
     expect(dialogText()).toMatch(
-      /Once your AI has given the thumbs up, double click UnDuo - University of Toronto\.html/,
+      /Once your AI has given the green light, double click UnDuo - University of Toronto\.html to open UnDuo's secure webpage and follow its instructions\./,
     );
     expect(
       evaluate(
         "[document.querySelector('.dialog-art').getAttribute('aria-hidden'), !!document.querySelector('.dialog-art .open-window'), document.querySelectorAll('.dialog-art .click-ring').length]",
       ),
     ).toEqual(["true", true, 2]);
-    expect(dialogText()).toMatch(/Never trust any website with your sensitive school data/);
+    expect(evaluate("document.querySelector('.stay-safe').textContent")).toBe(
+      "Remember: Never trust any website with your sensitive school login credentials without a way for you to verify it's 100% safe. Stay safe out there!",
+    );
+    expect(evaluate("document.querySelector('.stay-safe em strong').textContent")).toBe(
+      "Remember:",
+    );
     expect(visible("Done")).toBe(true);
     expect(visible("Back")).toBe(true);
 

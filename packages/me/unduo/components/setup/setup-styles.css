@@ -570,6 +570,16 @@ summary {
   .dialog[data-step] {
     @apply min-[900px]:max-w-[56rem]!;
   }
+  /* A file's name in a sentence: a badge with a document icon, wrapping like the text around it. */
+  .file-badge {
+    @apply rounded-md! border! border-separator! bg-surface-secondary! px-1.5! py-0.5! font-medium! text-foreground! [box-decoration-break:clone]!;
+  }
+  .file-badge-start {
+    @apply whitespace-nowrap!;
+  }
+  .file-badge-icon {
+    @apply mr-1! inline-block! h-3.5! w-3! align-[-2px]! text-muted!;
+  }
   /* A link that opens in a new tab, with an icon that says so. */
   .new-tab {
     @apply inline-flex! items-center! gap-1.5!;
