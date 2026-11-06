@@ -100,7 +100,46 @@ async function copyReply(window: ChromeWindow, tree: string, reply: Reply) {
   return text !== marker && /\bSafe:\W*(?:yes|no)\b/i.test(text) ? text : undefined;
 }
 
-/** Ask `site` about the file in a new temporary chat, then screenshot the conversation from its top. */
+/** The most screenshots to join for one conversation. */
+const maxScreenshots = 16;
+
+/**
+ * Screenshot the conversation, already at its top, then half a window further
+ * down at a time until it stops moving, joining each screenshot under the last.
+ * The reply is found again before each scroll, since the page's elements
+ * change as it scrolls. If half a window doesn't move it, a whole one is tried.
+ */
+async function screenshotConversation(window: ChromeWindow, site: Site, raw: string) {
+  const shoot = (step: number) => {
+    const shot = window.screenshot();
+    const path = join(raw, `${site.id}-${step}.png`);
+    copyFileSync(shot.path, path);
+    const cropped = join(raw, `${site.id}-${step}-cropped.png`);
+    cropToPage(path, cropped, shot.scale, site.crop);
+    return { cropped, scale: shot.scale };
+  };
+  const first = shoot(0);
+  let joined = first.cropped;
+  let pages = 0.5;
+  for (let step = 1; step < maxScreenshots; step++) {
+    const reply = finishedReply(window.tree());
+    if (!reply) break;
+    window.scroll(reply.index, "down", pages);
+    await sleep(1200);
+    const next = shoot(step);
+    const out = join(raw, `${site.id}-joined-${step}.png`);
+    const { fits } = joinScreenshots(joined, next.cropped, out, first.scale);
+    if (fits && step === 1 && pages < 1) {
+      pages = 1;
+      continue;
+    }
+    if (fits) break;
+    joined = out;
+  }
+  return joined;
+}
+
+/** Ask `site` about the file in a new temporary chat, then screenshot the whole conversation. */
 async function ask(window: ChromeWindow, site: Site, upload: string, options: CaptureOptions) {
   const model = await site.start(window, { focus: options.focus });
   if (site.attach) await site.attach(window, upload, { focus: options.focus });
@@ -127,27 +166,16 @@ async function ask(window: ChromeWindow, site: Site, upload: string, options: Ca
   const reply = finishedReply(tree)!;
   const copied = options.focus ? await copyReply(window, tree, reply) : undefined;
   const { markdown, whole } = copied ? { markdown: copied, whole: true } : replyMarkdown(tree)!;
-  // Show the conversation from the top: the file and prompt, then the verdict.
+  // The whole conversation, from the file and prompt down to the end of the reply,
+  // where it gives the file's SHA-256, joined from screenshots half a window apart.
+  window.dismissInfobar();
   window.scroll(reply.index, "up", 20);
   await sleep(1500);
-  const shot = window.screenshot();
-  const raw = join(options.raw, `${site.id}.png`);
-  copyFileSync(shot.path, raw);
-  const cropped = join(options.raw, `${site.id}-cropped.png`);
-  cropToPage(raw, cropped, shot.scale, site.crop);
-  // Then its end, where the reply gives the file's SHA-256, joined under the top.
-  window.scroll(reply.index, "down", 20);
-  await sleep(1500);
-  const endShot = window.screenshot();
-  const endRaw = join(options.raw, `${site.id}-end.png`);
-  copyFileSync(endShot.path, endRaw);
-  const endCropped = join(options.raw, `${site.id}-end-cropped.png`);
-  cropToPage(endRaw, endCropped, endShot.scale, site.crop);
-  const joined = join(options.raw, `${site.id}-joined.png`);
-  joinScreenshots(cropped, endCropped, joined, shot.scale);
+  const joined = await screenshotConversation(window, site, options.raw);
   const screenshot = `ai-reply-${site.id}.webp`;
   toWebp(joined, join(options.images, screenshot));
   return {
+    tree,
     site: site.id,
     name: site.name,
     model,
@@ -183,8 +211,9 @@ export async function captureAiReplies(options: CaptureOptions) {
       // One site failing, as when it renames a button, doesn't stop the others.
       captures.push(
         await ask(window, site, upload, options).then(
-          (capture) => {
-            const hash = replyHash(capture.reply, file.sha256);
+          ({ tree, ...capture }) => {
+            // The tree too: a hash in a code block isn't in the reply's Markdown.
+            const hash = replyHash(`${capture.reply ?? ""}\n${tree ?? ""}`, file.sha256);
             if (!hash.matches)
               console.warn(
                 `${site.name}'s reply ${hash.found ? `gives ${hash.found}, not the file's SHA-256` : "gives no SHA-256"}.`,

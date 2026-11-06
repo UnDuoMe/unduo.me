@@ -39,13 +39,18 @@ a long prompt to its first sentence, and the screenshot shows it that way. The c
 the browser's toolbar, ChatGPT's sidebar, and each site's prompt box, ending at the lowest
 gap between paragraphs above it.
 
-The prompt's P.S. asks for the attached file's SHA-256 at the end of the reply, so the
-script then scrolls to the end, takes a second screenshot, crops it the same way and joins
-it under the first (`joinScreenshots`): the site's bar, which stays at the top of both, and
-any rows the first already shows are dropped, and if the two don't meet, a band of three
-dots marks what's skipped. A reply short enough to show whole stays one screenshot. Each
-reply in `results.json` records `hash`: the last SHA-256 it gives and whether it matches the
-file's, and the script warns when it doesn't.
+The prompt's P.S. asks for the attached file's SHA-256 at the end of the reply, if the AI
+can compute it, so the screenshot shows the whole conversation: from the top, the script
+scrolls half a window at a time, re-finding the reply each time, and joins each new
+screenshot under the last (`joinScreenshots`) until the page stops moving. Joining drops
+the site's bar, which stays at the top of each, and the rows already shown; rows count as
+the same when their mean gray is within half a level, since text renders a little
+differently after a scroll, and blank space alone never counts as a match. If two
+screenshots don't meet, a band of three dots marks what's skipped. Chrome's bar across the
+page, such as "isn't your default browser", is closed first. Each reply in `results.json`
+records `hash`: the last SHA-256 in the reply or anywhere on the page under it, as in a code
+block, and whether it matches the file's; the script warns when it doesn't. Gemini and
+Claude's incognito chat can't run code, and say so instead of giving one.
 
 ## Output
 
@@ -62,7 +67,7 @@ file's, and the script warns when it doesn't.
   Copy button doesn't work from the background: a page without focus can't write to the
   clipboard.
 - `.output/ai-replies/<site>.png` and `<site>-cropped.png` at the repository root: the
-  window, uncropped and cropped (`<site>-end*.png` for the reply's end, `<site>-joined.png` for both), and `<site>-tree.txt`, the tree the reply was read from.
+  window, uncropped and cropped, one per scroll (`<site>-<n>.png`, `<site>-<n>-cropped.png`, and `<site>-joined-<n>.png` as they're joined), and `<site>-tree.txt`, the tree the reply was read from.
 
 The home page's cards show each whole reply and its model, from `aiReplies` in
 `packages/me/unduo/components/home/ai-replies.ts`. Copy the replies there from

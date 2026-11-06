@@ -115,6 +115,20 @@ export class ChromeWindow {
   click(index: string, { restore = false } = {}) {
     this.run("click", ["--element-index", index], { restore });
   }
+  /**
+   * Close Chrome's bar across the top of the page, such as "Google Chrome isn't
+   * your default browser", which would show in screenshots.
+   */
+  dismissInfobar() {
+    const lines = this.tree().split("\n");
+    const bar = lines.findIndex((line) => /\bcontainer Infobar$/.test(line.trim()));
+    if (bar === -1) return;
+    const close = lines
+      .slice(bar, bar + 8)
+      .map((line) => /^\s*(\d+) button Close$/.exec(line)?.[1])
+      .find(Boolean);
+    if (close) this.click(close);
+  }
   pressKey(key: string, { restore = false } = {}) {
     this.run("press-key", ["--key", key], { restore });
   }

@@ -1,34 +1,37 @@
 import { expect, test } from "vite-plus/test";
 import { replyHash } from "#capture";
-import { joinRows, rowDigests } from "#crop";
+import { joinRows, rowMeans } from "#crop";
 
-test("a row's digest depends on its bytes only", () => {
-  const rows = rowDigests(Buffer.from([1, 2, 3, 1, 2, 3, 9, 9, 9]), 3);
-  expect(rows).toHaveLength(3);
-  expect(rows[0]).toBe(rows[1]);
-  expect(rows[2]).not.toBe(rows[0]);
+test("a row's mean is its average gray", () => {
+  expect(rowMeans(Buffer.from([0, 255, 100, 100, 9, 9]), 2)).toEqual([127.5, 100, 9]);
 });
 
-test("joins a conversation's end under its top without its bar or repeated rows", () => {
-  // The site's bar (h) stays put; the end repeats the top's last rows (c, d).
-  const top = ["h", "a", "b", "c", "d"];
-  expect(joinRows(top, ["h", "c", "d", "e", "f"], 2)).toEqual({
-    header: 1,
-    overlap: 2,
+test("joins a conversation's next screenshot under the last, without its bar or repeated rows", () => {
+  // The site's bar (rows of 50) stays put; text rows differ from each other.
+  const bar = [50, 50];
+  const top = [...bar, 200, 180, 220, 190, 210, 170];
+  // The next repeats the top's last four rows, give or take how text renders after a scroll.
+  expect(joinRows(top, [...bar, 180.2, 220, 189.9, 210, 170.1, 160, 230], 3)).toEqual({
+    header: 2,
+    overlap: 5,
     fits: false,
   });
-  // Blank space at the seam matches anything blank: not proof they meet, so a gap goes between.
-  const blank = ["_", "_", "_", "_"];
-  expect(joinRows(["h", "a", "b", ...blank], ["h", ...blank, "e", "f"], 4)).toEqual({
-    header: 1,
+  // Nothing in common: they don't meet, so a gap goes between.
+  expect(joinRows(top, [...bar, 120, 140, 130, 150], 3)).toEqual({
+    header: 2,
     overlap: 0,
     fits: false,
   });
-  // Too few rows in common to trust: they don't meet, so a gap goes between.
-  expect(joinRows(top, ["h", "d", "e", "f"], 2)).toEqual({ header: 1, overlap: 0, fits: false });
-  // A reply short enough to show whole in the first screenshot adds nothing.
-  expect(joinRows(top, top, 2)).toEqual({ header: 5, overlap: 0, fits: true });
-  expect(joinRows(top, ["h", "c", "d"], 2)).toEqual({ header: 1, overlap: 2, fits: true });
+  // Blank space at the seam matches anything blank: not proof they meet.
+  const blank = [255, 255, 255, 255];
+  expect(joinRows([...bar, 200, 180, ...blank], [...bar, ...blank, 120, 140], 3)).toEqual({
+    header: 2,
+    overlap: 0,
+    fits: false,
+  });
+  // A page that didn't scroll shows nothing new.
+  expect(joinRows(top, top, 3)).toEqual({ header: 8, overlap: 0, fits: true });
+  expect(joinRows(top, [...bar, 190, 210, 170], 3)).toEqual({ header: 2, overlap: 3, fits: true });
 });
 
 test("finds the reply's last SHA-256 and checks it against the file's", () => {
