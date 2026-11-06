@@ -1,18 +1,4 @@
-import {
-  a,
-  div,
-  em,
-  footer,
-  h1,
-  h3,
-  header,
-  li,
-  ol,
-  p,
-  path,
-  strong,
-  svg,
-} from "@-/me.unduo.lib.dom";
+import { a, div, em, footer, h1, header, p, path, strong, svg } from "@-/me.unduo.lib.dom";
 
 /** How UnDuo works, in the three steps the user wrote. */
 export const steps = [
@@ -85,24 +71,6 @@ export function homeFooter() {
         }),
       ),
       "GitHub",
-    ),
-  );
-}
-
-/**
- * The dialog's first step: how UnDuo works, in the three steps a student needs
- * to know before starting, and that the next step lets them check it.
- */
-export function overviewStep() {
-  return div(
-    h3({ class: "home-heading" }, "How UnDuo Works:"),
-    ol(
-      { class: "instructions" },
-      steps.map((text) => li({ class: "instruction" }, text)),
-    ),
-    p(
-      { class: "home-secure" },
-      "UnDuo is fully secure. Don't take our word for it. On the next step, you'll get to check for yourself (or with the help of AI).",
     ),
   );
 }

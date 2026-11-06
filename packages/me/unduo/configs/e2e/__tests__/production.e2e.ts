@@ -208,7 +208,7 @@ test("from a blank browser to a passcode that signs in", async ({
     await expect(home.locator(".step-item")).toHaveCount(0);
   });
 
-  await instruction("1. select your university, which opens its overview", home, async () => {
+  await instruction("1. select your university, which opens its download", home, async () => {
     await home.getByRole("combobox", { name: "Select Your University" }).click();
     await home.getByRole("combobox", { name: "Select Your University" }).fill("toronto");
     await home
@@ -216,17 +216,12 @@ test("from a blank browser to a passcode that signs in", async ({
       .first()
       .click();
     await expect(home.getByRole("dialog")).toBeVisible();
-    await expect(stepTitle(home)).toHaveText("Overview");
-    await expect(home).toHaveURL(/\?university=.+#step=overview$/);
-    await expect(home.getByRole("heading", { name: "How UnDuo Works:" })).toBeVisible();
-    await expect(home.getByRole("dialog").getByText("Don't take our word for it.")).toBeVisible();
-    await home.getByRole("button", { name: "Continue" }).click();
+    await expect(stepTitle(home)).toHaveText("Download");
+    await expect(home).toHaveURL(/\?university=.+#step=download$/);
   });
 
-  await instruction("2. download the file but don't run it", home, async () => {
-    await expect(stepTitle(home)).toHaveText("Verify");
-    await expect(home).toHaveURL(/\?university=.+#step=verify$/);
-    await expect(home.getByText("DO NOT RUN IT")).toBeVisible();
+  await instruction("2. download the file but don't open it", home, async () => {
+    await expect(home.getByRole("dialog").getByText("Don't open it yet.")).toBeVisible();
     const before = home.url();
     path = await downloadFile(home);
     expect(home.url(), "Downloading leaves the page where it was").toBe(before);
@@ -238,9 +233,12 @@ test("from a blank browser to a passcode that signs in", async ({
     );
     expect(served.headers()["content-type"]).toBe("application/octet-stream");
     expect((await served.body()).equals(await readFile(path))).toBe(true);
+    await home.getByRole("button", { name: "Continue" }).click();
   });
 
   await instruction("3. verify it with your favorite AI", home, async () => {
+    await expect(stepTitle(home)).toHaveText("Verify");
+    await expect(home).toHaveURL(/\?university=.+#step=verify$/);
     await expect(home.getByText(`Drag and drop ${fileName} into your favorite AI`)).toBeVisible();
     prompt = await home.getByLabel("Prompt for the AI").inputValue();
     expect(prompt).toContain("“Safe: yes”");
@@ -495,11 +493,10 @@ test("the browser can't reach the real school or Duo", async ({ browser }) => {
 });
 
 test.describe("what else the pages offer", () => {
-  /** A school's shared link opens its dialog, whose next step has the download. */
+  /** A school's shared link opens its dialog at the download. */
   async function fileFromSharedLink(home: Page) {
     await home.goto(new URL("?university=UofT", site).href);
-    await expect(stepTitle(home)).toHaveText("Overview");
-    await home.getByRole("button", { name: "Continue" }).click();
+    await expect(stepTitle(home)).toHaveText("Download");
     return downloadFile(home);
   }
 

@@ -1117,45 +1117,37 @@ describe.runIf(enabled)("browser", { timeout: 180_000 }, () => {
     ]);
     browser("press", "Enter");
 
-    // 1: the overview, in a dialog for the institution, with nowhere to go back to.
-    waitForStep("Overview");
+    // 1: the file, in a dialog for the institution, which mustn't be opened yet, with nowhere to go back to.
+    waitForStep("Download");
     expect(dialogOpen()).toBe(true);
     expect(dropdownOpen()).toBe(false);
-    expect(address()).toBe("/?university=IAU-020599#step=overview");
+    expect(address()).toBe("/?university=IAU-020599#step=download");
     browser("wait", "--fn", "document.activeElement.id === 'step-title'");
     expect(evaluate("document.title")).toMatch(/University of Toronto/);
     expect(evaluate("document.querySelector('.dialog-school').textContent")).toBe(
       "University of Toronto",
     );
-    expect(evaluate("document.querySelector('#home-dialog h3').textContent")).toBe(
-      "How UnDuo Works:",
-    );
-    expect(
-      evaluate("[...document.querySelectorAll('#home-dialog li')].map((step) => step.textContent)"),
-    ).toEqual([
-      "Get a new QR code from Duo.",
-      "UnDuo converts it to a 2FA QR Code.",
-      "Scan this 2FA QR Code with your favorite 2FA app.",
-    ]);
-    expect(evaluate("document.querySelector('.home-secure').textContent")).toBe(
-      "UnDuo is fully secure. Don't take our word for it. On the next step, you'll get to check for yourself (or with the help of AI).",
-    );
-    expect(visible("Back")).toBe(false);
-    expect(evaluate("!!document.querySelector('a[download]')")).toBe(false);
-    click("button", "Continue");
-
-    // 2: the file, which mustn't be run yet, then the AI with the prompt.
-    waitForStep("Verify");
-    expect(address()).toBe("/?university=IAU-020599#step=verify");
-    expect(dialogText()).toMatch(/DO NOT RUN IT \(yet\)/);
+    expect(dialogText()).toMatch(/Download the file for University of Toronto:/);
     expect(
       evaluate("(({ href, download }) => [href, download])(document.querySelector('a[download]'))"),
     ).toEqual([`${hosted}/files/020599`, "University of Toronto.html"]);
     expect(
+      evaluate("[...document.querySelectorAll('#home-dialog .home-step-text')].at(-1).textContent"),
+    ).toBe(
+      "Don't open it yet. On the next step, we'll tell you how to audit it yourself (or with AI).",
+    );
+    expect(
       evaluate("/Trust unduo/.test(document.body.textContent)"),
       "Setup isn't offered on the site",
     ).toBe(false);
-    expect(dialogText()).toMatch(/drag and drop University of Toronto\.html into your favorite AI/);
+    expect(visible("Back")).toBe(false);
+    click("button", "Continue");
+
+    // 2: the AI, with the prompt.
+    waitForStep("Verify");
+    expect(address()).toBe("/?university=IAU-020599#step=verify");
+    expect(evaluate("!!document.querySelector('a[download]')")).toBe(false);
+    expect(dialogText()).toMatch(/Drag and drop University of Toronto\.html into your favorite AI/);
     expect(
       evaluate(
         "[...document.querySelectorAll('#home-dialog a[target=_blank]')].map((link) => [link.textContent, link.href, link.rel])",
@@ -1203,7 +1195,7 @@ describe.runIf(enabled)("browser", { timeout: 180_000 }, () => {
     click("button", "Back");
     waitForStep("Verify");
     click("button", "Back");
-    waitForStep("Overview");
+    waitForStep("Download");
 
     // Escape, the close button and Done each close the dialog, and the address and focus follow.
     browser("press", "Escape");
@@ -1214,7 +1206,7 @@ describe.runIf(enabled)("browser", { timeout: 180_000 }, () => {
     expect(evaluate("document.querySelector('#university').value")).toBe("");
     expect(evaluate("document.title")).not.toMatch(/University of Toronto/);
     browser("back");
-    waitForStep("Overview");
+    waitForStep("Download");
     expect(dialogOpen()).toBe(true);
     click("button", "Close");
     waitForClosed();
@@ -1231,11 +1223,11 @@ describe.runIf(enabled)("browser", { timeout: 180_000 }, () => {
     for (const path of ["020599/", "020599/index.html", "020599/download.html", "download.html"])
       expect((await fetch(`${hosted}/${path}`)).status, path).toBe(404);
 
-    // A shared link opens the overview, and steps that earlier pages named lead to theirs.
+    // A shared link opens the download, and steps that earlier pages named lead to theirs.
     for (const [step, heading] of [
-      ["", "Overview"],
-      ["university", "Overview"],
-      ["download", "Verify"],
+      ["", "Download"],
+      ["university", "Download"],
+      ["overview", "Download"],
       ["check", "Verify"],
       ["open", "Continue"],
       ["safe", "Continue"],

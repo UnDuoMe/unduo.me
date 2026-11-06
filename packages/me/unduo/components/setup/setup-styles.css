@@ -493,17 +493,11 @@ summary {
   .dialog-school {
     @apply mb-1! pr-8! text-xs! font-medium! text-muted!;
   }
-  .home-heading {
-    @apply mb-3! text-base! font-semibold!;
-  }
   .home-step-text {
     @apply mb-4! text-sm! leading-[1.55]! text-muted! [&_strong]:text-foreground!;
   }
   .home-download {
     @apply mb-5!;
-  }
-  .home-secure {
-    @apply mt-5! text-sm! leading-[1.55]! text-muted! italic!;
   }
   .stay-safe {
     @apply mt-5! mb-0!;

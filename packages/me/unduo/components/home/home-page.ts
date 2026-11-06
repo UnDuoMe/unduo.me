@@ -2,21 +2,21 @@ import { universityPicker } from "@-/me.unduo.components.university-picker";
 import type { University } from "@-/me.unduo.data.universities.entities";
 import { button, dialog, div, h2, main, p, path, section, svg } from "@-/me.unduo.lib.dom";
 import { findUniversity } from "@-/me.unduo.lib.universities";
-import { homeFooter, homeHeader, homeStart, overviewStep } from "#home-intro";
+import { homeFooter, homeHeader, homeStart } from "#home-intro";
 import { aiTestimonials, getStarted, howItWorks } from "#home-landing";
-import { continueStep, verifyStep } from "#home-steps";
+import { continueStep, downloadStep, verifyStep } from "#home-steps";
 
 /** The dialog's steps once an institution is chosen. `id` names a step in the URL. */
 const steps = [
-  { id: "overview", title: "Overview" },
+  { id: "download", title: "Download" },
   { id: "verify", title: "Verify" },
   { id: "continue", title: "Continue" },
 ];
 
 /** Steps that earlier versions of the page named in links, and where they lead now. */
 const renamed: Record<string, string> = {
-  university: "overview",
-  download: "verify",
+  university: "download",
+  overview: "download",
   check: "verify",
   open: "continue",
   safe: "continue",
@@ -24,7 +24,7 @@ const renamed: Record<string, string> = {
 
 /**
  * What the URL names: `?university=` holds the institution, whose dialog is open,
- * and `#step=` the dialog's step, the overview when it names none. Without a
+ * and `#step=` the dialog's step, the first when it names none. Without a
  * published institution the dialog is closed.
  */
 function fromUrl() {
@@ -41,8 +41,8 @@ function fromUrl() {
  * for and a searchable dropdown of institutions, filling the first screen; then
  * what ChatGPT, Claude and Gemini said about a file, how UnDuo works, a way back
  * to the search, and a footer with a contact address and the source. Choosing an institution opens a
- * dialog that takes it from an overview to opening its file, which has its own
- * stepper for setup.
+ * dialog that takes it from downloading its file to opening it, and the file has
+ * its own stepper for setup.
  */
 export function startHomePage() {
   const homeTitle = document.title;
@@ -80,7 +80,7 @@ export function startHomePage() {
     navigate(`?university=${school.id}#step=${steps[index]!.id}`);
     focusStep();
   };
-  /** Choosing an institution opens its dialog at the overview. */
+  /** Choosing an institution opens its dialog at the download. */
   const choose = (school: University) => goTo(0, school);
 
   const homeDialog = dialog(
@@ -114,8 +114,8 @@ export function startHomePage() {
     // A step's elements rebuild only when the step or the institution changes.
     () => {
       const school = selected.val;
-      if (!school || current.val === 0) return overviewStep();
-      return current.val === 1 ? verifyStep(school) : continueStep(school);
+      if (!school) return div();
+      return [downloadStep, verifyStep, continueStep][current.val]!(school);
     },
     div(
       { class: "step-nav" },
@@ -131,9 +131,9 @@ export function startHomePage() {
       button(
         {
           type: "button",
-          // Downloading is the Verify step's main action, not moving on.
+          // Downloading is the first step's main action, not moving on.
           class: () =>
-            current.val === 1
+            current.val === 0
               ? "uk-button uk-button-default btn at-end"
               : "uk-button uk-button-primary btn-accent at-end",
           onclick: () =>

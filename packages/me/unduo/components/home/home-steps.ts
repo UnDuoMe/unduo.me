@@ -12,9 +12,29 @@ const assistants = [
 const fileName = (school: University) => `${school.name.replace(/[\\/:*?"<>|]+/g, "-")}.html`;
 
 /**
- * Step 2: the institution's file, which the student downloads but mustn't open
- * yet, goes to an AI with the prompt, which a button copies.
+ * Step 1: the institution's file, which the student downloads but mustn't open
+ * yet, because the next step has them audit it first.
  */
+export function downloadStep(school: University) {
+  return div(
+    p({ class: "home-step-text" }, `Download the file for ${school.name}:`),
+    a(
+      {
+        class: "uk-button uk-button-primary btn-accent home-download",
+        href: `./files/${school.id.slice(4)}`,
+        download: fileName(school),
+      },
+      `Download ${fileName(school)}`,
+    ),
+    p(
+      { class: "home-step-text" },
+      strong("Don't open it yet."),
+      " On the next step, we'll tell you how to audit it yourself (or with AI).",
+    ),
+  );
+}
+
+/** Step 2: the downloaded file goes to an AI with the prompt, which a button copies. */
 export function verifyStep(school: University) {
   const copied = van.state(false);
   const copyFailed = van.state(false);
@@ -33,21 +53,7 @@ export function verifyStep(school: University) {
   return div(
     p(
       { class: "home-step-text" },
-      `Download the file for ${school.name}, but `,
-      strong("DO NOT RUN IT"),
-      " (yet).",
-    ),
-    a(
-      {
-        class: "uk-button uk-button-primary btn-accent home-download",
-        href: `./files/${school.id.slice(4)}`,
-        download: fileName(school),
-      },
-      `Download ${fileName(school)}`,
-    ),
-    p(
-      { class: "home-step-text" },
-      `Then drag and drop ${fileName(school)} into your favorite AI and copy this prompt:`,
+      `Drag and drop ${fileName(school)} into your favorite AI and copy this prompt:`,
     ),
     label({ for: "ai-question", class: "sr-only" }, "Prompt for the AI"),
     textarea(
