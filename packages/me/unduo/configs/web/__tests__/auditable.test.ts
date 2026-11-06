@@ -714,6 +714,8 @@ describe.runIf(enabled)("browser", { timeout: 180_000 }, () => {
 
     click("button", "I'm signed in");
     waitForHeading("Copy the activation QR code");
+    // The page scrolls to the step's title and focuses it a task later; a click aimed before that can miss.
+    browser("wait", "--fn", "document.activeElement.id === 'step-title'");
     browser("click", "#portal-screenshots summary");
     browser("wait", "--fn", "document.querySelector('#portal-screenshots').open");
     browser(
@@ -938,6 +940,26 @@ describe.runIf(enabled)("browser", { timeout: 180_000 }, () => {
     const visible = (button: string) => evaluate(`!!${inDialog(button)}?.checkVisibility()`);
     const dialogText = () => evaluate("document.querySelector('#home-dialog').textContent");
     const dialogOpen = () => evaluate("document.querySelector('#home-dialog').open");
+    /**
+     * The dialog at `heading`, settled: each step change ends a task later by
+     * focusing the step's title, which can scroll the dialog, so a click aimed
+     * before then can miss.
+     */
+    const waitForStep = (heading: string) => {
+      waitForHeading(heading);
+      browser("wait", "--fn", "document.activeElement.id === 'step-title'");
+    };
+    /**
+     * The dialog is closed as soon as close() returns, but the address follows in
+     * its close event, a task later. Waiting for both keeps the next step from
+     * racing that pushState, which would also cancel a navigation started first.
+     */
+    const waitForClosed = () =>
+      browser(
+        "wait",
+        "--fn",
+        "!document.querySelector('#home-dialog').open && location.pathname + location.search + location.hash === '/'",
+      );
     const dropdownOpen = () => evaluate("!document.querySelector('#university-dropdown').hidden");
     const address = () => evaluate("location.pathname + location.search + location.hash");
     const focused = () =>
@@ -1006,7 +1028,6 @@ describe.runIf(enabled)("browser", { timeout: 180_000 }, () => {
     ).toEqual([
       "You can audit UnDuo with all the major AIs: ChatGPT, Claude, and Gemini.",
       "All three classify it as fully safe.",
-      "(You'll also get the chance to audit it yourself!)",
     ]);
     // Each card holds the whole reply, cut short until its chevron opens it in a box that scrolls.
     expect(
@@ -1097,7 +1118,7 @@ describe.runIf(enabled)("browser", { timeout: 180_000 }, () => {
     browser("press", "Enter");
 
     // 1: the overview, in a dialog for the institution, with nowhere to go back to.
-    waitForHeading("Overview");
+    waitForStep("Overview");
     expect(dialogOpen()).toBe(true);
     expect(dropdownOpen()).toBe(false);
     expect(address()).toBe("/?university=IAU-020599#step=overview");
@@ -1124,7 +1145,7 @@ describe.runIf(enabled)("browser", { timeout: 180_000 }, () => {
     click("button", "Continue");
 
     // 2: the file, which mustn't be run yet, then the AI with the prompt.
-    waitForHeading("Verify");
+    waitForStep("Verify");
     expect(address()).toBe("/?university=IAU-020599#step=verify");
     expect(dialogText()).toMatch(/DO NOT RUN IT \(yet\)/);
     expect(
@@ -1163,7 +1184,7 @@ describe.runIf(enabled)("browser", { timeout: 180_000 }, () => {
     click("button", "Continue");
 
     // 3: open it after the thumbs up, then the closing advice, and Done.
-    waitForHeading("Continue");
+    waitForStep("Continue");
     expect(dialogText()).toMatch(
       /Once your AI has given the thumbs up, double click University of Toronto\.html/,
     );
@@ -1173,34 +1194,34 @@ describe.runIf(enabled)("browser", { timeout: 180_000 }, () => {
 
     // The address holds the place: reload, Back, Forward and the dialog's Back all keep to it.
     browser("reload");
-    waitForHeading("Continue");
+    waitForStep("Continue");
     expect(dialogOpen()).toBe(true);
     browser("back");
-    waitForHeading("Verify");
+    waitForStep("Verify");
     browser("forward");
-    waitForHeading("Continue");
+    waitForStep("Continue");
     click("button", "Back");
-    waitForHeading("Verify");
+    waitForStep("Verify");
     click("button", "Back");
-    waitForHeading("Overview");
+    waitForStep("Overview");
 
     // Escape, the close button and Done each close the dialog, and the address and focus follow.
     browser("press", "Escape");
-    browser("wait", "--fn", "!document.querySelector('#home-dialog').open");
+    waitForClosed();
     expect(address()).toBe("/");
     expect(focused()).toBe("university");
     expect(dropdownOpen(), "Focus comes back without opening the list").toBe(false);
     expect(evaluate("document.querySelector('#university').value")).toBe("");
     expect(evaluate("document.title")).not.toMatch(/University of Toronto/);
     browser("back");
-    waitForHeading("Overview");
+    waitForStep("Overview");
     expect(dialogOpen()).toBe(true);
     click("button", "Close");
-    browser("wait", "--fn", "!document.querySelector('#home-dialog').open");
+    waitForClosed();
     browser("open", `${hosted}/?university=IAU-020599#step=continue`);
-    waitForHeading("Continue");
+    waitForStep("Continue");
     click("button", "Done");
-    browser("wait", "--fn", "!document.querySelector('#home-dialog').open");
+    waitForClosed();
     expect(address()).toBe("/");
 
     // The site serves the file as a download; it has no page that runs setup.
@@ -1220,7 +1241,7 @@ describe.runIf(enabled)("browser", { timeout: 180_000 }, () => {
       ["safe", "Continue"],
     ]) {
       browser("open", `${hosted}/?university=UofT${step && `#step=${step}`}`);
-      waitForHeading(heading!);
+      waitForStep(heading!);
       expect(dialogOpen()).toBe(true);
     }
     if (universities.some(({ id }) => id === "IAU-020599-020519")) {
