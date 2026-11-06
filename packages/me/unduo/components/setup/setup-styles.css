@@ -565,6 +565,28 @@ summary {
   .home-download {
     @apply mb-5!;
   }
+  /* Verify: tabs choose the AI, and its drawing sits beside the text in a wider dialog. */
+  .dialog[data-step="verify"] {
+    @apply min-[900px]:max-w-[56rem]!;
+  }
+  .ai-tabs {
+    @apply mb-4! flex! gap-1! rounded-xl! bg-surface-secondary! p-1!;
+  }
+  .ai-tab {
+    @apply flex-1! rounded-lg! px-2! py-1.5! text-sm! font-medium! text-muted! transition-colors! hover:text-foreground! aria-selected:bg-white! aria-selected:text-foreground! aria-selected:shadow-sm!;
+  }
+  .verify-layout {
+    @apply grid! gap-5! min-[900px]:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]! min-[900px]:items-start!;
+  }
+  .verify-visual {
+    @apply flex! items-center! justify-center! rounded-2xl! bg-linear-to-br! from-[#e7f0ff]! to-[#c2d6f7]! p-3!;
+  }
+  .verify-art {
+    @apply h-auto! w-full!;
+  }
+  .verify-text {
+    @apply min-w-0!;
+  }
   .stay-safe {
     @apply mt-5! mb-0!;
   }
@@ -641,5 +663,57 @@ summary {
     .step-link:hover .step-label {
       @apply underline! underline-offset-3!;
     }
+  }
+}
+
+/*
+ * The Verify drawing's file, dragged from the Downloads panel into the message
+ * box and dropped there. With reduced motion it stays halfway, with nothing dropped.
+ */
+.drag-file {
+  transform: translate(96px, 130px);
+}
+.drop-file {
+  opacity: 0;
+}
+@media (prefers-reduced-motion: no-preference) {
+  .drag-file {
+    animation: drag-file 4.2s ease-in-out infinite;
+  }
+  .drop-file {
+    animation: drop-file 4.2s ease-in-out infinite;
+  }
+}
+@keyframes drag-file {
+  0%,
+  12% {
+    opacity: 0;
+    transform: translate(144px, 82px);
+  }
+  20% {
+    opacity: 1;
+    transform: translate(144px, 82px);
+  }
+  62% {
+    opacity: 1;
+    transform: translate(46px, 176px);
+  }
+  70%,
+  100% {
+    opacity: 0;
+    transform: translate(46px, 176px);
+  }
+}
+@keyframes drop-file {
+  0%,
+  64% {
+    opacity: 0;
+  }
+  72%,
+  92% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
   }
 }

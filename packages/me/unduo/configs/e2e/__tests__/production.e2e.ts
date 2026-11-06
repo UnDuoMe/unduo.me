@@ -241,17 +241,20 @@ test("from a blank browser to a passcode that signs in", async ({
   await instruction("3. verify it with your favorite AI", home, async () => {
     await expect(stepTitle(home)).toHaveText("Verify");
     await expect(home).toHaveURL(/\?university=.+#step=verify$/);
-    await expect(home.getByText(`Drag and drop ${fileName} into your favorite AI`)).toBeVisible();
+    await expect(home.getByRole("tab", { name: "ChatGPT", selected: true })).toBeVisible();
+    await expect(home.getByText(`Drag and drop ${fileName} into ChatGPT`)).toBeVisible();
     prompt = await home.getByLabel("Prompt for the AI").inputValue();
     expect(prompt).toContain("“Safe: yes”");
     await home.getByRole("button", { name: "Copy prompt" }).click();
     await expect(home.getByRole("button", { name: "Copied" })).toBeVisible();
 
     for (const [host, name] of Object.entries(assistants)) {
+      await home.getByRole("tab", { name }).click();
       const link = home.getByRole("link", { name: `Open ${name}` });
       await expect(link).toHaveAttribute("href", `https://${host}/`);
       await expect(link).toHaveAttribute("rel", /noopener/);
     }
+    await home.getByRole("tab", { name: "ChatGPT" }).click();
     const [chat] = await Promise.all([
       context.waitForEvent("page"),
       home.getByRole("link", { name: "Open ChatGPT" }).click(),

@@ -464,7 +464,7 @@ describe.runIf(enabled)("static output", () => {
         'href: "https://github.com/UnDuoMe/unduo.me"',
         'href: "mailto:contact@unduo.me"',
         "href: `./files/${school.id.slice(4)}`",
-        "href: assistant.href",
+        "href: choice.href",
       ]);
     }
   });
@@ -1220,17 +1220,55 @@ describe.runIf(enabled)("browser", { timeout: 180_000 }, () => {
     waitForStep("Verify");
     expect(address()).toBe("/?university=IAU-020599#step=verify");
     expect(evaluate("!!document.querySelector('a[download]')")).toBe(false);
-    expect(dialogText()).toMatch(/Drag and drop University of Toronto\.html into your favorite AI/);
-    expect(
+    // Tabs choose the AI, ChatGPT first; each has a drawing of its page and, but for Other, a link.
+    const aiTabs = () =>
+      evaluate(
+        "[...document.querySelectorAll('#home-dialog [role=tab]')].map((tab) => tab.textContent + (tab.ariaSelected === 'true' ? '*' : ''))",
+      );
+    const aiLinks = () =>
       evaluate(
         "[...document.querySelectorAll('#home-dialog a[target=_blank]')].map((link) => [link.textContent, link.href, link.rel])",
-      ),
-    ).toEqual(
-      [
-        ["Open ChatGPT", "https://chatgpt.com/"],
-        ["Open Claude", "https://claude.ai/"],
-        ["Open Gemini", "https://gemini.google.com/"],
-      ].map((link) => [...link, "noopener noreferrer"]),
+      );
+    const instruction = () =>
+      evaluate("document.querySelector('.verify-text .home-step-text').textContent");
+    expect(evaluate("document.querySelector('#home-dialog').dataset.step")).toBe("verify");
+    expect(aiTabs()).toEqual(["ChatGPT*", "Claude", "Gemini", "Other"]);
+    expect(instruction()).toBe(
+      "Drag and drop University of Toronto.html into ChatGPT and copy this prompt:",
+    );
+    expect(aiLinks()).toEqual([["Open ChatGPT", "https://chatgpt.com/", "noopener noreferrer"]]);
+    expect(evaluate("document.querySelector('.verify-art').getAttribute('aria-hidden')")).toBe(
+      "true",
+    );
+    for (const [name, href] of [
+      ["Claude", "https://claude.ai/"],
+      ["Gemini", "https://gemini.google.com/"],
+    ]) {
+      const tab = `#ai-tab-${name!.toLowerCase()}`;
+      evaluate(`document.querySelector('${tab}').click()`);
+      browser("wait", "--fn", `document.querySelector('${tab}').ariaSelected === 'true'`);
+      expect(instruction()).toBe(
+        `Drag and drop University of Toronto.html into ${name} and copy this prompt:`,
+      );
+      expect(aiLinks()).toEqual([[`Open ${name}`, href, "noopener noreferrer"]]);
+    }
+    // Arrow keys move between the tabs and wrap around.
+    browser("focus", "#ai-tab-gemini");
+    browser("press", "ArrowRight");
+    browser(
+      "wait",
+      "--fn",
+      "document.activeElement.id === 'ai-tab-other' && document.activeElement.ariaSelected === 'true'",
+    );
+    expect(instruction()).toBe(
+      "Drag and drop University of Toronto.html into your favorite AI and copy this prompt:",
+    );
+    expect(aiLinks()).toEqual([]);
+    browser("press", "ArrowRight");
+    browser(
+      "wait",
+      "--fn",
+      "document.activeElement.id === 'ai-tab-chatgpt' && document.activeElement.ariaSelected === 'true'",
     );
     expect(evaluate("document.querySelector('#ai-question').value")).toBe(
       [

@@ -45,4 +45,4 @@ export const {
  * The SVG elements, for icons and the home page's illustrations, which need
  * their namespace. `svgText` is SVG's `text`.
  */
-export const { path, rect, svg, text: svgText } = van.tags("http://www.w3.org/2000/svg");
+export const { g, path, rect, svg, text: svgText } = van.tags("http://www.w3.org/2000/svg");

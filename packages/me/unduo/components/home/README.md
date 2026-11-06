@@ -9,7 +9,7 @@ Under the hero (`home-landing.ts`):
 - **Get Started**, a button at the bottom that jumps straight back up to the search, without smooth scrolling, focuses it and opens its list.
 
 1. **Download**: download `<institution name>.html` from `./files/<WHED number>`, but don't open it yet: the next step says how to audit it yourself (or with AI).
-2. **Verify**: drag the file into an AI and copy the prompt.
+2. **Verify**: drag the file into an AI and copy the prompt. A tab group picks the AI (ChatGPT, selected first, Claude, Gemini or Other), and the dialog widens from 900 px for a drawing beside the text: a browser with its Downloads panel open over that AI's start page, the file dragged into its message box (`dragArt()` in `how-art.ts`, animated unless motion is reduced). Under the prompt, Copy prompt and a link that opens the chosen AI; Other has no link and says "your favorite AI".
 3. **Continue**: open the file once the AI gives the thumbs up. It has its own stepper from there. The page's closing advice follows.
 
 `?university=` holds the institution whose dialog is open, as an id or an unambiguous name, and `#step=` the step, so Back, Forward, reload and shared links work. A link with an institution but no step opens the download step, and closing the dialog drops both from the address. An unpublished institution opens no dialog. Step names from earlier versions of the page (`university`, `overview`, `check`, `open`, `safe`) still lead to their new steps.
