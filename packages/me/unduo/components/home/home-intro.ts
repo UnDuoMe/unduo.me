@@ -21,7 +21,7 @@ export const steps = [
   "Scan this 2FA QR Code with your favorite 2FA app.",
 ];
 
-/** The page's name, what it's for, and why it can be trusted. */
+/** The page's name, what it's for, and that it's built to be secure. */
 export function homeHeader() {
   return header(
     { class: "home-header" },
@@ -34,12 +34,19 @@ export function homeHeader() {
       em("any"),
       " 2FA app for your school login.",
     ),
-    div(
+    p(
       { class: "home-subtext" },
-      p("UnDuo is a single-file webpage designed to be fully secure."),
-      p(strong("Don't take our word for it."), " You'll be able to check for yourself."),
-      p("Select your university below to get started:"),
+      "UnDuo is a secure, single file that you can audit and use locally.",
     ),
+  );
+}
+
+/** Where a student starts: a card holding the line that says so and the search for their university. */
+export function homeStart(picker: HTMLElement) {
+  return div(
+    { class: "home-start" },
+    p({ class: "home-start-text" }, "Select your university below to get started:"),
+    picker,
   );
 }
 

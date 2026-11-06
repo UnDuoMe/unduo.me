@@ -952,22 +952,23 @@ describe.runIf(enabled)("browser", { timeout: 180_000 }, () => {
     );
     expect(evaluate("document.querySelector('.home-tagline strong').textContent")).toBe("secure");
     expect(evaluate("document.querySelector('.home-tagline em').textContent")).toBe("any");
-    expect(
-      evaluate("[...document.querySelectorAll('.home-subtext p')].map((line) => line.textContent)"),
-    ).toEqual([
-      "UnDuo is a single-file webpage designed to be fully secure.",
-      "Don't take our word for it. You'll be able to check for yourself.",
-      "Select your university below to get started:",
-    ]);
-    expect(evaluate("document.querySelector('.home-subtext strong').textContent")).toBe(
-      "Don't take our word for it.",
+    expect(evaluate("document.querySelector('.home-subtext').textContent")).toBe(
+      "UnDuo is a secure, single file that you can audit and use locally.",
     );
+    expect(
+      evaluate(
+        "[document.querySelector('.home-start-text').textContent, !!document.querySelector('.home-start #university')]",
+      ),
+      "The search is in a card of its own, under the line that says to start there",
+    ).toEqual(["Select your university below to get started:", true]);
     expect(
       evaluate(
         "[...document.querySelectorAll('.home-hero input, .home-hero button, .home-hero a')].map((field) => [field.id, field.getAttribute('role'), field.placeholder, field.labels[0].textContent])",
       ),
       "The hero shows one search field",
-    ).toEqual([["university", "combobox", "Select Your University", "Select Your University"]]);
+    ).toEqual([
+      ["university", "combobox", "Search for your university...", "Select Your University"],
+    ]);
     expect(
       evaluate(
         "[...document.querySelectorAll('footer a')].map(({ href, ariaLabel, textContent }) => [href, ariaLabel ?? textContent])",
@@ -998,7 +999,7 @@ describe.runIf(enabled)("browser", { timeout: 180_000 }, () => {
       ["Gemini", "Safe: yes", 1],
     ]);
     expect(evaluate("document.querySelector('#ai-replies-title').textContent")).toBe(
-      "Safe, but don't take our word for it.",
+      "Fully safe, but don't take our word for it.",
     );
     // Each card holds the whole reply, cut short until its chevron opens it in a box that scrolls.
     expect(
@@ -1043,10 +1044,11 @@ describe.runIf(enabled)("browser", { timeout: 180_000 }, () => {
     // Jump to the bottom at once, so the button's smooth scroll doesn't overlap another.
     evaluate("document.querySelector('footer').scrollIntoView({ behavior: 'instant' })");
     evaluate("document.querySelector('.cta-button').click()");
+    // Wait until the smooth scroll stops with the field in view, so the click below lands on it.
     browser(
       "wait",
       "--fn",
-      "(({ top, bottom }) => top >= 0 && bottom <= innerHeight)(document.querySelector('#university').getBoundingClientRect())",
+      "(() => { const { top, bottom } = document.querySelector('#university').getBoundingClientRect(); const still = globalThis.lastScrollY === scrollY; globalThis.lastScrollY = scrollY; return still && top >= 0 && bottom <= innerHeight; })()",
     );
     expect(focused()).toBe("university");
     expect(dropdownOpen()).toBe(false);

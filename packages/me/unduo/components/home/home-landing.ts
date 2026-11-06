@@ -190,7 +190,7 @@ export function aiTestimonials() {
       { class: "section-intro" },
       h2(
         { class: "section-title", id: "ai-replies-title" },
-        "Safe, but don't take our word for it.",
+        "Fully safe, but don't take our word for it.",
       ),
       p(
         { class: "section-lead" },

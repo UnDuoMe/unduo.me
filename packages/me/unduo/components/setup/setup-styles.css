@@ -383,10 +383,14 @@ summary {
     @apply text-lg! leading-[1.4]! text-balance! text-muted! min-[641px]:text-xl! [&_strong]:font-semibold! [&_strong]:text-foreground! [&_em]:text-inherit! [&_em]:italic!;
   }
   .home-subtext {
-    @apply mt-3! grid! max-w-lg! gap-2! text-sm! leading-[1.6]! text-balance! text-muted! min-[641px]:text-[0.9375rem]! [&_strong]:font-semibold! [&_strong]:text-foreground!;
+    @apply mt-3! max-w-lg! text-sm! leading-[1.6]! text-balance! text-muted! min-[641px]:text-[0.9375rem]!;
   }
-  .home-main {
-    @apply mt-5! flex! w-full! justify-center!;
+  /* Where a student starts: the line that says so and the search, in a card of their own. */
+  .home-start {
+    @apply mt-8! flex! w-full! max-w-lg! flex-col! items-center! gap-4! rounded-2xl! border! border-separator! bg-white! p-5! shadow-[0_1px_2px_rgb(15_23_42/0.04),0_12px_32px_-12px_rgb(15_23_42/0.12)]! min-[641px]:p-6! [&_.picker]:max-w-none!;
+  }
+  .home-start-text {
+    @apply text-base! font-medium! text-foreground!;
   }
   .home-footer {
     @apply flex! flex-wrap! items-center! justify-center! gap-x-4! gap-y-2! border-t! border-separator! px-4! py-8!;

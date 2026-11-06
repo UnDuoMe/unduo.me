@@ -41,7 +41,7 @@ export function universityPicker(choose: (school: University) => void) {
     class: "picker-input",
     type: "text",
     role: "combobox",
-    placeholder: "Select Your University",
+    placeholder: "Search for your university...",
     autocomplete: "off",
     spellcheck: false,
     "aria-autocomplete": "list",

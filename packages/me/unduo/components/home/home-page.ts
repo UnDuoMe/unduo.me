@@ -2,7 +2,7 @@ import { universityPicker } from "@-/me.unduo.components.university-picker";
 import type { University } from "@-/me.unduo.data.universities.entities";
 import { button, dialog, div, h2, main, p, path, section, svg } from "@-/me.unduo.lib.dom";
 import { findUniversity } from "@-/me.unduo.lib.universities";
-import { homeFooter, homeHeader, overviewStep } from "#home-intro";
+import { homeFooter, homeHeader, homeStart, overviewStep } from "#home-intro";
 import { aiTestimonials, getStarted, howItWorks } from "#home-landing";
 import { continueStep, verifyStep } from "#home-steps";
 
@@ -157,11 +157,7 @@ export function startHomePage() {
         { class: "home-landing" },
         section(
           { class: "home-hero" },
-          div(
-            { class: "home-center" },
-            homeHeader(),
-            div({ class: "home-main" }, universityPicker(choose)),
-          ),
+          div({ class: "home-center" }, homeHeader(), homeStart(universityPicker(choose))),
         ),
         aiTestimonials(),
         howItWorks(),
