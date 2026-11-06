@@ -11,6 +11,7 @@ use serde_json::{Map, Value};
 #[derive(Clone, Copy, Debug, PartialEq, Serialize, Deserialize)]
 #[serde(rename_all = "lowercase")]
 pub enum Step {
+    Authenticate,
     Qr,
     Activate,
     Add,
@@ -47,6 +48,7 @@ pub struct Session {
 /// Keep only valid public fields from untrusted input.
 pub fn validate_search(data: &Map<String, Value>) -> Search {
     let step = match data.get("step").and_then(Value::as_str) {
+        Some("authenticate") => Some(Step::Authenticate),
         Some("qr") => Some(Step::Qr),
         Some("activate") => Some(Step::Activate),
         Some("add") => Some(Step::Add),

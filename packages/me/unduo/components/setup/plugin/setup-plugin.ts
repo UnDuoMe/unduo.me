@@ -79,11 +79,18 @@ const maxOutput = 1_048_576;
 export const pageTexts = {
   titles: [
     "Open your Duo device portal",
+    "Authenticate with Duo",
     "Copy the activation QR code",
     "Activate with Duo",
     "Add it to your authenticator",
   ],
-  labels: ["Open portal", "Copy QR code", "Activate with Duo", "Add to authenticator"],
+  labels: [
+    "Open portal",
+    "Authenticate with Duo",
+    "Copy QR code",
+    "Activate with Duo",
+    "Add to authenticator",
+  ],
   messages: [
     "That isn't a Duo activation code. Copy the QR code from your Duo portal's “Add a device” screen.",
     "The activation code contains an invalid Duo host.",
@@ -112,7 +119,7 @@ export const pageTexts = {
   hiddenKey: "•••• •••• •••• •••• •••• ••••",
 };
 /** A step's place for screen readers, as `crates/setup` writes it. */
-const stepDescription = /^, step [1-4] of 4, (?:current step|done|not started)$/;
+const stepDescription = /^, step [1-5] of 5, (?:current step|done|not started)$/;
 /**
  * Duo's refusal, with the reason and error code from its reply, both of which
  * must appear in pasted text.
@@ -175,7 +182,7 @@ const shape =
       fields[key]!((value as Record<string, unknown>)[key], at(path, key));
   };
 
-const step = range(0, 3);
+const step = range(0, 4);
 const ticket = range(0, 2 ** 32 - 1);
 
 /** The closed list of effects, by `type`; see `SetupEffect`. */
@@ -231,7 +238,7 @@ const View = shape({
       reachable: boolean,
       description: text(stepDescription),
     }),
-    4,
+    5,
     5,
   ),
   value: text(),

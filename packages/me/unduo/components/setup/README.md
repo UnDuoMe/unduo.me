@@ -7,28 +7,32 @@ already done) and, on the last step, **Start over**. Browser Back and Forward
 move between steps too, and focus moves to the opened step's heading.
 
 It runs only from a file on the student's computer; the home page offers the download. It has
-four steps:
+five steps:
 
 1. **Open your Duo device portal** (`portalStep`). The institution's verified
    portal when known, then an example of what Duo shows once you're signed in
    in a narrow and a wide window (`setup-0-signed-in-narrow.webp` and
    `setup-0-signed-in-wide.webp`, blurred except for the school's logo and the
    Settings button): press **Continue** when you see a page like it.
-2. **Copy the activation QR code** (`linkStep`). How to add a device, optional
+2. **Authenticate with Duo** (`authenticateStep`). Authenticate as usual, with a
+   passcode or a push, and press **Continue** on Duo's My Settings & Devices page,
+   shown in `setup-0-settings-devices.webp` (blurred except for the school's logo
+   and the page's heading).
+3. **Copy the activation QR code** (`linkStep`). How to add a device, optional
    example screenshots, and one input. Anything pasted anywhere on the page
    (from the portal step too) is routed by the
    setup plugin: a copied QR image (its `<img src>` is preferred when present),
    an image address, a `duo://` or activation link, or even Duo's reply. Dropped
    and uploaded screenshots and **Scan my screen** use the same path. Problems
    with the input are shown on this step.
-3. **Activate with Duo.** A native form submits directly to Duo, into a sandboxed
+4. **Activate with Duo.** A native form submits directly to Duo, into a sandboxed
    frame on the page, so the address that holds the code stays out of browser
    history. The reply is pasted across; Duo errors explain whether a new QR code
    is needed. If the frame stays empty, the user can activate again or choose the
    second button, which opens the reply in a new tab and says that history keeps
    that address. **Use a new QR code** clears
-   the used code and returns to step 2.
-4. **Add it to your authenticator.** The authenticator result template shows the QR,
+   the used code and returns to step 3.
+5. **Add it to your authenticator.** The authenticator result template shows the QR,
    key and copy actions, defaulting to counter-based (HOTP) codes.
 
 ## Usage

@@ -1,4 +1,4 @@
-//! The setup flow as a state machine of four steps. The plugin keeps the model in
+//! The setup flow as a state machine of five steps. The plugin keeps the model in
 //! its own memory between calls: the host sends browser events, renders the
 //! returned view and performs the returned effects.
 
@@ -12,11 +12,13 @@ use serde_json::{Value, json};
 
 /// Step indexes.
 const PORTAL: usize = 0;
-const QR: usize = 1;
-const ACTIVATE: usize = 2;
-const ADD: usize = 3;
-const STEPS: [(&str, &str); 4] = [
+const AUTHENTICATE: usize = 1;
+const QR: usize = 2;
+const ACTIVATE: usize = 3;
+const ADD: usize = 4;
+const STEPS: [(&str, &str); 5] = [
     ("Open portal", "Open your Duo device portal"),
+    ("Authenticate with Duo", "Authenticate with Duo"),
     ("Copy QR code", "Copy the activation QR code"),
     ("Activate with Duo", "Activate with Duo"),
     ("Add to authenticator", "Add it to your authenticator"),
@@ -262,6 +264,7 @@ fn current_step(model: &Model) -> usize {
         Some(Step::Add) if session.account.is_some() => ADD,
         Some(Step::Activate | Step::Add) if session.value.is_some() => ACTIVATE,
         Some(Step::Qr) => QR,
+        Some(Step::Authenticate) => AUTHENTICATE,
         _ => PORTAL,
     }
 }
@@ -269,6 +272,7 @@ fn current_step(model: &Model) -> usize {
 /// The hash's step for `step`. The first step has none.
 fn step_param(step: usize) -> Option<Step> {
     match step {
+        AUTHENTICATE => Some(Step::Authenticate),
         QR => Some(Step::Qr),
         ACTIVATE => Some(Step::Activate),
         ADD.. => Some(Step::Add),
@@ -673,6 +677,7 @@ fn view(model: &Model) -> View {
     let has_code = session.value.is_some() || session.account.is_some();
     let finished = [
         current > PORTAL || has_code,
+        current > AUTHENTICATE || has_code,
         has_code,
         session.account.is_some(),
         session.account.is_some(),
@@ -802,7 +807,7 @@ mod tests {
     fn walks_through_the_whole_flow() {
         let (mut model, loaded) = load("", "");
         assert_eq!(loaded.view.current, PORTAL);
-        assert_eq!(loaded.view.progress.len(), 4);
+        assert_eq!(loaded.view.progress.len(), 5);
         assert_eq!(loaded.view.progress[0].number, 1);
         assert_eq!(loaded.view.shortcut, "⌘");
         assert!(loaded.view.can_scan);
@@ -953,6 +958,7 @@ mod tests {
         let ahead = send(&mut model, json!({ "type": "goTo", "step": ADD }));
         assert_eq!(ahead.view.current, PORTAL);
         assert_eq!(load("#/?step=qr", "").1.view.current, QR);
+        assert_eq!(load("#step=authenticate", "").1.view.current, AUTHENTICATE);
         let (_, portal) = load("#step=portal", "");
         assert_eq!(portal.view.current, PORTAL);
         let (_, windows) = {
@@ -1157,7 +1163,7 @@ mod tests {
         let id = model.copy_id - 1;
         let early = send(&mut model, json!({ "type": "copyDone", "id": id }));
         assert_eq!(early.view.copied, "key");
-        let back = send(&mut model, json!({ "type": "startOver", "step": 1 }));
+        let back = send(&mut model, json!({ "type": "startOver", "step": QR }));
         assert_eq!(back.view.copied, "");
         assert!(!model.revealed);
     }

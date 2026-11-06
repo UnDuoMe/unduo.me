@@ -170,7 +170,7 @@ export function activateStep(page: SetupPage) {
             type: "button",
             class: primary,
             hidden: () => !view.val.problem?.needsNewCode,
-            onclick: () => send({ type: "startOver", step: 1 }),
+            onclick: () => send({ type: "startOver", step: 2 }),
           },
           "Use a new QR code",
         ),

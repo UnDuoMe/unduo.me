@@ -54,13 +54,13 @@ function schoolPortal({ view, copy, popup }: SetupPage, name: string, portalUrl:
   ];
 }
 
-/** What Duo shows once the student is signed in, narrow and wide, copied from the page's `<template>`, which holds their URLs and pins. */
-function signedInExample({ screenshot }: SetupPage) {
-  const example = (
-    document.getElementById("portal-signed-in") as HTMLTemplateElement
-  ).content.cloneNode(true) as DocumentFragment;
-  example.querySelectorAll("img").forEach(screenshot);
-  return example;
+/** Example screenshots, copied from the page's `<template>` with this `id`, which holds their URLs and pins. */
+function examples(id: string, { screenshot }: SetupPage) {
+  const copy = (document.getElementById(id) as HTMLTemplateElement).content.cloneNode(
+    true,
+  ) as DocumentFragment;
+  copy.querySelectorAll("img").forEach(screenshot);
+  return copy;
 }
 
 /**
@@ -71,7 +71,7 @@ export function portalStep(school: SetupSchool, page: SetupPage) {
   return div(
     p(
       { class: "intro" },
-      "Sign in to your organization's Duo device portal, where you manage the phones and tablets on your account. You'll add unduo there as a new device next.",
+      "Sign in to your organization's Duo device portal, where you manage the phones and tablets on your account. You'll add unduo there as a new device.",
     ),
     div(
       { class: "school-card" },
@@ -93,6 +93,25 @@ export function portalStep(school: SetupSchool, page: SetupPage) {
       ),
     ),
     p({ class: "signed-in-text" }, "Press ", strong("Continue"), " when you see a page like this:"),
-    div({ class: "signed-in-example" }, signedInExample(page)),
+    div({ class: "signed-in-example" }, examples("portal-signed-in", page)),
+  );
+}
+
+/** The step where the student authenticates with Duo as usual, until it shows My Settings & Devices. */
+export function authenticateStep(page: SetupPage) {
+  return div(
+    p(
+      { class: "intro" },
+      "Authenticate with Duo as you normally would, with either a passcode or a push.",
+    ),
+    p(
+      { class: "signed-in-text" },
+      "Press ",
+      strong("Continue"),
+      " once you land on the ",
+      strong("My Settings & Devices"),
+      " page:",
+    ),
+    div({ class: "signed-in-example" }, examples("portal-settings", page)),
   );
 }

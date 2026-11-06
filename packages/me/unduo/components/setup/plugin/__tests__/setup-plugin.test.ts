@@ -45,17 +45,21 @@ const fields = (pubkey: string) => [
   }).map(([name, value]) => ({ name, value })),
 ];
 const progress = () =>
-  ["Open portal", "Copy QR code", "Activate with Duo", "Add to authenticator"].map(
-    (label, index) => ({
-      index,
-      number: index + 1,
-      label,
-      state: index ? "upcoming" : "active",
-      finished: false,
-      reachable: !index,
-      description: `, step ${index + 1} of 4, ${index ? "not started" : "current step"}`,
-    }),
-  );
+  [
+    "Open portal",
+    "Authenticate with Duo",
+    "Copy QR code",
+    "Activate with Duo",
+    "Add to authenticator",
+  ].map((label, index) => ({
+    index,
+    number: index + 1,
+    label,
+    state: index ? "upcoming" : "active",
+    finished: false,
+    reachable: !index,
+    description: `, step ${index + 1} of 5, ${index ? "not started" : "current step"}`,
+  }));
 /** An honest view of the first step, with `extra` fields replaced. */
 const view = (extra = {}) => ({
   current: 0,
@@ -349,7 +353,7 @@ test("accepts nothing outside the schema", async () => {
     { ...output(), extra: 1 },
     output({ html: "<img src=x onerror=alert(1)>" }),
     output({ title: 1 }),
-    output({ current: 4 }),
+    output({ current: 5 }),
     output({ current: 1.5 }),
     output({ furthest: -1 }),
     output({ linkBusy: "evil" }),
@@ -401,8 +405,8 @@ test("passes every output of the real plugin through a whole setup", async () =>
     platform: "MacIntel",
     scan: true,
   });
-  expect(loaded.view.progress).toHaveLength(4);
-  await send({ type: "goTo", step: 1 });
+  expect(loaded.view.progress).toHaveLength(5);
+  await send({ type: "goTo", step: 2 });
   const image = await send({ type: "input", image: true });
   await decoded(ticketOf(image.effects, "readImage"), ["https://example.com/"]);
   await send({ type: "scanStarted" });

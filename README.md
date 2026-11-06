@@ -17,26 +17,28 @@ run the same steps yourself [in a terminal](#in-a-terminal).
 Go to **[unduo.me](https://unduo.me)** and follow its steps: select your university,
 download its file, `<school name>.html`, without running it, then drag it into your
 favorite AI with the prompt the page gives you. Once the AI gives the thumbs up, double
-click the file for a four-step guided setup with its own stepper. Setup runs only from
+click the file for a five-step guided setup with its own stepper. Setup runs only from
 that file, never on the website: students shouldn't get used to doing something
 this sensitive through a website, so the site serves the file as a download and
 has no page that runs it.
 
-1. **Open your Duo device portal.** Sign in where you manage your Duo devices,
-   often linked from a Duo prompt under _Other options_ → _Manage devices_.
-   Your university's file links to its verified enrollment portal if it has one.
-2. **Copy the activation QR code.** In the portal, add a device
+1. **Open your Duo device portal.** Sign in where you manage your Duo devices.
+   Your university's file links to its verified enrollment portal if it has one,
+   and shows what Duo's prompt looks like once you're signed in.
+2. **Authenticate with Duo.** Use a passcode or a push as you normally would,
+   until you land on Duo's _My Settings & Devices_ page.
+3. **Copy the activation QR code.** In the portal, add a device
    (Tablet → Android → _I have Duo Mobile installed_), right-click the QR code,
    choose **Copy Image**, and press <kbd>⌘V</kbd>/<kbd>Ctrl+V</kbd> anywhere on
    the page. A copied image address, an emailed activation link, a dropped or
    uploaded screenshot, or **Scan my screen** work too.
-3. **Activate with Duo.** Your browser submits the activation directly to Duo,
+4. **Activate with Duo.** Your browser submits the activation directly to Duo,
    and its reply shows in a box on the page. Select all, copy, and paste it into
    the field under the box. If the box doesn't work, a second button opens the
    reply in a new tab, where your browser history keeps the address. Each QR code works
    once; if Duo says the code expired or was used, unduo tells you to make a new
    one.
-4. **Add it to your authenticator.** Scan the QR code with an app that supports
+5. **Add it to your authenticator.** Scan the QR code with an app that supports
    counter-based codes (Google Authenticator, 2FAS, Aegis, FreeOTP), then test a
    passcode on any Duo sign-in. Switch to **Time-based** only if your
    organization uses time-based Duo passcodes.

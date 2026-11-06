@@ -20,6 +20,13 @@ const signedIn = [
   },
 ];
 
+/** Duo's My Settings & Devices page, where signing in lands: blurred, but for the school's logo and the page's heading. */
+const settings = {
+  file: "0-settings-devices",
+  label:
+    "Duo's My Settings & Devices page, blurred except for the school's logo and the page's heading",
+};
+
 const screenshots = [
   { file: "1-add-device", label: "1. Choose “Add another device”" },
   { file: "2-tablet", label: "2. Choose Tablet" },
@@ -30,7 +37,8 @@ const screenshots = [
 
 /**
  * The screenshots' captions and pinned files, in `<template>`s: the signed-in
- * example, which `portalStep` copies, and the enrollment steps, which
+ * examples, which `portalStep` copies, the settings page, which
+ * `authenticateStep` copies, and the enrollment steps, which
  * `portalInstructions` copies. `image` gives the attributes that load each file.
  */
 export function portalScreenshots(image: (file: string) => Record<string, string>) {
@@ -48,8 +56,10 @@ export function portalScreenshots(image: (file: string) => Record<string, string
       <img class="screenshot"${attributes({ ...image(`setup-${file}`), alt: label })}>
     </figure>`,
   );
+  const settingsPage = `<img class="screenshot"${attributes({ ...image(`setup-${settings.file}`), alt: settings.label })}>`;
   return `<template id="portal-signed-in">${examples.join("")}
   </template>
+      <template id="portal-settings">${settingsPage}</template>
       <template id="portal-screenshot-figures">${figures.join("")}
   </template>`;
 }

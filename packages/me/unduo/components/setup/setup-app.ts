@@ -2,7 +2,7 @@ import { authenticatorResult } from "@-/me.unduo.components.result";
 import { activateStep } from "@-/me.unduo.components.setup.activate";
 import { linkStep } from "@-/me.unduo.components.setup.link";
 import type { PluginLimits, SetupPlugin } from "@-/me.unduo.components.setup.plugin";
-import { portalStep } from "@-/me.unduo.components.setup.portal";
+import { authenticateStep, portalStep } from "@-/me.unduo.components.setup.portal";
 import { stepper } from "@-/me.unduo.components.stepper";
 import { button, div, h2, p, section } from "@-/me.unduo.lib.dom";
 import { setupLayout } from "#setup-layout";
@@ -20,12 +20,13 @@ function setupCard(page: SetupPage, school: SetupSchool) {
   const current = van.derive(() => view.val.current);
   const steps = [
     () => portalStep(school, page),
+    () => authenticateStep(page),
     () => linkStep(page),
     () => "",
     () => authenticatorResult(page),
   ];
   const activation = van.derive(
-    () => view.val.current === 2 || (page.activated.val && view.val.current < 2),
+    () => view.val.current === 3 || (page.activated.val && view.val.current < 3),
   );
   return div(
     stepper({
@@ -49,7 +50,7 @@ function setupCard(page: SetupPage, school: SetupSchool) {
         // Removing a frame discards what it shows, so once Duo's reply may be in its frame,
         // this step stays in the page, hidden, through earlier steps.
         () =>
-          activation.val ? div({ hidden: () => view.val.current !== 2 }, activateStep(page)) : "",
+          activation.val ? div({ hidden: () => view.val.current !== 3 }, activateStep(page)) : "",
         div(
           { class: "step-nav" },
           button(
@@ -65,7 +66,7 @@ function setupCard(page: SetupPage, school: SetupSchool) {
             {
               type: "button",
               class: "uk-button uk-button-text btn at-end",
-              hidden: () => view.val.current !== 3,
+              hidden: () => view.val.current !== 4,
               onclick: () => send({ type: "startOver", step: 0 }),
             },
             "Start over",
@@ -74,10 +75,10 @@ function setupCard(page: SetupPage, school: SetupSchool) {
             {
               type: "button",
               class: primary,
-              hidden: () => !(view.val.current < 3 && view.val.furthest > view.val.current),
+              hidden: () => !(view.val.current < 4 && view.val.furthest > view.val.current),
               onclick: () => send({ type: "goTo", step: view.val.current + 1 }),
             },
-            van.derive(() => (view.val.current === 0 ? "Continue" : "Next")),
+            van.derive(() => (view.val.current < 2 ? "Continue" : "Next")),
           ),
         ),
       ),

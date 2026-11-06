@@ -91,11 +91,11 @@ export interface DuoRequest {
 /** Display data. The host binds it as text, booleans and classes only, and checks `request` and `account` first. */
 export interface SetupView {
   current: number;
-  /** The furthest reachable step: 2 with an activation in memory, 3 with an account, else 1. */
+  /** The furthest reachable step: 3 with an activation in memory, 4 with an account, else 2. */
   furthest: number;
   title: string;
   progress: SetupProgressStep[];
-  /** The activation value at step 3, or "". */
+  /** The activation value at step 4, or "". */
   value: string;
   request: DuoRequest | null;
   submitted: boolean;

@@ -206,7 +206,7 @@ describe("the scenarios of crates/setup's tests", () => {
   test("walks through the whole flow", async () => {
     const { send, effect } = await trackedPage();
     send(load());
-    send({ type: "goTo", step: 1 });
+    send({ type: "goTo", step: 2 });
     send({ type: "input", text: LINK });
     send({ type: "prepared", value: VALUE, ok: true });
     send({ type: "submitted", value: VALUE });
@@ -214,14 +214,14 @@ describe("the scenarios of crates/setup's tests", () => {
     send({ type: "input", text: `${"-".repeat(65_536)}x` });
     send({ type: "input", text: "-".repeat(65_536) });
     const done = send({ type: "input", text: reply });
-    expect(done!.view.current).toBe(3);
+    expect(done!.view.current).toBe(4);
     send({ type: "reveal" });
     send({ type: "copied", kind: "uri" });
     send((effect("later") as { event: Record<string, unknown> }).event);
     send({ type: "changeType", codeType: "totp" });
     send({ type: "changeType", codeType: "hotp" });
     send({ type: "changeType", codeType: "TOTP" });
-    send({ type: "startOver", step: 1 });
+    send({ type: "startOver", step: 2 });
   });
 
   test("keeps the session in memory", async () => {
@@ -250,7 +250,7 @@ describe("the scenarios of crates/setup's tests", () => {
     ]) {
       const { send } = await trackedPage();
       send(load(hash, legacy));
-      send({ type: "goTo", step: 3 });
+      send({ type: "goTo", step: 4 });
       send({ type: "goTo", step: 0 });
     }
     for (const platform of ["Win32", "MacIntel", "iPhone", "IPAD", "Linux x86_64", "", "macOS"]) {
@@ -283,7 +283,7 @@ describe("the scenarios of crates/setup's tests", () => {
     send({ type: "input", text: "https://example.com" });
     send({ type: "editLink" });
     send({ type: "input", text: "https://example.com" });
-    send({ type: "goTo", step: 1 });
+    send({ type: "goTo", step: 2 });
     send({ type: "input", text: "https://example.com" });
     send({ type: "input", text: reply });
     send({ type: "input", text: LINK });
@@ -340,12 +340,12 @@ describe("the scenarios of crates/setup's tests", () => {
     const { send } = await trackedPage();
     send(load());
     send({ type: "copied", kind: "portal" });
-    send({ type: "goTo", step: 1 });
+    send({ type: "goTo", step: 2 });
     send({ type: "navigate", hash: "" });
     send({ type: "goTo", step: 0 });
     const reloaded = await activated("#step=activate&type=totp");
     reloaded.send({ type: "input", text: reply });
-    reloaded.send({ type: "startOver", step: 1 });
+    reloaded.send({ type: "startOver", step: 2 });
     reloaded.send({ type: "startOver", step: 0 });
   });
 
@@ -361,13 +361,13 @@ describe("the scenarios of crates/setup's tests", () => {
     send({ type: "copyDone", id: first + 1 });
     send({ type: "reveal" });
     send({ type: "reveal" });
-    send({ type: "startOver", step: 1 });
+    send({ type: "startOver", step: 2 });
   });
 
   test("navigates by step number, including numbers past the last step", async () => {
     const { send } = await activated("#step=qr");
-    for (const step of [0, 1, 2, 3, 4, 5, 99, 4_294_967_295, 3, 0]) send({ type: "goTo", step });
-    for (const step of [0, 1, 2, 3, 4, 7]) send({ type: "startOver", step });
+    for (const step of [0, 1, 2, 3, 4, 5, 6, 99, 4_294_967_295, 3, 0]) send({ type: "goTo", step });
+    for (const step of [0, 1, 2, 3, 4, 5, 7]) send({ type: "startOver", step });
   });
 });
 
@@ -1149,8 +1149,8 @@ describe("loadJsSetupPlugin", () => {
       platform: "MacIntel",
       scan: true,
     });
-    expect(loaded.view.progress).toHaveLength(4);
-    await send({ type: "goTo", step: 1 });
+    expect(loaded.view.progress).toHaveLength(5);
+    await send({ type: "goTo", step: 2 });
     const image = await send({ type: "input", image: true });
     const found = await send({
       type: "decoded",

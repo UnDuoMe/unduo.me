@@ -162,6 +162,8 @@ async function toQrStep(context: BrowserContext, path: string) {
   await signIn(portal);
   await approveWithExistingDevice(portal);
   await setup.getByRole("button", { name: "Continue", exact: true }).click();
+  await expect(stepTitle(setup)).toHaveText("Authenticate with Duo");
+  await setup.getByRole("button", { name: "Continue", exact: true }).click();
   await expect(stepTitle(setup)).toHaveText("Copy the activation QR code");
   const names = await namesIn(setup.locator(".instructions li").first());
   const code = await addDevice(duoFrame(portal), names);
@@ -284,7 +286,7 @@ test("from a blank browser to a passcode that signs in", async ({
   await instruction("file 1. open the Duo portal and sign in", setup, async () => {
     expect(new URL(setup.url()).protocol).toBe("file:");
     await expect(setup.locator("main p").first()).toHaveText(school);
-    await expect(setup.locator("#setup-progress li")).toHaveCount(4);
+    await expect(setup.locator("#setup-progress li")).toHaveCount(5);
     await expect(setup.locator("#portal-url")).toHaveValue(portalUrl);
     await setup.getByRole("button", { name: "Copy", exact: true }).click();
     await expect(setup.getByRole("button", { name: "Copied", exact: true })).toBeVisible();
@@ -293,13 +295,26 @@ test("from a blank browser to a passcode that signs in", async ({
     await setup.bringToFront();
     portal = await openPortal(context, setup);
     await signIn(portal);
-    await approveWithExistingDevice(portal);
     await setup.bringToFront();
     await setup.getByRole("button", { name: "Continue", exact: true }).click();
-    await expect(stepTitle(setup)).toHaveText("Copy the activation QR code");
+    await expect(stepTitle(setup)).toHaveText("Authenticate with Duo");
   });
 
-  await instruction("file 2. add a device and copy its QR code", setup, async () => {
+  await instruction(
+    "file 2. authenticate with Duo until My Settings & Devices",
+    setup,
+    async () => {
+      await expect(
+        setup.getByText("Press Continue once you land on the My Settings & Devices page:"),
+      ).toBeVisible();
+      await approveWithExistingDevice(portal!);
+      await setup.bringToFront();
+      await setup.getByRole("button", { name: "Continue", exact: true }).click();
+      await expect(stepTitle(setup)).toHaveText("Copy the activation QR code");
+    },
+  );
+
+  await instruction("file 3. add a device and copy its QR code", setup, async () => {
     const steps = setup.locator(".instructions li");
     const add = await namesIn(steps.first());
     expect(add).toEqual(["Tablet", "Android", "I have Duo Mobile installed"]);
@@ -325,7 +340,7 @@ test("from a blank browser to a passcode that signs in", async ({
 
   const { code, secret } = duo.activations.at(-1)!;
 
-  await instruction("file 3. activate with Duo and copy its reply", setup, async () => {
+  await instruction("file 4. activate with Duo and copy its reply", setup, async () => {
     await expect(setup.getByText(`Sent straight from your browser to ${duoHost}.`)).toBeVisible();
     const form = setup.locator('form[target="duo-reply"]');
     const named = await form
@@ -358,7 +373,7 @@ test("from a blank browser to a passcode that signs in", async ({
 
   let counterLink = "";
 
-  await instruction("file 4. scan the code with an authenticator", setup, async () => {
+  await instruction("file 5. scan the code with an authenticator", setup, async () => {
     await expect(setup.getByText(`Duo account for ${school}`)).toBeVisible();
     const qr = setup.locator(".qr-image");
     counterLink = await scanQrCode(qr);
@@ -402,7 +417,7 @@ test("from a blank browser to a passcode that signs in", async ({
     await expect.poll(() => scanQrCode(qr)).toBe(counterLink);
   });
 
-  await instruction("file 4. then test it: a passcode signs in", portal!, async () => {
+  await instruction("file 5. then test it: a passcode signs in", portal!, async () => {
     const choices = await namesIn(setup.locator(".next-test"));
     const key = readOtpauth(counterLink).secret;
     const frame = duoFrame(portal);

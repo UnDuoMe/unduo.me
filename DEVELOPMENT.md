@@ -124,9 +124,9 @@ the activation code:
 
 ## Client-side activation
 
-The page is four steps: open the Duo device portal, copy the QR code, activate,
-and add the result to an authenticator. Hosted institution pages add a first
-step that offers the page as a file to check with an AI and open instead. The flow's logic runs in the setup
+The page is five steps: open the Duo device portal, authenticate with Duo until
+it shows My Settings & Devices, copy the QR code, activate, and add the result to
+an authenticator. The flow's logic runs in the setup
 plugin (`crates/setup`), which keeps its state in its own memory; the page's
 JavaScript only performs browser I/O. Each browser event goes to the plugin's
 `update(event)`, which returns the view to render and a closed list of

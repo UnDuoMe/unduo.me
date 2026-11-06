@@ -110,7 +110,7 @@ function expectLoadsNothingByUrl(document: string) {
   if (document.includes('aria-label="Duo portal example screenshots"'))
     expect(
       images.map(([, data]) => sri(Buffer.from(data!, "base64"))).sort(),
-      "The seven portal screenshots, as published",
+      "The eight portal screenshots, as published",
     ).toEqual(
       publishedFiles
         .filter((name) => name.endsWith(".webp"))
@@ -133,7 +133,7 @@ function expectPinned(document: string) {
     const screenshots = [
       ...document.matchAll(/\bdata-image-src="([^"]+)" data-image-integrity="([^"]+)"/g),
     ];
-    expect(screenshots, "The seven portal screenshots").toHaveLength(7);
+    expect(screenshots, "The eight portal screenshots").toHaveLength(8);
     for (const [, url, integrity] of screenshots)
       expect(integrity, url).toBe(assets.files[url!.slice(assets.base.length)]);
     expect(
@@ -158,7 +158,7 @@ function expectPinned(document: string) {
     const screenshots = [
       ...document.matchAll(/\bdata-image-src="([^"]+)" data-image-integrity="([^"]+)"/g),
     ];
-    expect(screenshots, "The seven portal screenshots").toHaveLength(7);
+    expect(screenshots, "The eight portal screenshots").toHaveLength(8);
     for (const [, url, integrity] of screenshots)
       expect(integrity, url).toBe(assets.files[url!.slice(assets.base.length)]);
     const fetched = [pluginUrl, ...screenshots.map(([, url]) => url!).sort()];
@@ -637,7 +637,7 @@ describe.runIf(enabled)("browser", { timeout: 180_000 }, () => {
     expect(evaluate("location.hash")).toBe("");
     const entries = evaluate("history.length");
     expect(evaluate("!!document.querySelector('a[download]')")).toBe(false);
-    expect(evaluate("document.querySelectorAll('#setup-progress li').length")).toBe(4);
+    expect(evaluate("document.querySelectorAll('#setup-progress li').length")).toBe(5);
     expect(
       evaluate("!!document.querySelector('#university')"),
       "Setup has no university picker",
@@ -740,6 +740,26 @@ describe.runIf(enabled)("browser", { timeout: 180_000 }, () => {
     );
 
     click("button", "Continue");
+
+    // 2: authenticate as usual until Duo shows My Settings & Devices, as the blurred example shows.
+    waitForHeading("Authenticate with Duo");
+    expect(evaluate("document.querySelector('#setup-card .intro').textContent")).toBe(
+      "Authenticate with Duo as you normally would, with either a passcode or a push.",
+    );
+    expect(evaluate("document.querySelector('.signed-in-text').textContent")).toBe(
+      "Press Continue once you land on the My Settings & Devices page:",
+    );
+    browser("wait", "--fn", "document.querySelector('.signed-in-example img')?.naturalWidth > 0");
+    expect(
+      evaluate(
+        "(({ alt, src }) => [alt, src.slice(0, 5)])(document.querySelector('.signed-in-example img'))",
+      ),
+    ).toEqual([
+      "Duo's My Settings & Devices page, blurred except for the school's logo and the page's heading",
+      selfContained ? "data:" : "blob:",
+    ]);
+    browser("wait", "--fn", "document.activeElement.id === 'step-title'");
+    click("button", "Continue");
     waitForHeading("Copy the activation QR code");
     // The page scrolls to the step's title and focuses it a task later; a click aimed before that can miss.
     browser("wait", "--fn", "document.activeElement.id === 'step-title'");
@@ -817,6 +837,9 @@ describe.runIf(enabled)("browser", { timeout: 180_000 }, () => {
     expect(evaluate(query)).toBe("");
     expect(evaluate(guardsLeaving)).toBe(false);
     click("button", "Continue");
+    waitForHeading("Authenticate with Duo");
+    browser("wait", "--fn", "document.activeElement.id === 'step-title'");
+    click("button", "Continue");
     waitForHeading("Copy the activation QR code");
     browser("upload", "input[type=file]", fixture);
     waitForHeading("Activate with Duo");
@@ -887,6 +910,9 @@ describe.runIf(enabled)("browser", { timeout: 180_000 }, () => {
     // Start a fresh page before reusing the synthetic fixture from the first flow.
     browser("reload");
     waitForHeading("Open your Duo device portal");
+    click("button", "Continue");
+    waitForHeading("Authenticate with Duo");
+    browser("wait", "--fn", "document.activeElement.id === 'step-title'");
     click("button", "Continue");
     waitForHeading("Copy the activation QR code");
     browser("upload", "input[type=file]", fixture);
@@ -1312,8 +1338,11 @@ describe.runIf(enabled)("browser", { timeout: 180_000 }, () => {
       evaluate(
         "[...document.querySelectorAll('#setup-progress li [aria-hidden]')].map((n) => n.textContent)",
       ),
-    ).toEqual(["1", "2", "3", "4"]);
+    ).toEqual(["1", "2", "3", "4", "5"]);
     expect(evaluate("location.hash")).toBe("");
+    click("button", "Continue");
+    waitForHeading("Authenticate with Duo");
+    browser("wait", "--fn", "document.activeElement.id === 'step-title'");
     click("button", "Continue");
     waitForHeading("Copy the activation QR code");
     expect(evaluate("location.hash")).toBe("");

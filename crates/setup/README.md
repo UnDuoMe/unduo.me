@@ -1,6 +1,6 @@
 # unduo-setup
 
-The logic of unduo's web setup, four steps, compiled to a WebAssembly
+The logic of unduo's web setup, five steps, compiled to a WebAssembly
 [Extism](https://extism.org) plugin. The page's JavaScript only performs browser
 I/O; everything it shows and every link it builds comes from here. The plugin
 reads the step from the address the page opened with, and nothing writes it. The

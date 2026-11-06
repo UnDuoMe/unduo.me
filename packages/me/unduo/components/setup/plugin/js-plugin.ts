@@ -141,7 +141,7 @@ const field = (value: unknown, key: string) =>
 // ---------------------------------------------------------------------------
 // state.rs: the URL hash holds the step and code type only. The logic only reads it.
 
-type Step = "qr" | "activate" | "add";
+type Step = "authenticate" | "qr" | "activate" | "add";
 
 /** Public navigation fields: the step and whether the code type is `totp`. */
 interface Search {
@@ -183,7 +183,10 @@ function formPairs(query: string): [string, string][] {
 function validateSearch(data: Map<string, string>): Search {
   const step = data.get("step");
   return {
-    step: step === "qr" || step === "activate" || step === "add" ? step : null,
+    step:
+      step === "authenticate" || step === "qr" || step === "activate" || step === "add"
+        ? step
+        : null,
     totp: data.get("type") === "totp",
   };
 }
@@ -723,11 +726,13 @@ function activationRequest(value: string): Result<{ url: string }> {
 
 /** Step indexes. */
 const PORTAL = 0;
-const QR = 1;
-const ACTIVATE = 2;
-const ADD = 3;
+const AUTHENTICATE = 1;
+const QR = 2;
+const ACTIVATE = 3;
+const ADD = 4;
 const steps = [
   ["Open portal", "Open your Duo device portal"],
+  ["Authenticate with Duo", "Authenticate with Duo"],
   ["Copy QR code", "Copy the activation QR code"],
   ["Activate with Duo", "Activate with Duo"],
   ["Add to authenticator", "Add it to your authenticator"],
@@ -1004,11 +1009,13 @@ function currentStep(model: Model) {
   if (step === "add" && session.account) return ADD;
   if ((step === "activate" || step === "add") && session.value !== null) return ACTIVATE;
   if (step === "qr") return QR;
+  if (step === "authenticate") return AUTHENTICATE;
   return PORTAL;
 }
 
 /** The hash's step for `step`. The first step has none. */
 function stepParam(step: number): Step | null {
+  if (step === AUTHENTICATE) return "authenticate";
   if (step === QR) return "qr";
   if (step === ACTIVATE) return "activate";
   if (step >= ADD) return "add";
@@ -1339,6 +1346,7 @@ function view(model: Model) {
   const hasCode = session.value !== null || session.account !== null;
   const finished = [
     current > PORTAL || hasCode,
+    current > AUTHENTICATE || hasCode,
     hasCode,
     session.account !== null,
     session.account !== null,
