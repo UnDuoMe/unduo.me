@@ -238,15 +238,24 @@ test("from a blank browser to a passcode that signs in", async ({
     await home.getByRole("button", { name: "Continue" }).click();
   });
 
-  await instruction("3. verify it with your favorite AI", home, async () => {
+  await instruction("3. copy the prompt to the clipboard", home, async () => {
+    await expect(stepTitle(home)).toHaveText("Copy prompt");
+    await expect(home).toHaveURL(/\?university=.+#step=prompt$/);
+    await expect(
+      home.getByText(`The prompt below validates that ${fileName} is safe to use.`),
+    ).toBeVisible();
+    prompt = await home.getByLabel("Prompt for the AI").inputValue();
+    expect(prompt).toContain("“Safe: yes”");
+    await home.getByRole("button", { name: "Copy prompt to clipboard" }).click();
+    await expect(home.getByRole("button", { name: "Copied" })).toBeVisible();
+    await home.getByRole("button", { name: "Continue" }).click();
+  });
+
+  await instruction("4. verify it with your favorite AI", home, async () => {
     await expect(stepTitle(home)).toHaveText("Verify");
     await expect(home).toHaveURL(/\?university=.+#step=verify$/);
     await expect(home.getByRole("tab", { name: "ChatGPT", selected: true })).toBeVisible();
-    await expect(home.getByText(`Drag and drop ${fileName} into ChatGPT`)).toBeVisible();
-    prompt = await home.getByLabel("Prompt for the AI").inputValue();
-    expect(prompt).toContain("“Safe: yes”");
-    await home.getByRole("button", { name: "Copy prompt" }).click();
-    await expect(home.getByRole("button", { name: "Copied" })).toBeVisible();
+    await expect(home.getByText(`drag ${fileName} into ChatGPT`)).toBeVisible();
 
     for (const [host, name] of Object.entries(assistants)) {
       await home.getByRole("tab", { name }).click();
@@ -272,7 +281,7 @@ test("from a blank browser to a passcode that signs in", async ({
     await chat.close();
   });
 
-  await instruction("4. continue: the home page says to open the file", home, async () => {
+  await instruction("5. continue: the home page says to open the file", home, async () => {
     await home.bringToFront();
     await home.getByRole("button", { name: "Continue" }).click();
     await expect(stepTitle(home)).toHaveText("Continue");

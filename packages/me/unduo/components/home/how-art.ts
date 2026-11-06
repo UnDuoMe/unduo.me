@@ -333,6 +333,53 @@ export function downloadArt(file: string) {
 }
 
 /**
+ * The Copy prompt step's drawing: a click on the copy button under the prompt,
+ * and the prompt on a clipboard, checked. Unless motion is reduced, the
+ * clipboard fills and empties again and again.
+ */
+export function copyArt() {
+  return dialogCanvas(
+    // unduo.me's dialog: the prompt, and the copy button under the pointer.
+    box(24, 48, 220, 200, 14, shadow, { opacity: "0.08" }),
+    box(24, 40, 220, 200, 14, white, { stroke: faint, "stroke-width": "1.5" }),
+    box(40, 58, 80, 7, 3.5, gray),
+    box(40, 74, 188, 96, 8, pale, { stroke: faint, "stroke-width": "1.5" }),
+    box(52, 88, 160, 5, 2.5, line),
+    box(52, 100, 150, 5, 2.5, line),
+    box(52, 112, 164, 5, 2.5, line),
+    box(52, 124, 120, 5, 2.5, line),
+    box(52, 140, 156, 5, 2.5, line),
+    box(52, 152, 100, 5, 2.5, line),
+    box(40, 184, 150, 30, 8, accent),
+    box(50, 191, 10, 15, 2, "none", { stroke: white, "stroke-width": "1.4" }),
+    box(52.5, 189, 5, 4, 1.5, white),
+    box(66, 196, 110, 6, 3, white),
+    pointer(150, 196),
+    // Where the prompt goes: the clipboard.
+    path({
+      d: "M194 196C214 196 230 186 246 176",
+      stroke: accent,
+      "stroke-width": "1.8",
+      "stroke-dasharray": "4 4",
+      ...round,
+    }),
+    path({ d: "M238 176.3L246 176L242.3 183.1", stroke: accent, "stroke-width": "1.8", ...round }),
+    box(252, 104, 92, 130, 12, shadow, { opacity: "0.1" }),
+    box(248, 96, 92, 130, 12, white, { stroke: line, "stroke-width": "1.5" }),
+    box(274, 86, 40, 20, 6, gray),
+    g(
+      { class: "copy-paper" },
+      box(262, 124, 64, 5, 2.5, line),
+      box(262, 136, 56, 5, 2.5, line),
+      box(262, 148, 62, 5, 2.5, line),
+      box(262, 160, 44, 5, 2.5, line),
+      box(303, 197, 28, 28, 14, "#16a34a"),
+      path({ d: "M311 211l4.5 4.5 8-9", stroke: white, "stroke-width": "2.2", ...round }),
+    ),
+  );
+}
+
+/**
  * The Verify step's drawing: a browser with its Downloads panel open over
  * `ai`'s start page, and `file` dragged from the panel into the message box.
  * Unless motion is reduced, the file moves along the dashed path and drops in.

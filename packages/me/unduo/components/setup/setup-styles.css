@@ -572,19 +572,20 @@ summary {
   }
   /* A file's name in a sentence: a badge with a document icon, wrapping like the text around it. */
   .file-badge {
-    @apply rounded-md! border! border-separator! bg-surface-secondary! px-1.5! py-0.5! font-medium! text-foreground! [box-decoration-break:clone]!;
-  }
-  .file-badge-start {
-    @apply whitespace-nowrap!;
+    @apply inline-block! rounded-md! border! border-separator! bg-surface-secondary! px-1.5! py-0.5! leading-tight! font-medium! whitespace-nowrap! text-foreground!;
   }
   .file-badge-icon {
     @apply mr-1! inline-block! h-3.5! w-3! align-[-2px]! text-muted!;
   }
-  /* A link that opens in a new tab, with an icon that says so. */
-  .new-tab {
+  /* What to do if the AI's window doesn't open. UIkit colors em pink. */
+  .fallback-note {
+    @apply mt-3! text-sm! leading-[1.55]! text-muted! [&_em]:text-foreground!;
+  }
+  /* A button or link with an icon beside its label: a clipboard, or an arrow out of a box for a new tab. */
+  .icon-button {
     @apply inline-flex! items-center! gap-1.5!;
   }
-  .new-tab-icon {
+  .button-icon {
     @apply size-3.5! shrink-0!;
   }
   .ai-tabs {
@@ -737,7 +738,8 @@ summary {
 }
 
 /*
- * The Download drawing: the Downloads button pulses and its panel pops up. The
+ * The Copy prompt drawing: the prompt lands on the clipboard. The Download
+ * drawing: the Downloads button pulses and its panel pops up. The
  * Continue drawing: two clicks ripple on the file and its window opens. With
  * reduced motion, all of them hold still, shown.
  */
@@ -754,6 +756,9 @@ summary {
   opacity: 0.6;
 }
 @media (prefers-reduced-motion: no-preference) {
+  .copy-paper {
+    animation: copy-paper 3.6s ease-out infinite;
+  }
   .download-ring {
     animation: download-ring 3.6s ease-out infinite;
   }
@@ -831,5 +836,18 @@ summary {
   100% {
     opacity: 0;
     transform: translateY(0);
+  }
+}
+@keyframes copy-paper {
+  0%,
+  28% {
+    opacity: 0;
+  }
+  38%,
+  88% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
   }
 }

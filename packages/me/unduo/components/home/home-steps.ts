@@ -4,6 +4,7 @@ import {
   button,
   div,
   em,
+  kbd,
   label,
   p,
   path,
@@ -13,7 +14,7 @@ import {
   textarea,
 } from "@-/me.unduo.lib.dom";
 import { aiPrompt } from "#ai-prompt";
-import { type AiChoice, downloadArt, dragArt, openArt } from "#how-art";
+import { type AiChoice, copyArt, downloadArt, dragArt, openArt } from "#how-art";
 
 /** The Verify step's tabs, ChatGPT first and selected; `Other` has no link. */
 const assistants: { id: AiChoice; name: string; href?: string }[] = [
@@ -23,10 +24,32 @@ const assistants: { id: AiChoice; name: string; href?: string }[] = [
   { id: "other", name: "Other" },
 ];
 
-/** An arrow out of a box: the link opens in a new tab. */
+/** The keys that open a new browser window: ⌘N on Apple devices, Ctrl+N elsewhere. */
+const newWindowKeys = () => [
+  kbd({ class: "key" }, /Mac|iPhone|iPad/.test(navigator.platform) ? "⌘" : "Ctrl"),
+  kbd({ class: "key" }, "N"),
+];
+
+/**
+ * Open an AI's link in a window of its own over the right of this one, so
+ * these steps stay in view while the file is dragged across. Modified clicks,
+ * and browsers that block the window, follow the link to a new tab as usual.
+ */
+function openWindow(event: MouseEvent) {
+  if (event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
+  const link = event.currentTarget as HTMLAnchorElement;
+  const width = Math.min(760, Math.round(outerWidth / 2));
+  const place = `width=${width},height=${outerHeight},left=${screenX + outerWidth - width},top=${screenY}`;
+  const opened = window.open(link.href, "unduo-ai", `popup,${place}`);
+  if (!opened) return;
+  opened.opener = null;
+  event.preventDefault();
+}
+
+/** An arrow out of a box: the link opens in a new window. */
 const newTabIcon = () =>
   svg(
-    { class: "new-tab-icon", viewBox: "0 0 16 16", "aria-hidden": "true" },
+    { class: "button-icon", viewBox: "0 0 16 16", "aria-hidden": "true" },
     path({
       d: "M9.5 2.5h4v4M13.5 2.5 7.5 8.5M11.5 9.5v3a1 1 0 0 1-1 1h-7a1 1 0 0 1-1-1v-7a1 1 0 0 1 1-1h3",
       fill: "none",
@@ -39,29 +62,23 @@ const newTabIcon = () =>
 
 /**
  * A file's name in a sentence, as a badge with a document icon so it reads as
- * a file. The icon keeps to the name's first word when the line wraps.
+ * a file. It never breaks across lines.
  */
-const fileBadge = (name: string) => {
-  const [first, ...rest] = name.split(" ");
-  return span(
+const fileBadge = (name: string) =>
+  span(
     { class: "file-badge" },
-    span(
-      { class: "file-badge-start" },
-      svg(
-        { class: "file-badge-icon", viewBox: "0 0 12 14", "aria-hidden": "true" },
-        path({
-          d: "M2 .75h5.25L10.25 3.75v8.5a1 1 0 0 1-1 1h-7.25a1 1 0 0 1-1-1V1.75a1 1 0 0 1 1-1ZM7 .75v3.25h3.25",
-          fill: "none",
-          stroke: "currentColor",
-          "stroke-width": "1.2",
-          "stroke-linejoin": "round",
-        }),
-      ),
-      first,
+    svg(
+      { class: "file-badge-icon", viewBox: "0 0 12 14", "aria-hidden": "true" },
+      path({
+        d: "M2 .75h5.25L10.25 3.75v8.5a1 1 0 0 1-1 1h-7.25a1 1 0 0 1-1-1V1.75a1 1 0 0 1 1-1ZM7 .75v3.25h3.25",
+        fill: "none",
+        stroke: "currentColor",
+        "stroke-width": "1.2",
+        "stroke-linejoin": "round",
+      }),
     ),
-    rest.length ? ` ${rest.join(" ")}` : "",
+    name,
   );
-};
 
 /** The name a browser saves an institution's file under: `UnDuo - <name>.html`. */
 const fileName = (school: University) =>
@@ -102,15 +119,26 @@ export function downloadStep(school: University) {
   );
 }
 
+/** A clipboard: the button copies to it. */
+const clipboardIcon = () =>
+  svg(
+    { class: "button-icon", viewBox: "0 0 16 16", "aria-hidden": "true" },
+    path({
+      d: "M5.5 2.5h-1a1 1 0 0 0-1 1v10a1 1 0 0 0 1 1h7a1 1 0 0 0 1-1v-10a1 1 0 0 0-1-1h-1M6 1.5h4a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5H6a.5.5 0 0 1-.5-.5V2a.5.5 0 0 1 .5-.5ZM6 7.5h4M6 10h3",
+      fill: "none",
+      stroke: "currentColor",
+      "stroke-width": "1.3",
+      "stroke-linecap": "round",
+      "stroke-linejoin": "round",
+    }),
+  );
+
 /**
- * Step 2: the downloaded file goes to an AI with the prompt, which a button
- * copies. Tabs choose the AI, ChatGPT first: a drawing of dragging the file
- * from the browser's downloads into that AI sits beside the text, and a link
- * opens it.
+ * Step 2: the prompt that asks an AI whether the file is safe, which a button
+ * copies to the clipboard for the next step. A drawing beside the text shows
+ * the copy.
  */
-export function verifyStep(school: University) {
-  const selected = van.state(0);
-  const assistant = van.derive(() => assistants[selected.val]!);
+export function promptStep(school: University) {
   const copied = van.state(false);
   const copyFailed = van.state(false);
   const copy = async () => {
@@ -125,6 +153,62 @@ export function verifyStep(school: University) {
       copyFailed.val = true;
     }
   };
+  return div(
+    { class: "dialog-layout" },
+    copyArt(),
+    div(
+      { class: "dialog-copy" },
+      p(
+        { class: "home-step-text" },
+        "The prompt below validates that ",
+        fileBadge(fileName(school)),
+        " is safe to use.",
+      ),
+      label({ for: "ai-question", class: "sr-only" }, "Prompt for the AI"),
+      textarea(
+        {
+          class: "uk-textarea field question",
+          id: "ai-question",
+          rows: 3,
+          readOnly: true,
+          spellcheck: false,
+          onfocus: (event: FocusEvent) => (event.target as HTMLTextAreaElement).select(),
+        },
+        aiPrompt,
+      ),
+      div(
+        { class: "question-actions" },
+        button(
+          {
+            type: "button",
+            class: "uk-button uk-button-primary btn-accent icon-button",
+            onclick: copy,
+          },
+          clipboardIcon(),
+          van.derive(() => (copied.val ? "Copied" : "Copy prompt to clipboard")),
+        ),
+      ),
+      p(
+        { class: "copied-note", role: "alert", hidden: () => !copyFailed.val },
+        "Clipboard access isn't available. Select the prompt above to copy it.",
+      ),
+      span(
+        { class: "sr-only", role: "status" },
+        van.derive(() => (copied.val ? "Prompt copied." : "")),
+      ),
+    ),
+  );
+}
+
+/**
+ * Step 3: the downloaded file and the copied prompt go to an AI. Tabs choose
+ * the AI, ChatGPT first: a drawing of dragging the file from the browser's
+ * downloads into that AI sits beside the text, and a link opens it in a window
+ * of its own, with ⌘N (or Ctrl+N) and its address as the fallback.
+ */
+export function verifyStep(school: University) {
+  const selected = van.state(0);
+  const assistant = van.derive(() => assistants[selected.val]!);
   const tabs: HTMLButtonElement[] = assistants.map((choice, index) =>
     button(
       {
@@ -165,67 +249,65 @@ export function verifyStep(school: University) {
         "aria-labelledby": () => `ai-tab-${assistant.val.id}`,
       },
       () => dragArt(fileName(school), assistant.val.id),
-      div(
-        { class: "dialog-copy" },
-        p(
-          { class: "home-step-text" },
-          "Drag and drop ",
-          fileBadge(fileName(school)),
-          van.derive(
-            () =>
-              ` into ${assistant.val.href ? assistant.val.name : "your favorite AI"} and paste in this prompt:`,
+      // What to do depends on the AI, so the text rebuilds with the tab.
+      () => {
+        const choice = assistant.val;
+        const file = fileBadge(fileName(school));
+        if (!choice.href)
+          return div(
+            { class: "dialog-copy" },
+            p(
+              { class: "home-step-text" },
+              "Open your favorite AI in a new window: press ",
+              newWindowKeys(),
+              " and type its address into the address bar.",
+            ),
+            p(
+              { class: "home-step-text" },
+              "Then press your browser's download button, drag ",
+              file,
+              " into it and paste in the prompt you copied.",
+            ),
+          );
+        return div(
+          { class: "dialog-copy" },
+          p(
+            { class: "home-step-text" },
+            `Open ${choice.name} in a new window, press your browser's download button, then drag `,
+            file,
+            ` into ${choice.name} and paste in the prompt you copied.`,
           ),
-        ),
-        label({ for: "ai-question", class: "sr-only" }, "Prompt for the AI"),
-        textarea(
-          {
-            class: "uk-textarea field question",
-            id: "ai-question",
-            rows: 3,
-            readOnly: true,
-            spellcheck: false,
-            onfocus: (event: FocusEvent) => (event.target as HTMLTextAreaElement).select(),
-          },
-          aiPrompt,
-        ),
-        div(
-          { class: "question-actions" },
-          button(
-            { type: "button", class: "uk-button uk-button-default btn", onclick: copy },
-            van.derive(() => (copied.val ? "Copied" : "Copy prompt")),
+          div(
+            { class: "question-actions" },
+            a(
+              {
+                class: "uk-button uk-button-default btn icon-button",
+                href: choice.href,
+                target: "_blank",
+                rel: "noopener noreferrer",
+                onclick: openWindow,
+              },
+              `Open ${choice.name}`,
+              newTabIcon(),
+              span({ class: "sr-only" }, " (opens in a new window)"),
+            ),
           ),
-          () => {
-            const choice = assistant.val;
-            return choice.href
-              ? a(
-                  {
-                    class: "uk-button uk-button-default btn new-tab",
-                    href: choice.href,
-                    target: "_blank",
-                    rel: "noopener noreferrer",
-                  },
-                  `Open ${choice.name}`,
-                  newTabIcon(),
-                  span({ class: "sr-only" }, " (opens in a new tab)"),
-                )
-              : "";
-          },
-        ),
-        p(
-          { class: "copied-note", role: "alert", hidden: () => !copyFailed.val },
-          "Clipboard access isn't available. Select the prompt above to copy it.",
-        ),
-        span(
-          { class: "sr-only", role: "status" },
-          van.derive(() => (copied.val ? "Prompt copied." : "")),
-        ),
-      ),
+          p(
+            { class: "fallback-note" },
+            "If that button doesn't work, press ",
+            newWindowKeys(),
+            " to open a new window and type ",
+            em(new URL(choice.href).host),
+            " into the address bar.",
+          ),
+        );
+      },
     ),
   );
 }
 
 /**
- * Step 3: open the file, which takes over from here with its own steps, and
+ * Step 4: open the file, which takes over from here with its own steps, and
  * what to take away. A drawing beside the text shows the double click in the
  * browser's downloads.
  */

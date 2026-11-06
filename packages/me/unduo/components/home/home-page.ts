@@ -4,11 +4,12 @@ import { button, dialog, div, h2, main, p, path, section, svg } from "@-/me.undu
 import { findUniversity } from "@-/me.unduo.lib.universities";
 import { homeFooter, homeHeader, homeStart } from "#home-intro";
 import { aiTestimonials, getStarted, howItWorks } from "#home-landing";
-import { continueStep, downloadStep, verifyStep } from "#home-steps";
+import { continueStep, downloadStep, promptStep, verifyStep } from "#home-steps";
 
 /** The dialog's steps once an institution is chosen. `id` names a step in the URL. */
 const steps = [
   { id: "download", title: "Download" },
+  { id: "prompt", title: "Copy prompt" },
   { id: "verify", title: "Verify" },
   { id: "continue", title: "Continue" },
 ];
@@ -121,7 +122,7 @@ export function startHomePage() {
     () => {
       const school = selected.val;
       if (!school) return div();
-      return [downloadStep, verifyStep, continueStep][current.val]!(school);
+      return [downloadStep, promptStep, verifyStep, continueStep][current.val]!(school);
     },
     div(
       { class: "step-nav" },
@@ -137,9 +138,9 @@ export function startHomePage() {
       button(
         {
           type: "button",
-          // Downloading is the first step's main action, not moving on.
+          // Downloading, then copying the prompt, are those steps' main actions, not moving on.
           class: () =>
-            current.val === 0
+            current.val <= 1
               ? "uk-button uk-button-default btn at-end"
               : "uk-button uk-button-primary btn-accent at-end",
           onclick: () =>

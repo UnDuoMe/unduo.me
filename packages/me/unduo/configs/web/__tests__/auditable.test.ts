@@ -452,7 +452,7 @@ describe.runIf(enabled)("static output", () => {
       expect(count(/\.src = /g), "The only other source is a screenshot's blob: URL").toBe(1);
     } else {
       expect(count(/\bfetch\(/g), "Fetches of the AI replies' screenshots").toBe(1);
-      expect(count(/(?<![\w$])(?:window\.)?open\(/g)).toBe(0);
+      expect(count(/(?<![\w$])(?:window\.)?open\(/g), "One window.open, the chosen AI's").toBe(1);
       expect(count(/createObjectURL\(/g), "blob: URLs only for screenshots").toBe(1);
       expect(count(/\.src = /g), "The only source is a screenshot's blob: URL").toBe(1);
       expect(count(/location\.replace\(/g), "Old ?university= links stay on this page").toBe(0);
@@ -1235,10 +1235,44 @@ describe.runIf(enabled)("browser", { timeout: 180_000 }, () => {
     expect(visible("Back")).toBe(false);
     click("button", "Continue");
 
-    // 2: the AI, with the prompt.
+    // 2: the prompt, which a button copies to the clipboard for the next step.
+    waitForStep("Copy prompt");
+    expect(address()).toBe("/?university=IAU-020599#step=prompt");
+    expect(evaluate("!!document.querySelector('a[download]')")).toBe(false);
+    expect(evaluate("document.querySelector('.dialog-copy .home-step-text').textContent")).toBe(
+      "The prompt below validates that UnDuo - University of Toronto.html is safe to use.",
+    );
+    expect(evaluate("document.querySelector('#ai-question').value")).toBe(
+      [
+        "The attached file is from a website for setting up Duo two-factor authentication with my own authenticator app instead of Duo Mobile.",
+        "Please read its code, including everything it loads and runs. Judge each part by what the code allows it to do or restricts it from doing.",
+        "Will this file keep my Duo activation code and secret key safe, so they stay between me, Duo and my authenticator app?",
+        "Answer “Safe: no” only if you can point to how the file would let them reach anyone else. Start your reply with “Safe: yes” or “Safe: no”, then explain why in a few short sentences to someone who may not be technical.",
+      ].join("\n\n"),
+    );
+    expect(
+      evaluate("!!document.querySelector('.question-actions button .button-icon')"),
+      "The copy button has a clipboard icon",
+    ).toBe(true);
+    expect(
+      evaluate("!!document.querySelector('#home-dialog a[target=_blank]')"),
+      "The AI is next",
+    ).toBe(false);
+    click("button", "Copy prompt to clipboard");
+    browser(
+      "wait",
+      "--fn",
+      "document.querySelector('.question-actions button').textContent === 'Copied'",
+    );
+    click("button", "Continue");
+
+    // 3: the file and the copied prompt go to an AI.
     waitForStep("Verify");
     expect(address()).toBe("/?university=IAU-020599#step=verify");
-    expect(evaluate("!!document.querySelector('a[download]')")).toBe(false);
+    expect(
+      evaluate("!!document.querySelector('#ai-question')"),
+      "The prompt was the step before",
+    ).toBe(false);
     // Tabs choose the AI, ChatGPT first; each has a drawing of its page and, but for Other, a link.
     const aiTabs = () =>
       evaluate(
@@ -1257,15 +1291,51 @@ describe.runIf(enabled)("browser", { timeout: 180_000 }, () => {
       evaluate("document.querySelector('.dialog-copy .home-step-text .file-badge').textContent"),
     ).toBe("UnDuo - University of Toronto.html");
     expect(instruction()).toBe(
-      "Drag and drop UnDuo - University of Toronto.html into ChatGPT and paste in this prompt:",
+      "Open ChatGPT in a new window, press your browser's download button, then drag UnDuo - University of Toronto.html into ChatGPT and paste in the prompt you copied.",
     );
     expect(aiLinks()).toEqual([
-      ["Open ChatGPT (opens in a new tab)", "https://chatgpt.com/", "noopener noreferrer"],
+      ["Open ChatGPT (opens in a new window)", "https://chatgpt.com/", "noopener noreferrer"],
     ]);
     expect(
-      evaluate("!!document.querySelector('#home-dialog a[target=_blank] .new-tab-icon')"),
-      "An icon says the link opens in a new tab",
+      evaluate("!!document.querySelector('#home-dialog a[target=_blank] .button-icon')"),
+      "An icon says the link opens in a new window",
     ).toBe(true);
+    // ⌘N on Apple devices, Ctrl+N elsewhere, and the AI's address, if the window doesn't open.
+    const keys = evaluate("/Mac|iPhone|iPad/.test(navigator.platform)") ? "⌘N" : "CtrlN";
+    expect(evaluate("document.querySelector('.fallback-note').textContent")).toBe(
+      `If that button doesn't work, press ${keys} to open a new window and type chatgpt.com into the address bar.`,
+    );
+    // The link opens a popup window of its own, with no handle back to this page; a blocked
+    // window, or a modified click, follows the link to a new tab instead. window.open is stubbed.
+    const openAi = (opened: string, modifier = false) =>
+      evaluate(`(() => {
+        const open = window.open;
+        const calls = [];
+        const opened = ${opened};
+        window.open = (...args) => (calls.push(args), opened);
+        let followed;
+        const stop = (event) => { followed = !event.defaultPrevented; event.preventDefault(); };
+        document.addEventListener('click', stop);
+        document.querySelector('#home-dialog a[target=_blank]').dispatchEvent(
+          new MouseEvent('click', { bubbles: true, cancelable: true, metaKey: ${modifier} }),
+        );
+        document.removeEventListener('click', stop);
+        window.open = open;
+        const [url, name, features] = calls[0] ?? [];
+        return { followed, url, name, popup: /^popup,/.test(features), opener: opened?.opener };
+      })()`);
+    expect(openAi("{ opener: window }")).toEqual({
+      followed: false,
+      url: "https://chatgpt.com/",
+      name: "unduo-ai",
+      popup: true,
+      opener: null,
+    });
+    expect(openAi("null")).toMatchObject({ followed: true, popup: true });
+    expect(openAi("null", true), "A ⌘-click opens no window").toEqual({
+      followed: true,
+      popup: false,
+    });
     expect(evaluate("document.querySelector('.dialog-art').getAttribute('aria-hidden')")).toBe(
       "true",
     );
@@ -1277,11 +1347,14 @@ describe.runIf(enabled)("browser", { timeout: 180_000 }, () => {
       evaluate(`document.querySelector('${tab}').click()`);
       browser("wait", "--fn", `document.querySelector('${tab}').ariaSelected === 'true'`);
       expect(instruction()).toBe(
-        `Drag and drop UnDuo - University of Toronto.html into ${name} and paste in this prompt:`,
+        `Open ${name} in a new window, press your browser's download button, then drag UnDuo - University of Toronto.html into ${name} and paste in the prompt you copied.`,
       );
       expect(aiLinks()).toEqual([
-        [`Open ${name} (opens in a new tab)`, href, "noopener noreferrer"],
+        [`Open ${name} (opens in a new window)`, href, "noopener noreferrer"],
       ]);
+      expect(evaluate("document.querySelector('.fallback-note em').textContent")).toBe(
+        new URL(href!).host,
+      );
     }
     // Arrow keys move between the tabs and wrap around.
     browser("focus", "#ai-tab-gemini");
@@ -1291,9 +1364,14 @@ describe.runIf(enabled)("browser", { timeout: 180_000 }, () => {
       "--fn",
       "document.activeElement.id === 'ai-tab-other' && document.activeElement.ariaSelected === 'true'",
     );
-    expect(instruction()).toBe(
-      "Drag and drop UnDuo - University of Toronto.html into your favorite AI and paste in this prompt:",
-    );
+    expect(
+      evaluate(
+        "[...document.querySelectorAll('.dialog-copy .home-step-text')].map((line) => line.textContent)",
+      ),
+    ).toEqual([
+      `Open your favorite AI in a new window: press ${keys} and type its address into the address bar.`,
+      "Then press your browser's download button, drag UnDuo - University of Toronto.html into it and paste in the prompt you copied.",
+    ]);
     expect(aiLinks()).toEqual([]);
     browser("press", "ArrowRight");
     browser(
@@ -1301,23 +1379,9 @@ describe.runIf(enabled)("browser", { timeout: 180_000 }, () => {
       "--fn",
       "document.activeElement.id === 'ai-tab-chatgpt' && document.activeElement.ariaSelected === 'true'",
     );
-    expect(evaluate("document.querySelector('#ai-question').value")).toBe(
-      [
-        "The attached file is from a website for setting up Duo two-factor authentication with my own authenticator app instead of Duo Mobile.",
-        "Please read its code, including everything it loads and runs. Judge each part by what the code allows it to do or restricts it from doing.",
-        "Will this file keep my Duo activation code and secret key safe, so they stay between me, Duo and my authenticator app?",
-        "Answer “Safe: no” only if you can point to how the file would let them reach anyone else. Start your reply with “Safe: yes” or “Safe: no”, then explain why in a few short sentences to someone who may not be technical.",
-      ].join("\n\n"),
-    );
-    click("button", "Copy prompt");
-    browser(
-      "wait",
-      "--fn",
-      "document.querySelector('#ai-question ~ div button').textContent === 'Copied'",
-    );
     click("button", "Continue");
 
-    // 3: open it after the green light, then the closing advice, and Done.
+    // 4: open it after the green light, then the closing advice, and Done.
     waitForStep("Continue");
     expect(dialogText()).toMatch(
       /Once your AI has given the green light, double click UnDuo - University of Toronto\.html to open UnDuo's secure webpage and follow its instructions\./,
@@ -1346,6 +1410,8 @@ describe.runIf(enabled)("browser", { timeout: 180_000 }, () => {
     waitForStep("Continue");
     click("button", "Back");
     waitForStep("Verify");
+    click("button", "Back");
+    waitForStep("Copy prompt");
     click("button", "Back");
     waitForStep("Download");
 
@@ -1380,6 +1446,7 @@ describe.runIf(enabled)("browser", { timeout: 180_000 }, () => {
       ["", "Download"],
       ["university", "Download"],
       ["overview", "Download"],
+      ["prompt", "Copy prompt"],
       ["check", "Verify"],
       ["open", "Continue"],
       ["safe", "Continue"],

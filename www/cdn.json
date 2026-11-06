@@ -1,8 +1,8 @@
 {
-  "commit": "279bfff4932e10b77b5b5fb228100c9fc12d9cb3",
-  "base": "https://cdn.jsdelivr.net/gh/UnDuoMe/unduo.me@279bfff4932e10b77b5b5fb228100c9fc12d9cb3/",
+  "commit": "28897dbc9c8cb5a6860f23df8d20b7c14664304a",
+  "base": "https://cdn.jsdelivr.net/gh/UnDuoMe/unduo.me@28897dbc9c8cb5a6860f23df8d20b7c14664304a/",
   "files": {
-    "setup-styles.HcdnoUAN.css": "sha256-HcdnoUAN+Lurdeh2d4q1Q+zfoGiItDdDP9n8f3UcbXk=",
+    "setup-styles.nCd19hYy.css": "sha256-nCd19hYygGew8Kl85SheV+PPyDpJrjpiUDhJKSuvsIA=",
     "setup.7wz-vxOz.wasm": "sha256-7wz+vxOzfqx4LEs5QVsqwM2TMAJHkXAJisveKoD7omE=",
     "ai-reply-chatgpt.z9xmsHOa.webp": "sha256-z9xmsHOa6HCxbtW2zZ5a6FPR0ar2fbASWOC9JFoK1OA=",
     "ai-reply-claude.RGFz3eyJ.webp": "sha256-RGFz3eyJUNcK/XKLFaxKG/n6vbZXYDlyP43rGYztHho=",
