@@ -110,8 +110,8 @@ function replyText(markdown: string) {
 /**
  * What ChatGPT, Claude and Gemini said about the University of Toronto file, in
  * a carousel that shows one at a time: a screenshot of the conversation that
- * opens larger, and beside it the AI's verdict and its whole reply. Arrows, a button per AI and
- * a swipe move between them.
+ * opens larger, and beside it the AI's verdict and its whole reply. Arrows and a button per AI
+ * above the card, and a swipe, move between them.
  */
 export function aiTestimonials() {
   const current = van.state(0);
@@ -187,26 +187,7 @@ export function aiTestimonials() {
       "aria-roledescription": "carousel",
       "aria-label": "What the AIs said",
     },
-    div(
-      {
-        class: "reply-viewport",
-        ontouchstart: (event: TouchEvent) => {
-          const { clientX: x, clientY: y } = event.touches[0]!;
-          touch = { x, y };
-        },
-        ontouchend: (event: TouchEvent) => {
-          const { clientX: x, clientY: y } = event.changedTouches[0]!;
-          const dx = x - (touch?.x ?? x);
-          if (Math.abs(dx) > 48 && Math.abs(dx) > Math.abs(y - (touch?.y ?? y)))
-            show(current.val + (dx < 0 ? 1 : -1));
-          touch = undefined;
-        },
-      },
-      div(
-        { class: "reply-track", "aria-live": "polite", "data-slide": () => String(current.val) },
-        aiReplies.map(card),
-      ),
-    ),
+    // The controls come first, above the card, so they stay in the same place whichever reply is shown.
     div(
       { class: "reply-controls" },
       button(
@@ -240,6 +221,26 @@ export function aiTestimonials() {
           onclick: () => show(current.val + 1),
         },
         chevronIcon("reply-arrow-icon", "M8 5.5l4.5 4.5L8 14.5"),
+      ),
+    ),
+    div(
+      {
+        class: "reply-viewport",
+        ontouchstart: (event: TouchEvent) => {
+          const { clientX: x, clientY: y } = event.touches[0]!;
+          touch = { x, y };
+        },
+        ontouchend: (event: TouchEvent) => {
+          const { clientX: x, clientY: y } = event.changedTouches[0]!;
+          const dx = x - (touch?.x ?? x);
+          if (Math.abs(dx) > 48 && Math.abs(dx) > Math.abs(y - (touch?.y ?? y)))
+            show(current.val + (dx < 0 ? 1 : -1));
+          touch = undefined;
+        },
+      },
+      div(
+        { class: "reply-track", "aria-live": "polite", "data-slide": () => String(current.val) },
+        aiReplies.map(card),
       ),
     ),
   );

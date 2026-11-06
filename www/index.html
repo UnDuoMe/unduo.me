@@ -1,6 +1,6 @@
 <!doctype html>
 <html lang="en">
-  <head><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'sha256-dZu710qV7pUozk9WNNw7Nr449YAqE6wv/arVKnsnH/Y=' 'sha256-EZwsp6No173Ph9AZTahPm/ry5GhD8m2/L+QHnA9fSWU='; script-src-attr 'none'; style-src-elem https://cdn.jsdelivr.net/npm/uikit@3.25.29/dist/css/uikit.min.css https://cdn.jsdelivr.net/gh/UnDuoMe/unduo.me@a898ccd5105c2cc98422309c97a04293775ba203/setup-styles.xBOi-QzC.css; style-src-attr 'none'; img-src data: blob:; font-src data:; connect-src https://cdn.jsdelivr.net/gh/UnDuoMe/unduo.me@a898ccd5105c2cc98422309c97a04293775ba203/ai-reply-chatgpt.z9xmsHOa.webp https://cdn.jsdelivr.net/gh/UnDuoMe/unduo.me@a898ccd5105c2cc98422309c97a04293775ba203/ai-reply-claude.RGFz3eyJ.webp https://cdn.jsdelivr.net/gh/UnDuoMe/unduo.me@a898ccd5105c2cc98422309c97a04293775ba203/ai-reply-gemini.UlbcQdA9.webp; form-action https://*.duosecurity.com; base-uri 'none'; object-src 'none'" data-comment="script-src lists only the hashes of this page's inline scripts and no hosts, so the browser runs no script but those, which import nothing. No source allows inline handlers or eval. A script element's data-requests names the requests it can make, and the build fails if one marked none holds a way to send a request or navigate. Fetches may reach only the files in connect-src, and forms only Duo. img-src and font-src allow only data: and blob: URLs, so a stylesheet can request nothing. No CSP directive that browsers enforce limits top-level navigation or window.open, so only this page's own scripts can use them.">
+  <head><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'sha256-dZu710qV7pUozk9WNNw7Nr449YAqE6wv/arVKnsnH/Y=' 'sha256-ZQb6AYt+rZhmzlAciCW5r1wzyQjXTNx8fmfonfZZf3w='; script-src-attr 'none'; style-src-elem https://cdn.jsdelivr.net/npm/uikit@3.25.29/dist/css/uikit.min.css https://cdn.jsdelivr.net/gh/UnDuoMe/unduo.me@a898ccd5105c2cc98422309c97a04293775ba203/setup-styles.xBOi-QzC.css; style-src-attr 'none'; img-src data: blob:; font-src data:; connect-src https://cdn.jsdelivr.net/gh/UnDuoMe/unduo.me@a898ccd5105c2cc98422309c97a04293775ba203/ai-reply-chatgpt.z9xmsHOa.webp https://cdn.jsdelivr.net/gh/UnDuoMe/unduo.me@a898ccd5105c2cc98422309c97a04293775ba203/ai-reply-claude.RGFz3eyJ.webp https://cdn.jsdelivr.net/gh/UnDuoMe/unduo.me@a898ccd5105c2cc98422309c97a04293775ba203/ai-reply-gemini.UlbcQdA9.webp; form-action https://*.duosecurity.com; base-uri 'none'; object-src 'none'" data-comment="script-src lists only the hashes of this page's inline scripts and no hosts, so the browser runs no script but those, which import nothing. No source allows inline handlers or eval. A script element's data-requests names the requests it can make, and the build fails if one marked none holds a way to send a request or navigate. Fetches may reach only the files in connect-src, and forms only Duo. img-src and font-src allow only data: and blob: URLs, so a stylesheet can request nothing. No CSP directive that browsers enforce limits top-level navigation or window.open, so only this page's own scripts can use them.">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="referrer" content="no-referrer">
@@ -898,8 +898,8 @@ function replyText(markdown) {
 /**
 * What ChatGPT, Claude and Gemini said about the University of Toronto file, in
 * a carousel that shows one at a time: a screenshot of the conversation that
-* opens larger, and beside it the AI's verdict and its whole reply. Arrows, a button per AI and
-* a swipe move between them.
+* opens larger, and beside it the AI's verdict and its whole reply. Arrows and a button per AI
+* above the card, and a swipe, move between them.
 */
 function aiTestimonials() {
 	const current = van.state(0);
@@ -949,7 +949,22 @@ function aiTestimonials() {
 		role: "region",
 		"aria-roledescription": "carousel",
 		"aria-label": "What the AIs said"
-	}, div({
+	}, div({ class: "reply-controls" }, button({
+		type: "button",
+		class: "reply-arrow",
+		"aria-label": "Previous reply",
+		onclick: () => show(current.val - 1)
+	}, chevronIcon("reply-arrow-icon", "M12 5.5L7.5 10l4.5 4.5")), div({ class: "reply-picker" }, aiReplies.map((reply, index) => button({
+		type: "button",
+		class: "reply-pick",
+		"aria-current": () => String(current.val === index),
+		onclick: () => show(index)
+	}, reply.name))), button({
+		type: "button",
+		class: "reply-arrow",
+		"aria-label": "Next reply",
+		onclick: () => show(current.val + 1)
+	}, chevronIcon("reply-arrow-icon", "M8 5.5l4.5 4.5L8 14.5"))), div({
 		class: "reply-viewport",
 		ontouchstart: (event) => {
 			const { clientX: x, clientY: y } = event.touches[0];
@@ -968,22 +983,7 @@ function aiTestimonials() {
 		class: "reply-track",
 		"aria-live": "polite",
 		"data-slide": () => String(current.val)
-	}, aiReplies.map(card))), div({ class: "reply-controls" }, button({
-		type: "button",
-		class: "reply-arrow",
-		"aria-label": "Previous reply",
-		onclick: () => show(current.val - 1)
-	}, chevronIcon("reply-arrow-icon", "M12 5.5L7.5 10l4.5 4.5")), div({ class: "reply-picker" }, aiReplies.map((reply, index) => button({
-		type: "button",
-		class: "reply-pick",
-		"aria-current": () => String(current.val === index),
-		onclick: () => show(index)
-	}, reply.name))), button({
-		type: "button",
-		class: "reply-arrow",
-		"aria-label": "Next reply",
-		onclick: () => show(current.val + 1)
-	}, chevronIcon("reply-arrow-icon", "M8 5.5l4.5 4.5L8 14.5"))));
+	}, aiReplies.map(card))));
 	return section({
 		class: "landing-section",
 		"aria-labelledby": "ai-replies-title"
