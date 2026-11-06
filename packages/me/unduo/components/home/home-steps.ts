@@ -39,10 +39,7 @@ export function downloadStep(school: University) {
         ", ",
         em("but don't open it yet:"),
       ),
-      p(
-        { class: "home-step-text" },
-        "On the next step, we'll tell you how to audit it yourself (or with AI).",
-      ),
+      p({ class: "home-step-text" }, "Next, we'll show you how to verify it's safe to use."),
     ),
   );
 }

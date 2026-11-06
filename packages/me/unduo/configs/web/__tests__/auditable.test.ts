@@ -1222,7 +1222,7 @@ describe.runIf(enabled)("browser", { timeout: 180_000 }, () => {
     ).toEqual(["true", true, true]);
     expect(
       evaluate("[...document.querySelectorAll('#home-dialog .home-step-text')].at(-1).textContent"),
-    ).toBe("On the next step, we'll tell you how to audit it yourself (or with AI).");
+    ).toBe("Next, we'll show you how to verify it's safe to use.");
     expect(
       evaluate("/Trust unduo/.test(document.body.textContent)"),
       "Setup isn't offered on the site",
