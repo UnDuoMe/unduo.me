@@ -1001,6 +1001,13 @@ describe.runIf(enabled)("browser", { timeout: 180_000 }, () => {
     expect(evaluate("document.querySelector('#ai-replies-title').textContent")).toBe(
       "Fully safe, but don't take our word for it.",
     );
+    expect(
+      evaluate("[...document.querySelectorAll('.section-lead')].map((line) => line.textContent)"),
+    ).toEqual([
+      "You can audit UnDuo with all the major AIs: ChatGPT, Claude, and Gemini.",
+      "All three classify it as fully safe.",
+      "(You'll also get the chance to audit it yourself!)",
+    ]);
     // Each card holds the whole reply, cut short until its chevron opens it in a box that scrolls.
     expect(
       evaluate(

@@ -194,8 +194,9 @@ export function aiTestimonials() {
       ),
       p(
         { class: "section-lead" },
-        "UnDuo was audited by three major AIs: ChatGPT, Claude, Gemini, who all classified it as safe.",
+        "You can audit UnDuo with all the major AIs: ChatGPT, Claude, and Gemini.",
       ),
+      p({ class: "section-lead" }, "All three classify it as fully safe."),
       p({ class: "section-lead" }, "(You'll also get the chance to audit it yourself!)"),
     ),
     div({ class: "reply-grid" }, aiReplies.map(card)),
