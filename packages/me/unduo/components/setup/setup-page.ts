@@ -66,11 +66,10 @@ export function createSetupPage(load: (limits: PluginLimits) => Promise<SetupPlu
   };
 
   function begin() {
-    // Fetch every screenshot now, so when they load says nothing about the setup.
+    // Fetch every institution's screenshots now, so neither when they load nor
+    // which ones load says anything about the setup or the institution shown.
     document
-      .querySelectorAll<HTMLTemplateElement>(
-        "#portal-signed-in, #portal-settings, #portal-screenshot-figures",
-      )
+      .querySelectorAll<HTMLTemplateElement>('template[id^="portal-"]')
       .forEach((template) => template.content.querySelectorAll("img").forEach(screenshot));
     // Start only where the browser enforces this page's CSP, whose connect-src
     // allows no data: URL: this fetch must fail.

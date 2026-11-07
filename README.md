@@ -249,11 +249,11 @@ vp test                # run the unit tests (Duo calls are mocked)
 
 ### Deploy the website
 
-The default build publishes only the home page, the University of Toronto file
-at `/files/020599`, the University of Waterloo file at `/files/020623`, the
-Western file at `/files/020629` and the generic file at `/files/other`. `UNDUO_UNIVERSITIES=published` is
-the default; use `UNDUO_UNIVERSITIES=all vp run build:web` to generate the full
-directory. The flag also controls development routes and the picker, so it never
+The default build publishes only the home page and one setup file, `/files/unduo`,
+for the University of Toronto, the University of Waterloo, Western and any other
+school or company. `UNDUO_UNIVERSITIES=published` is
+the default; use `UNDUO_UNIVERSITIES=all vp run build:web` to put the full
+directory in the picker and the file. The flag also controls development routes and the picker, so it never
 links to omitted institutions. Unknown flag values fail the build.
 
 The optional full-directory build shares application scripts and CDN dependencies
@@ -270,9 +270,11 @@ In **Settings → Pages**, select **GitHub Actions** as the source. The build co
 `.nojekyll` and `CNAME` into `www/`. Cloudflare is used only for DNS; see
 [GitHub's custom-domain instructions](https://docs.github.com/en/pages/configuring-a-custom-domain-for-your-github-pages-site/managing-a-custom-domain-for-your-github-pages-site).
 
-Commit source changes and push to `main` to publish. Generated HTML is kept in `www/` for inspection and downloads. The home page contains the university picker; each selected institution
-has its own file, `www/files/<WHED-number>`, and **Other** has `www/files/other`, with no extension so that
-GitHub Pages serves it as a download and never runs it. Each document embeds its application script inline;
+Commit source changes and push to `main` to publish. Generated HTML is kept in `www/` for inspection and downloads. The home page contains the university picker; every choice downloads the same file,
+`www/files/unduo`, saved as `UnDuo - <institution>.html`, with no extension so that
+GitHub Pages serves it as a download and never runs it. The file shows the institution
+its own name names, or Other, and its first step has a menu to change it. One file means
+one SHA-256, whichever institution a student picks. Each document embeds its application script inline;
 `www/cdn/` holds only the setup files' Tailwind stylesheet, help images and setup plugin, and `www/cdn-home/`
 the home page's stylesheet and images, never JavaScript. They are separate commits, so a change to the home page never
 changes a setup file or its SHA-256.

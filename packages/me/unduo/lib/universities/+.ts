@@ -1,5 +1,4 @@
 export {
-  fileId,
   findUniversity,
   otherInstitution,
   searchUniversities,

@@ -1,8 +1,8 @@
 {
-  "commit": "039072418a49203a9c1ad85575f0bf146fc6c40d",
-  "base": "https://cdn.jsdelivr.net/gh/UnDuoMe/unduo.me@039072418a49203a9c1ad85575f0bf146fc6c40d/",
+  "commit": "4190594c25320c06f210461e72c099a6f656eb62",
+  "base": "https://cdn.jsdelivr.net/gh/UnDuoMe/unduo.me@4190594c25320c06f210461e72c099a6f656eb62/",
   "files": {
-    "setup-styles.HT301DD-.css": "sha256-HT301DD+YqAB9IqBxyrujpfNdRqWR2TxIi9qbFjlOjU=",
+    "setup-styles.w1-CA8Mw.css": "sha256-w1+CA8MwmJQMeEUjabvoaUCqa8OE3kyDcW934+NfhZw=",
     "setup.7wz-vxOz.wasm": "sha256-7wz+vxOzfqx4LEs5QVsqwM2TMAJHkXAJisveKoD7omE=",
     "setup-0-settings-devices-generic.PpPFYaDw.webp": "sha256-PpPFYaDwrYSdXYs/mF8UhVqURY0yEzLW03lLiS/1gpY=",
     "setup-0-settings-devices-universal.e3zhu5Hc.webp": "sha256-e3zhu5HcrVIuvF+c06magsRjdCuA/u5vuwUzFKUadKc=",

@@ -97,7 +97,7 @@ Changing `crates/setup` needs Rust (rustup installs the pinned toolchain).
 Other web changes use the committed `setup.wasm`.
 
 The web build outputs `www/index.html` for the home page,
-`www/files/<WHED-number>`, the setup file to download, for each published institution (UofT by default), `www/cdn/` with `www/cdn.json`: the stylesheet, images and setup plugin that setup files load from a pinned jsDelivr commit, and `www/cdn-home/` with `www/cdn-home.json`: the home page's stylesheet and images, in a commit of their own. A home-page change never changes a setup file's bytes or its SHA-256.
+`www/files/unduo`, the one setup file to download, for every published institution and Other (it shows the one its saved name names), `www/cdn/` with `www/cdn.json`: the stylesheet, images and setup plugin that setup files load from a pinned jsDelivr commit, and `www/cdn-home/` with `www/cdn-home.json`: the home page's stylesheet and images, in a commit of their own. A home-page change never changes a setup file's bytes or its SHA-256.
 Generated HTML is kept in `www/` for inspection and downloads.
 `vp run preview` serves the whole `www/` directory at `http://127.0.0.1:3000`; with
 `UNDUO_LOCAL_CDN=1` pages load their pinned assets from its `/cdn/` copy.
@@ -375,11 +375,11 @@ application code and plugins. It never submits a Duo activation.
 
 ## GitHub Pages
 
-The default build publishes only the home page, the University of Toronto file
-at `/files/020599`, the University of Waterloo file at `/files/020623`, the
-Western file at `/files/020629` and the generic file at `/files/other`. `UNDUO_UNIVERSITIES=published` is
-the default; use `UNDUO_UNIVERSITIES=all vp run build:web` to generate the full
-directory. The flag also controls development routes and the picker, so it never
+The default build publishes only the home page and one setup file, `/files/unduo`,
+for the University of Toronto, the University of Waterloo, Western and any other
+school or company. `UNDUO_UNIVERSITIES=published` is
+the default; use `UNDUO_UNIVERSITIES=all vp run build:web` to put the full
+directory in the picker and the file. The flag also controls development routes and the picker, so it never
 links to omitted institutions. Unknown flag values fail the build.
 
 The optional full-directory build shares application scripts and CDN dependencies

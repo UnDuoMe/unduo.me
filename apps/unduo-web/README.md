@@ -22,12 +22,12 @@ The build emits:
 
 - `www/index.html`: the home page, a short intro and a stepper from choosing an institution
   to its download, a prompt to ask an AI about it, and opening it.
-- `www/files/<WHED-number>`: each selected institution's setup UI, which the home page
-  downloads as `UnDuo - <institution name>.html`. It has no extension, so GitHub Pages serves it
-  as a download: setup never runs on the website.
-- `www/files/other`: the same setup UI for any other school or company, which the home page
-  downloads as `UnDuo - Other.html` when **Other** is chosen. It names no institution, links to
-  no portal, and its signed-in screenshots are `setup-0-*-generic.webp`, with the logo painted out.
+- `www/files/unduo`: the one setup UI for every institution, which the home page downloads as
+  `UnDuo - <institution name>.html` (`UnDuo - Other.html` for **Other**). It has no extension, so
+  GitHub Pages serves it as a download: setup never runs on the website. It shows the institution
+  its saved name names, even with a browser's ` (1)`, and Other otherwise: no institution's name,
+  no portal link, and signed-in screenshots with the logo painted out. Its first step has a menu
+  to change the institution.
 - `www/cdn/` and `www/cdn.json`: the Tailwind CSS, WebP help images and setup
   plugin that setup files load from a content-addressed jsDelivr commit.
 - `www/cdn-home/` and `www/cdn-home.json`: the home page's Tailwind CSS (the setup
@@ -71,11 +71,11 @@ they are published. It checks that SRI rejects changed styles, CSP
 rejects changed application code, and `fetch` rejects a changed plugin. No real
 activation request is submitted.
 
-The default build publishes only the home page, the University of Toronto file
-at `/files/020599`, the University of Waterloo file at `/files/020623`, the
-Western file at `/files/020629` and the generic file at `/files/other`. `UNDUO_UNIVERSITIES=published` is
-the default; use `UNDUO_UNIVERSITIES=all vp run build:web` to generate the full
-directory. The flag also controls development routes and the picker, so it never
+The default build publishes only the home page and one setup file, `/files/unduo`,
+for the University of Toronto, the University of Waterloo, Western and any other
+school or company. `UNDUO_UNIVERSITIES=published` is
+the default; use `UNDUO_UNIVERSITIES=all vp run build:web` to put the full
+directory in the picker and the file. The flag also controls development routes and the picker, so it never
 links to omitted institutions. Unknown flag values fail the build.
 
 The optional full-directory build shares application scripts and CDN dependencies

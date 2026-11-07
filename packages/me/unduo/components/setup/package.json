@@ -5,6 +5,7 @@
   "imports": {
     "#entities": "@-/me.unduo.components.setup.entities",
     "#qr-code": "./qr-code.ts",
+    "#school-choice": "./school-choice.ts",
     "#setup-app": "./setup-app.ts",
     "#setup-layout": "./setup-layout.ts",
     "#setup-mount": "./setup-mount.server.ts",

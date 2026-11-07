@@ -13,7 +13,7 @@ import {
   svg,
   textarea,
 } from "@-/me.unduo.lib.dom";
-import { fileId, otherInstitution } from "@-/me.unduo.lib.universities";
+import { otherInstitution } from "@-/me.unduo.lib.universities";
 import { aiPrompt } from "#ai-prompt";
 import { type AiChoice, copyArt, downloadArt, dragArt, openArt } from "#how-art";
 
@@ -109,7 +109,8 @@ export function downloadStep(school: University) {
         a(
           {
             class: "home-download",
-            href: `./files/${fileId(school)}`,
+            // The one setup file; its saved name tells it which institution to show.
+            href: "./files/unduo",
             download: fileName(school),
           },
           fileName(school),

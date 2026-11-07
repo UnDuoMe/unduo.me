@@ -4,7 +4,7 @@ Asks ChatGPT, Gemini and Claude the home page's prompt about a setup file, the w
 student would, and saves a screenshot of each reply for the home page.
 
 ```sh
-vp run capture:ai                          # all three, the UofT file in www/files/020599
+vp run capture:ai                          # all three, www/files/unduo saved as UofT's
 vp run capture:ai --site claude            # one site; repeat --site for more
 vp run capture:ai --focus                  # also set ChatGPT to Pro and use Claude's file picker
 ```

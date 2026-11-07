@@ -53,11 +53,16 @@ export { startSetupPage } from "#setup-app";
 The build writes each page's mount through `@-/me.unduo.components.setup/server`:
 
 ```ts
-setupMount({ university, image });
+setupMount({ universities, image });
 ```
 
-That is the `#setup` element, which holds the institution's details as data attributes for the
-script to read, and the screenshots' template. `image` gives the attributes that load a
+That is the empty `#setup` element, the `#setup-schools` template, whose elements hold each
+institution's details as data attributes for the script to read, and one set of screenshot
+templates per kind of portal (`#portal-*-<set>`). The script picks the institution whose name
+the file's own name holds (`schoolFromPath` in `school-choice.ts`: `UnDuo - <name>.html`, even
+with a browser's ` (1)` or ` 2`), or Other, and the first step's **Your school** menu changes
+it. It fetches every set's screenshots when the page opens, so what loads says nothing about
+the institution shown. `image` gives the attributes that load a
 screenshot. The file links home to `https://unduo.me/`. The adapter calls `startSetupPage(load)`,
 which builds the alerts, stepper and step card in `#setup` and the header, introduction, help
 dialogs, footer and Advanced panel around it with VanJS, where `load(limits)` calls
@@ -163,8 +168,6 @@ is used, and raw pasted replies are never serialized.
 ## Local download
 
 The build publishes the help images with the
-pinned assets. The home page links to each institution's file, `files/<WHED-number>`,
-and to `files/other` for any other school or company, all built from these components.
-`setupMount()` without an institution writes a `#setup` element with no data attributes:
-that file shows no institution's name ("isn't affiliated with your organization"), no
-portal or Source link, and the signed-in and My Settings examples with the logo painted out. It never serializes current page state.
+pinned assets. Every choice on the home page downloads the one file, `files/unduo`, built from these
+components. Other shows no institution's name ("isn't affiliated with your organization"),
+no portal or Source link, and the signed-in and My Settings examples with the logo painted out. It never serializes current page state.

@@ -4,7 +4,8 @@ import { linkStep } from "@-/me.unduo.components.setup.link";
 import type { PluginLimits, SetupPlugin } from "@-/me.unduo.components.setup.plugin";
 import { authenticateStep, portalStep } from "@-/me.unduo.components.setup.portal";
 import { stepper } from "@-/me.unduo.components.stepper";
-import { button, div, h2, p, section } from "@-/me.unduo.lib.dom";
+import { button, div, h2, p, section, type State } from "@-/me.unduo.lib.dom";
+import { otherSchool, readSchools, schoolFromPath } from "#school-choice";
 import { setupLayout } from "#setup-layout";
 import { createSetupPage } from "#setup-page";
 import type { SetupPage, SetupSchool } from "#entities";
@@ -13,15 +14,18 @@ const primary = "uk-button uk-button-primary btn-accent at-end";
 /** Where the page's links go home: it runs only as a file, so never a relative address. */
 const home = "https://unduo.me/";
 
-/** The stepper and the card for the current step, with Back, Next and Start over. */
-function setupCard(page: SetupPage, school: SetupSchool) {
+/**
+ * The stepper and the card for the current step, with Back, Next and Start
+ * over. `school` changes only on the first step.
+ */
+function setupCard(page: SetupPage, school: State<SetupSchool>, choices: readonly SetupSchool[]) {
   const { view, send } = page;
   // The step's elements rebuild only when the step changes, not on every view.
   const current = van.derive(() => view.val.current);
   const steps = [
-    () => portalStep(school, page),
-    () => authenticateStep(school, page),
-    () => linkStep(page, school),
+    () => portalStep(school, choices, page),
+    () => authenticateStep(school.val, page),
+    () => linkStep(page, school.val),
     () => "",
     () => authenticatorResult(page),
   ];
@@ -87,14 +91,20 @@ function setupCard(page: SetupPage, school: SetupSchool) {
 }
 
 /**
- * Start setup on a page the build wrote with `setupMount`. Its `#setup` element
- * holds the institution's details as data attributes and gets the alerts,
+ * Start setup on a page the build wrote with `setupMount`. The institution
+ * shown is the one in `#setup-schools` that the file's own name names, or
+ * Other; the first step can change it. The `#setup` element gets the alerts,
  * stepper and step card, and the rest of the page is built around it.
  */
 export function startSetupPage(load: (limits: PluginLimits) => Promise<SetupPlugin>) {
   const host = document.getElementById("setup")!;
-  const { schoolName = "", portalUrl, duoPrompt, schoolNote: note, sourceUrl = "" } = host.dataset;
-  const school = { name: schoolName, portalUrl, duoPrompt, note, sourceUrl };
+  const choices = [...readSchools(), otherSchool];
+  const school = van.state(schoolFromPath(location.pathname, choices) ?? otherSchool);
+  van.derive(() => {
+    document.title = school.val.name
+      ? `Duo setup for ${school.val.name} — unduo`
+      : "Duo setup — unduo";
+  });
   const page = createSetupPage(load);
   const alert = "uk-alert-danger page-alert";
   van.add(
@@ -107,7 +117,7 @@ export function startSetupPage(load: (limits: PluginLimits) => Promise<SetupPlug
       { class: alert, role: "alert", hidden: () => !page.failed.val },
       "unduo couldn't load its setup code, or it went over its limits. Check your connection, then reload the page, or change the limits under Advanced.",
     ),
-    () => (page.started.val ? setupCard(page, school) : ""),
+    () => (page.started.val ? setupCard(page, school, choices) : ""),
   );
-  van.add(document.getElementById("root")!, setupLayout(page, schoolName, home, host));
+  van.add(document.getElementById("root")!, setupLayout(page, school, home, host));
 }

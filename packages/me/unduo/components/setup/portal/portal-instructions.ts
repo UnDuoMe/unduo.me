@@ -3,10 +3,10 @@ import { div, em, li, ol, span, strong } from "@-/me.unduo.lib.dom";
 
 const instruction = "instruction";
 
-/** The example screenshots, copied from the page's `<template>`, which holds their URLs and pins. */
-function screenshotFigures({ screenshot }: SetupPage) {
+/** The institution's example screenshots, copied from its set's `<template>`, which holds their URLs and pins. */
+function screenshotFigures(set: string, { screenshot }: SetupPage) {
   const figures = (
-    document.getElementById("portal-screenshot-figures") as HTMLTemplateElement
+    document.getElementById(`portal-screenshot-figures-${set}`) as HTMLTemplateElement
   ).content.cloneNode(true) as DocumentFragment;
   figures.querySelectorAll("img").forEach(screenshot);
   return figures;
@@ -59,7 +59,7 @@ export function portalInstructions(school: SetupSchool, page: SetupPage) {
         role: "group",
         "aria-label": "Duo portal example screenshots",
       },
-      screenshotFigures(page),
+      screenshotFigures(school.screenshots, page),
     ),
   );
 }

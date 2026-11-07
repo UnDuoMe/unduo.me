@@ -58,7 +58,7 @@ beforeAll(async () => {
   homePublishedFiles = (await readdir(new URL("cdn-home/", output))).sort();
   pluginName = publishedFiles.find((name) => name.endsWith(".wasm"))!;
   pluginBytes = await readFile(new URL(`cdn/${pluginName}`, output));
-  html = await read("files/020599");
+  html = await read("files/unduo");
 });
 
 /** Whether a built page is a setup file, which mounts in `#setup`. */
@@ -73,12 +73,13 @@ const pinsOf = (document: string) =>
 const setupPartCount = jsPlugin ? 7 : 6;
 
 /**
- * A setup file's portal screenshots: two signed-in examples, the settings page
- * and five enrollment steps for the Traditional Prompt; one signed-in example
- * for the Universal Prompt, whose prompt looks the same in any window.
+ * The setup file's portal screenshots, each once: every institution's set is
+ * in the one file, and sets share some screenshots.
  */
-const portalScreenshotCount = (document: string) =>
-  document.includes('data-duo-prompt="universal"') ? 7 : 8;
+function portalScreenshots(document: string) {
+  const all = [...document.matchAll(/\bdata-image-src="([^"]+)" data-image-integrity="([^"]+)"/g)];
+  return [...new Map(all.map((match) => [match[1], match])).values()];
+}
 
 /** Every document carries all the code it runs; no script loads by URL. */
 function expectSelfContained(document: string, name: string) {
@@ -131,8 +132,8 @@ function expectLoadsNothingByUrl(document: string) {
   const images = [...document.matchAll(/<img\b[^>]*\ssrc="data:image\/webp;base64,([^"]+)"/g)];
   if (document.includes('aria-label="Duo portal example screenshots"'))
     expect(
-      images.map(([, data]) => sri(Buffer.from(data!, "base64"))).sort(),
-      "The eight portal screenshots, as published",
+      [...new Set(images.map(([, data]) => sri(Buffer.from(data!, "base64"))))].sort(),
+      "Every institution's portal screenshots, as published",
     ).toEqual(
       publishedFiles
         .filter((name) => name.endsWith(".webp"))
@@ -152,10 +153,11 @@ function expectPinned(document: string) {
   const jsSetup = jsPlugin && document.includes("data-image-src=");
   if (jsSetup) {
     expect(document).not.toMatch(/\bdata-plugin-(?:url|integrity)=/);
-    const screenshots = [
-      ...document.matchAll(/\bdata-image-src="([^"]+)" data-image-integrity="([^"]+)"/g),
-    ];
-    expect(screenshots, "The portal screenshots").toHaveLength(portalScreenshotCount(document));
+    const screenshots = portalScreenshots(document);
+    expect(
+      screenshots.map(([, url]) => url!.slice(assets.base.length)).sort(),
+      "Every published portal screenshot",
+    ).toEqual(publishedFiles.filter((name) => name.endsWith(".webp")));
     for (const [, url, integrity] of screenshots)
       expect(integrity, url).toBe(assets.files[url!.slice(assets.base.length)]);
     expect(
@@ -177,10 +179,11 @@ function expectPinned(document: string) {
       document.match(/\bdata-plugin-integrity="([^"]+)"/)?.[1],
       "The plugin is pinned by SHA-256",
     ).toBe(sri(pluginBytes));
-    const screenshots = [
-      ...document.matchAll(/\bdata-image-src="([^"]+)" data-image-integrity="([^"]+)"/g),
-    ];
-    expect(screenshots, "The portal screenshots").toHaveLength(portalScreenshotCount(document));
+    const screenshots = portalScreenshots(document);
+    expect(
+      screenshots.map(([, url]) => url!.slice(assets.base.length)).sort(),
+      "Every published portal screenshot",
+    ).toEqual(publishedFiles.filter((name) => name.endsWith(".webp")));
     for (const [, url, integrity] of screenshots)
       expect(integrity, url).toBe(assets.files[url!.slice(assets.base.length)]);
     const fetched = [pluginUrl, ...screenshots.map(([, url]) => url!).sort()];
@@ -253,11 +256,9 @@ function expectPinned(document: string) {
 }
 
 describe.runIf(enabled)("static output", () => {
-  test("files are WHED IDs without the IAU- prefix, and other", () => {
+  test("one setup file, files/unduo, serves every institution", () => {
     expect(outputFiles.some((name) => name.startsWith("IAU-"))).toBe(false);
-    expect(new Set(schoolFiles)).toEqual(
-      new Set([...universities.map((school) => school.id.slice(4)), "other"]),
-    );
+    expect(schoolFiles).toEqual(["unduo"]);
   });
 
   test("the site has no setup page: its one document is the home page", () => {
@@ -337,7 +338,7 @@ describe.runIf(enabled)("static output", () => {
   test.skipIf(selfContained)("every class the pages name has a rule in a stylesheet", async () => {
     const url = Object.keys(readCdnSource().assets)[0]!;
     const uikitCss = reviewedStylesheet(url).css;
-    for (const name of ["index.html", "files/020599"]) {
+    for (const name of ["index.html", "files/unduo"]) {
       const document = await read(name);
       // Each page's own stylesheet: the setup files' or the home page's.
       const { published } = pinsOf(document);
@@ -374,7 +375,7 @@ describe.runIf(enabled)("static output", () => {
   });
 
   test("the setup page's script elements say what they hold, and VanJS is as published", async () => {
-    const document = await read("files/020599");
+    const document = await read("files/unduo");
     const elements = [
       ...document.matchAll(/<script\b([^>]*\bdata-app="unduo"[^>]*)>([\s\S]*?)<\/script>/g),
     ];
@@ -423,7 +424,7 @@ describe.runIf(enabled)("static output", () => {
   });
 
   test.each([
-    ["files/020599", "setup"],
+    ["files/unduo", "setup"],
     ["index.html", "home"],
   ] as const)("%s's script holds and does what its data-comment says", async (name, entry) => {
     const document = await read(name);
@@ -499,26 +500,32 @@ describe.runIf(enabled)("static output", () => {
       expect(count(/location\.replace\(/g), "Old ?university= links stay on this page").toBe(0);
       expect(count(/history\.pushState\(/g), "The chosen institution and step").toBe(1);
       expect(urls.sort()).toEqual([
+        'href: "./files/unduo"',
         'href: "https://chatgpt.com/"',
         'href: "https://claude.ai/"',
         'href: "https://gemini.google.com/"',
         'href: "https://github.com/UnDuoMe/unduo.me"',
         'href: "mailto:contact@unduo.me"',
-        "href: `./files/${fileId(school)}`",
         "href: choice.href",
       ]);
     }
   });
 
-  test.each(["index.html", "files/020599", "files/020623", "files/020629"])(
+  test.each(["index.html", "files/unduo"])(
     "%s pins its plugin, scripts, styles and CSP",
     async (name) => expectPinned(await read(name)),
   );
 
   test("UIkit supplies styles only, and the markup holds each institution's details", async () => {
     expect(html, "UIkit supplies styles only, never scripts").not.toMatch(/<script[^>]*uikit/);
-    expect(html, "The script reads the portal link from the page's own markup").toMatch(
-      /<div id="setup"[^>]*\sdata-portal-url="https:\/\/enroll\.utormfa\.utoronto\.ca\/"/,
+    expect(
+      html,
+      "The script reads each institution's portal link from the page's own markup",
+    ).toMatch(
+      /<template id="setup-schools"><div data-school-id="IAU-020599"[^>]*\sdata-portal-url="https:\/\/enroll\.utormfa\.utoronto\.ca\/"/,
+    );
+    expect(html, "The #setup element holds no institution's details").toContain(
+      '<div id="setup"></div>',
     );
     // An AI reads the downloaded file, so it must not hold the question put to that AI.
     expect(await read("index.html")).toContain("Safe: yes");
@@ -536,6 +543,8 @@ describe.runIf(enabled)("browser", { timeout: 180_000 }, () => {
   let homeCdnBase: string;
   let preview: ReturnType<typeof spawn> | undefined;
   const session = `unduo-auditable-${process.pid}`;
+  /** The download, saved under the name the home page gives it for UofT. */
+  const downloaded = "UnDuo - University of Toronto.html";
   const environment = { ...process.env };
   for (const key of [
     "AGENT_BROWSER_HEADED",
@@ -617,8 +626,8 @@ describe.runIf(enabled)("browser", { timeout: 180_000 }, () => {
     });
     cdnBase = published ? assets.base : `${hosted}/cdn/`;
     homeCdnBase = published ? homeAssets.base : `${hosted}/cdn-home/`;
-    await writeFile(join(isolated, "index.html"), localCopy(html));
-    expect(await readdir(isolated), "The download is one file").toEqual(["index.html"]);
+    await writeFile(join(isolated, downloaded), localCopy(html));
+    expect(await readdir(isolated), "The download is one file").toEqual([downloaded]);
   }, 60_000);
 
   afterAll(async () => {
@@ -1281,7 +1290,7 @@ describe.runIf(enabled)("browser", { timeout: 180_000 }, () => {
     ).toEqual(["home-download", "UnDuo - University of Toronto.html", "underline"]);
     expect(
       evaluate("(({ href, download }) => [href, download])(document.querySelector('a[download]'))"),
-    ).toEqual([`${hosted}/files/020599`, "UnDuo - University of Toronto.html"]);
+    ).toEqual([`${hosted}/files/unduo`, "UnDuo - University of Toronto.html"]);
     // Every step has a drawing beside its text: here, the Downloads panel with the file.
     expect(
       evaluate(
@@ -1504,10 +1513,17 @@ describe.runIf(enabled)("browser", { timeout: 180_000 }, () => {
     expect(address()).toBe("/");
 
     // The site serves the file as a download; it has no page that runs setup.
-    const file = await fetch(`${hosted}/files/020599`);
+    const file = await fetch(`${hosted}/files/unduo`);
     expect(file.headers.get("content-type")).toBe("application/octet-stream");
     if (published) expect(await file.text()).toBe(html);
-    for (const path of ["020599/", "020599/index.html", "020599/download.html", "download.html"])
+    for (const path of [
+      "020599/",
+      "020599/index.html",
+      "020599/download.html",
+      "download.html",
+      "files/020599",
+      "files/other",
+    ])
       expect((await fetch(`${hosted}/${path}`)).status, path).toBe(404);
 
     // A shared link opens the download, and steps that earlier pages named lead to theirs.
@@ -1537,10 +1553,7 @@ describe.runIf(enabled)("browser", { timeout: 180_000 }, () => {
     expect(evaluate("document.querySelector('.dialog-school').textContent")).toBe("Other");
     expect(
       evaluate("(({ href, download }) => [href, download])(document.querySelector('a[download]'))"),
-    ).toEqual([`${hosted}/files/other`, "UnDuo - Other.html"]);
-    const otherFile = await fetch(`${hosted}/files/other`);
-    expect(otherFile.headers.get("content-type")).toBe("application/octet-stream");
-    if (published) expect(await otherFile.text()).toBe(await read("files/other"));
+    ).toEqual([`${hosted}/files/unduo`, "UnDuo - Other.html"]);
     click("button", "Close");
     waitForClosed();
     browser("open", `${hosted}/?university=other#step=continue`);
@@ -1550,9 +1563,10 @@ describe.runIf(enabled)("browser", { timeout: 180_000 }, () => {
     ).toBe("Follow the webpage's instructions to set up a new 2FA app for your organization.");
     click("button", "Done");
     waitForClosed();
-    if (universities.some(({ id }) => id === "IAU-020599-020519")) {
-      const branch = join(isolated, "branch.html");
-      await writeFile(branch, localCopy(await read("files/020599-020519")));
+    const stMichaels = universities.find(({ id }) => id === "IAU-020599-020519");
+    if (stMichaels) {
+      const branch = join(temporary, `UnDuo - ${stMichaels.name}.html`);
+      await writeFile(branch, localCopy(html));
       browser("open", pathToFileURL(branch).href);
       waitForHeading("Open your Duo device portal");
       expect(evaluate("document.title")).toMatch(/St\. Michael/);
@@ -1582,7 +1596,7 @@ describe.runIf(enabled)("browser", { timeout: 180_000 }, () => {
   });
 
   test("setup flow from a downloaded file", () =>
-    verifyFlow(pathToFileURL(join(isolated, "index.html")).href));
+    verifyFlow(pathToFileURL(join(isolated, downloaded)).href));
 
   test("the file opens at its portal under its download name, and links home to the site", async () => {
     const folder = join(temporary, "institution");
@@ -1610,32 +1624,30 @@ describe.runIf(enabled)("browser", { timeout: 180_000 }, () => {
     expect(browser("errors")).toBe("");
   });
 
-  test("Other's file names no institution, links to no portal and shows no logo", async () => {
-    const other = await read("files/other");
-    expect(other).not.toMatch(/Toronto/i);
-    expect(other, "The #setup element holds no institution's details").toContain(
-      '<div id="setup"></div>',
-    );
-    // Its signed-in and settings screenshots are the copies with the logo painted out.
-    if (!selfContained)
-      expect(
-        [
-          ...new Set(
-            [...other.matchAll(/(setup-0-[\w-]+?)\.[\w-]+\.webp/g)].map(([, name]) => name),
-          ),
-        ].sort(),
-      ).toEqual([
-        "setup-0-settings-devices-generic",
-        "setup-0-signed-in-narrow-generic",
-        "setup-0-signed-in-wide-generic",
-      ]);
-    const folder = join(temporary, "other");
-    await mkdir(folder);
-    const file = join(folder, "UnDuo - Other.html");
-    await writeFile(file, localCopy(other));
+  /** The one setup file, saved as `name` in a folder of its own and opened from disk. */
+  async function openAs(name: string) {
+    const file = join(await mkdtemp(join(temporary, "named-")), name);
+    await writeFile(file, localCopy(html));
     browser("open", pathToFileURL(file).href);
     waitForHeading("Open your Duo device portal");
-    expect(evaluate("document.title")).toBe("Duo setup — unduo");
+    browser(
+      "wait",
+      "--fn",
+      "[...document.querySelectorAll('.signed-in-example img')].every((image) => image.naturalWidth > 0)",
+    );
+  }
+  /** The set each example screenshot on the current step is from, by its file's name. */
+  const shownSets = (selector: string) =>
+    evaluate(
+      `[...new Set([...document.querySelectorAll(${JSON.stringify(selector)})].map((image) => /-(generic|universal|western)./.exec(image.dataset.imageSrc)?.[1] ?? "traditional"))]`,
+    );
+
+  test("a name that names no institution shows Other: no name, no portal link, no logo", async () => {
+    for (const name of ["UnDuo - Other.html", "download.html"]) {
+      await openAs(name);
+      expect(evaluate("document.title"), name).toBe("Duo setup — unduo");
+    }
+    expect(evaluate("document.querySelector('#school').value")).toBe("");
     expect(evaluate("!!document.querySelector('.eyebrow')"), "No institution's name").toBe(false);
     expect(evaluate("document.querySelector('.disclaimer').textContent")).toBe(
       "unduo is an independent open-source tool. It isn't affiliated with your organization, Duo Security or Cisco.",
@@ -1647,56 +1659,22 @@ describe.runIf(enabled)("browser", { timeout: 180_000 }, () => {
       evaluate("[...document.querySelectorAll('#setup-card a')].length"),
       "No portal or source link",
     ).toBe(0);
-    browser(
-      "wait",
-      "--fn",
-      "[...document.querySelectorAll('.signed-in-example img')].every((image) => image.naturalWidth > 0)",
-    );
+    expect(shownSets(".signed-in-example img")).toEqual(["generic"]);
     click("button", "Continue");
     waitForHeading("Authenticate with Duo");
+    expect(shownSets(".signed-in-example img")).toEqual(["generic"]);
     click("button", "Continue");
     waitForHeading("Copy the activation QR code");
     expect(browser("errors")).toBe("");
   });
 
-  test("Waterloo's file describes Duo's Universal Prompt, with Waterloo's screenshots", async () => {
-    const waterloo = await read("files/020623");
-    expect(waterloo).not.toMatch(/Toronto/i);
-    expect(waterloo).toContain('data-portal-url="https://uwaterloo.login.duosecurity.com/devices"');
-    expect(waterloo).toContain('data-duo-prompt="universal"');
-    expect(html, "UofT's file keeps the Traditional Prompt").not.toMatch(
-      /data-duo-prompt|-universal\./,
-    );
-    if (!selfContained)
-      expect(
-        [
-          ...new Set(
-            [...waterloo.matchAll(/(setup-\d-[\w-]+?)\.[\w-]+\.webp/g)].map(([, name]) => name),
-          ),
-        ].sort(),
-      ).toEqual([
-        "setup-0-settings-devices-universal",
-        "setup-0-signed-in-universal",
-        "setup-1-add-device-universal",
-        "setup-2-duo-mobile-universal",
-        "setup-3-tablet-universal",
-        "setup-4-next-universal",
-        "setup-5-copy-qr-universal",
-      ]);
-    const folder = join(temporary, "waterloo");
-    await mkdir(folder);
-    const file = join(folder, "UnDuo - University of Waterloo.html");
-    await writeFile(file, localCopy(waterloo));
-    browser("open", pathToFileURL(file).href);
-    waitForHeading("Open your Duo device portal");
-    expect(evaluate("document.title")).toMatch(/University of Waterloo/);
+  test("Waterloo's name shows Duo's Universal Prompt, with Waterloo's screenshots", async () => {
+    // A browser's mark for a second copy doesn't matter.
+    await openAs("UnDuo - University of Waterloo (1).html");
+    expect(evaluate("document.title")).toBe("Duo setup for University of Waterloo — unduo");
+    expect(evaluate("document.querySelector('#school').value")).toBe("IAU-020623");
     expect(evaluate("document.querySelector('#portal-url').value")).toBe(
       "https://uwaterloo.login.duosecurity.com/devices",
-    );
-    browser(
-      "wait",
-      "--fn",
-      "[...document.querySelectorAll('.signed-in-example img')].every((image) => image.naturalWidth > 0)",
     );
     expect(
       evaluate(
@@ -1708,6 +1686,7 @@ describe.runIf(enabled)("browser", { timeout: 180_000 }, () => {
     expect(evaluate("document.querySelector('.signed-in-text').textContent")).toBe(
       "Press Continue once you land on the page with Add a device:",
     );
+    expect(shownSets(".signed-in-example img")).toEqual(["universal"]);
     click("button", "Continue");
     waitForHeading("Copy the activation QR code");
     expect(evaluate("document.querySelector('.instructions li').textContent")).toBe(
@@ -1724,37 +1703,13 @@ describe.runIf(enabled)("browser", { timeout: 180_000 }, () => {
       "4. Choose Next",
       "5. Right-click the QR code and copy it",
     ]);
+    expect(shownSets('[aria-label="Duo portal example screenshots"] img')).toEqual(["universal"]);
     expect(browser("errors")).toBe("");
   });
 
-  test("Western's file sends students through Western Identity Manager, with its own devices page", async () => {
-    const western = await read("files/020629");
-    expect(western).not.toMatch(/Toronto/i);
-    expect(western).not.toContain("data-duo-prompt");
-    if (!selfContained)
-      expect(
-        [
-          ...new Set(
-            [...western.matchAll(/(setup-\d-[\w-]+?)\.[\w-]+\.webp/g)].map(([, name]) => name),
-          ),
-        ].sort(),
-      ).toEqual([
-        "setup-0-settings-devices-western",
-        "setup-0-signed-in-narrow-generic",
-        "setup-0-signed-in-wide-generic",
-        "setup-1-add-device",
-        "setup-2-tablet",
-        "setup-3-android",
-        "setup-4-duo-installed",
-        "setup-5-copy-qr-url",
-      ]);
-    const folder = join(temporary, "western");
-    await mkdir(folder);
-    const file = join(folder, "UnDuo - University of Western Ontario.html");
-    await writeFile(file, localCopy(western));
-    browser("open", pathToFileURL(file).href);
-    waitForHeading("Open your Duo device portal");
-    expect(evaluate("document.title")).toMatch(/University of Western Ontario/);
+  test("Western's name sends students through Western Identity Manager, with its own devices page", async () => {
+    await openAs("UnDuo - University of Western Ontario.html");
+    expect(evaluate("document.title")).toBe("Duo setup for University of Western Ontario — unduo");
     expect(evaluate("document.querySelector('#portal-url').value")).toBe(
       "https://identity.uwo.ca/",
     );
@@ -1763,20 +1718,51 @@ describe.runIf(enabled)("browser", { timeout: 180_000 }, () => {
     ).toBe(
       "After you sign in, open the Security tab, choose Manage My MFA, then Launch Duo Manager.",
     );
+    expect(shownSets(".signed-in-example img")).toEqual(["generic"]);
     click("button", "Continue");
     waitForHeading("Authenticate with Duo");
     expect(evaluate("document.querySelector('.signed-in-text').textContent")).toBe(
       "Press Continue once you land on the My Settings & Devices page:",
     );
-    browser("wait", "--fn", "document.querySelector('.signed-in-example img')?.naturalWidth > 0");
     expect(evaluate("document.querySelector('.signed-in-example figcaption').textContent")).toBe(
       "In Western Identity Manager: Security → Manage My MFA → Launch Duo Manager",
     );
+    expect(shownSets(".signed-in-example img")).toEqual(["western"]);
     click("button", "Continue");
     waitForHeading("Copy the activation QR code");
     expect(evaluate("document.querySelector('.instructions li').textContent")).toMatch(
       /^Add a device: choose Tablet → Android → I have Duo Mobile installed\./,
     );
+    expect(shownSets('[aria-label="Duo portal example screenshots"] img')).toEqual(["traditional"]);
+    expect(browser("errors")).toBe("");
+  });
+
+  test("the first step's menu changes the institution the file shows", async () => {
+    await openAs("download.html");
+    const choose = (id: string) =>
+      evaluate(
+        `(() => { const menu = document.querySelector('#school'); menu.value = ${JSON.stringify(id)}; menu.dispatchEvent(new Event('change')); })()`,
+      );
+    expect(
+      evaluate(
+        "[...document.querySelectorAll('#school option')].map((option) => option.textContent)",
+      ),
+    ).toEqual([...universities.map(({ name }) => name), "Other school or company"]);
+    choose("IAU-020623");
+    browser(
+      "wait",
+      "--fn",
+      "document.querySelector('.eyebrow')?.textContent === 'University of Waterloo'",
+    );
+    expect(evaluate("document.title")).toBe("Duo setup for University of Waterloo — unduo");
+    expect(evaluate("document.querySelector('#portal-url').value")).toBe(
+      "https://uwaterloo.login.duosecurity.com/devices",
+    );
+    expect(shownSets(".signed-in-example img")).toEqual(["universal"]);
+    choose("");
+    browser("wait", "--fn", "!document.querySelector('.eyebrow')");
+    expect(evaluate("document.title")).toBe("Duo setup — unduo");
+    expect(evaluate("!!document.querySelector('#portal-url')")).toBe(false);
     expect(browser("errors")).toBe("");
   });
 
@@ -1835,7 +1821,7 @@ describe.runIf(enabled)("browser", { timeout: 180_000 }, () => {
   });
 
   test.runIf(jsPlugin)("the experimental build's CSP refuses to compile WebAssembly", async () => {
-    browser("open", pathToFileURL(join(isolated, "index.html")).href);
+    browser("open", pathToFileURL(join(isolated, downloaded)).href);
     waitForHeading("Open your Duo device portal");
     browser(
       "eval",

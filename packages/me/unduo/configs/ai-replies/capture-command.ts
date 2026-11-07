@@ -8,7 +8,7 @@ const root = fileURLToPath(new URL("../../../../../", import.meta.url));
 const { values } = parseArgs({
   options: {
     site: { type: "string", multiple: true },
-    file: { type: "string", default: join(root, "www/files/020599") },
+    file: { type: "string", default: join(root, "www/files/unduo") },
     name: { type: "string", default: "UnDuo - University of Toronto.html" },
     images: { type: "string", default: join(root, "apps/unduo-web/src/assets") },
     results: { type: "string", default: fileURLToPath(new URL("results.json", import.meta.url)) },

@@ -112,15 +112,22 @@ export function screenshotSet(school?: { id: string; duoPrompt?: string }): Scre
 }
 
 /**
- * The screenshots' captions and pinned files, in `<template>`s: the signed-in
- * examples, which `portalStep` copies, the devices page, which
- * `authenticateStep` copies, and the enrollment steps, which
- * `portalInstructions` copies. `image` gives the attributes that load each file.
+ * Each set's captions and pinned files, in `<template>`s named for the set:
+ * the signed-in examples (`#portal-signed-in-<set>`), which `portalStep`
+ * copies, the devices page (`#portal-settings-<set>`), which
+ * `authenticateStep` copies, and the enrollment steps
+ * (`#portal-screenshot-figures-<set>`), which `portalInstructions` copies.
+ * `image` gives the attributes that load each file.
  */
 export function portalScreenshots(
   image: (file: string) => Record<string, string>,
-  set: ScreenshotSet = "traditional",
+  sets: readonly ScreenshotSet[],
 ) {
+  return sets.map((set) => screenshotTemplates(image, set)).join("\n      ");
+}
+
+/** One set's three templates. */
+function screenshotTemplates(image: (file: string) => Record<string, string>, set: ScreenshotSet) {
   const { signedIn, settings, steps } = sets[set];
   const examples = signedIn.map(
     ({ file, caption, label, size }) => `
@@ -144,9 +151,9 @@ export function portalScreenshots(
   const settingsPage = settings.caption
     ? `<figure><figcaption class="figure-caption">${escapeText(settings.caption)}</figcaption>${settingsImage}</figure>`
     : settingsImage;
-  return `<template id="portal-signed-in">${examples.join("")}
+  return `<template id="portal-signed-in-${set}">${examples.join("")}
   </template>
-      <template id="portal-settings">${settingsPage}</template>
-      <template id="portal-screenshot-figures">${figures.join("")}
+      <template id="portal-settings-${set}">${settingsPage}</template>
+      <template id="portal-screenshot-figures-${set}">${figures.join("")}
   </template>`;
 }

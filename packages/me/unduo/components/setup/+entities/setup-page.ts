@@ -1,14 +1,22 @@
 import type { SetupEvent, SetupView } from "@-/me.unduo.components.setup.plugin";
 import type { State } from "@-/me.unduo.lib.dom";
 
-/** An institution's details, from the data attributes of the page's `#setup` element. */
+/**
+ * An institution's details, from the data attributes of its element in the
+ * page's `#setup-schools` template. Other, for no institution, has an empty
+ * `id` and `name`.
+ */
 export interface SetupSchool {
+  /** The WHED ID, or "" for Other. */
+  id: string;
   name: string;
   portalUrl?: string | undefined;
   /** `universal` when the portal uses Duo's Universal Prompt; see `University.duoPrompt`. */
   duoPrompt?: string | undefined;
   note?: string | undefined;
   sourceUrl: string;
+  /** The set of example screenshots, which names the `#portal-*-<set>` templates to copy. */
+  screenshots: string;
 }
 
 /** The state and actions of the setup page, which its steps build their elements from. */

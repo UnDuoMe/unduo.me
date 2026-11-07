@@ -1,5 +1,17 @@
 import type { SetupPage, SetupSchool } from "@-/me.unduo.components.setup.entities";
-import { a, button, div, input, label, p, span, strong } from "@-/me.unduo.lib.dom";
+import {
+  a,
+  button,
+  div,
+  input,
+  label,
+  option,
+  p,
+  select,
+  span,
+  strong,
+  type State,
+} from "@-/me.unduo.lib.dom";
 
 /** The institution's portal link, with a field and button to copy it. */
 function schoolPortal({ view, copy, popup }: SetupPage, name: string, portalUrl: string) {
@@ -64,40 +76,81 @@ function examples(id: string, { screenshot }: SetupPage) {
 }
 
 /**
- * The step that opens the Duo device portal, with the institution's link if it
- * has one, and what the portal shows once the student is signed in. A file for
- * no particular institution has no name, link or source.
+ * The institution the page shows, which the file's name picked: one of
+ * `choices`, the last of which is Other.
  */
-export function portalStep(school: SetupSchool, page: SetupPage) {
+function schoolPicker(school: State<SetupSchool>, choices: readonly SetupSchool[]) {
+  return div(
+    { class: "school-picker" },
+    label({ for: "school", class: "portal-label" }, "Your school"),
+    select(
+      {
+        id: "school",
+        class: "uk-select field",
+        onchange: (event: Event) => {
+          const id = (event.target as HTMLSelectElement).value;
+          school.val = choices.find((choice) => choice.id === id) ?? school.val;
+        },
+      },
+      choices.map((choice) =>
+        option(
+          { value: choice.id, selected: choice.id === school.rawVal.id },
+          choice.name || "Other school or company",
+        ),
+      ),
+    ),
+  );
+}
+
+/**
+ * The step that opens the Duo device portal: the institution, which the
+ * student can change, its link if it has one, and what the portal shows once
+ * the student is signed in. Other has no name, link or source.
+ */
+export function portalStep(
+  school: State<SetupSchool>,
+  choices: readonly SetupSchool[],
+  page: SetupPage,
+) {
   return div(
     p(
       { class: "intro" },
       "Sign in to your organization's Duo device portal, where you manage the phones and tablets on your account. You'll add unduo there as a new device.",
     ),
-    div(
-      { class: "school-card" },
-      school.portalUrl
-        ? schoolPortal(page, school.name, school.portalUrl)
-        : p(
-            { class: "note" },
-            school.name
-              ? "We don't have a verified Duo portal link for this institution. It may use another MFA provider. Ask your IT help desk where to manage your Duo devices."
-              : "Open it in a new window, so you can keep these steps in view. If you don't know its address, ask your IT help desk where to manage your Duo devices.",
-          ),
-      school.note && p({ class: "school-note" }, school.note),
-      school.sourceUrl &&
-        a(
-          {
-            class: "uk-link school-link",
-            href: school.sourceUrl,
-            target: "_blank",
-            rel: "noreferrer",
-          },
-          "Source",
-        ),
-    ),
+    schoolPicker(school, choices),
+    () => schoolCard(school.val, page),
     p({ class: "signed-in-text" }, "Press ", strong("Continue"), " when you see a page like this:"),
-    div({ class: "signed-in-example" }, examples("portal-signed-in", page)),
+    () =>
+      div(
+        { class: "signed-in-example" },
+        examples(`portal-signed-in-${school.val.screenshots}`, page),
+      ),
+  );
+}
+
+/** The institution's portal link, note and source, or what to do without one. */
+function schoolCard(school: SetupSchool, page: SetupPage) {
+  return div(
+    { class: "school-card" },
+    school.portalUrl
+      ? schoolPortal(page, school.name, school.portalUrl)
+      : p(
+          { class: "note" },
+          school.name
+            ? "We don't have a verified Duo portal link for this institution. It may use another MFA provider. Ask your IT help desk where to manage your Duo devices."
+            : "Open it in a new window, so you can keep these steps in view. If you don't know its address, ask your IT help desk where to manage your Duo devices.",
+        ),
+    school.note && p({ class: "school-note" }, school.note),
+    school.sourceUrl &&
+      a(
+        {
+          class: "uk-link school-link",
+          href: school.sourceUrl,
+          target: "_blank",
+          rel: "noreferrer",
+        },
+        "Source",
+      ),
   );
 }
 
@@ -129,6 +182,6 @@ export function authenticateStep(school: SetupSchool, page: SetupPage) {
           strong("My Settings & Devices"),
           " page:",
         ),
-    div({ class: "signed-in-example" }, examples("portal-settings", page)),
+    div({ class: "signed-in-example" }, examples(`portal-settings-${school.screenshots}`, page)),
   );
 }

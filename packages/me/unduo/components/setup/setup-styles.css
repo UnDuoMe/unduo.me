@@ -222,6 +222,9 @@ summary {
   .portal-row {
     @apply mt-1.5! flex! gap-2!;
   }
+  .school-picker {
+    @apply mb-3!;
+  }
   .school-card {
     @apply mb-4! rounded-xl! bg-surface-secondary! p-3!;
   }
