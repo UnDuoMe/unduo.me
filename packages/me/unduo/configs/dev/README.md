@@ -14,7 +14,7 @@ vp run dev:web                   # Vite alone, no TUI
 
 The default base port is 2999: mprocs control listens on `127.0.0.1:2999`, and
 Vite serves `http://127.0.0.1:3000`. It stays in the foreground and never opens a browser.
-The pane inherits `UNDUO_UNIVERSITIES`, so the default remains UofT and Waterloo;
+The pane inherits `UNDUO_UNIVERSITIES`, so the default remains UofT, Waterloo and Western;
 `UNDUO_UNIVERSITIES=all vpx _dev` enables the full picker and route directory.
 
 `--port P` selects control port P and Vite port P+1. Existing listeners cause a

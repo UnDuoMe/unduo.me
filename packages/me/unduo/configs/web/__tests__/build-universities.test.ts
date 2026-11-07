@@ -4,12 +4,13 @@ import { getBuildUniversities } from "../build-universities";
 
 afterEach(() => vi.unstubAllEnvs());
 
-test("defaults to UofT and Waterloo, excluding branches", () => {
+test("defaults to UofT, Waterloo and Western, excluding branches", () => {
   vi.stubEnv("UNDUO_UNIVERSITIES", undefined);
   const selected = getBuildUniversities();
   expect(selected.map(({ id, portalUrl, duoPrompt }) => [id, portalUrl, duoPrompt])).toEqual([
     ["IAU-020599", "https://enroll.utormfa.utoronto.ca/", undefined],
     ["IAU-020623", "https://uwaterloo.login.duosecurity.com/devices", "universal"],
+    ["IAU-020629", "https://identity.uwo.ca/", undefined],
   ]);
 });
 
@@ -19,6 +20,7 @@ test("the environment flag can restore the full directory", () => {
   expect(getBuildUniversities("published").map(({ id }) => id)).toEqual([
     "IAU-020599",
     "IAU-020623",
+    "IAU-020629",
   ]);
 });
 

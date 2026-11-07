@@ -73,7 +73,7 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          for file in 020599 020623 other; do
+          for file in 020599 020623 020629 other; do
             curl -fsSI --retry 5 --retry-all-errors --retry-delay 10 "${PAGE_URL}files/${file}" |
               grep -qi '^content-type: application/octet-stream'
           done

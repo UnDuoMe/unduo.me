@@ -21,7 +21,7 @@ describe("canonical WHED directory", () => {
   test("verified enrollment URLs survive the identity migration", () => {
     const oldUrls = new Set(mfaOverrides.map((profile) => profile.portalUrl).filter(Boolean));
     const newUrls = new Set(universities.map((university) => university.portalUrl).filter(Boolean));
-    expect(oldUrls.size).toBe(31);
+    expect(oldUrls.size).toBe(32);
     expect(newUrls).toEqual(oldUrls);
     for (const university of universities.filter((school) => school.portalUrl)) {
       const profile = mfaOverrides.find((school) => school.portalUrl === university.portalUrl)!;

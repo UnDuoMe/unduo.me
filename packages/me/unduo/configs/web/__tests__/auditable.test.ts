@@ -510,7 +510,7 @@ describe.runIf(enabled)("static output", () => {
     }
   });
 
-  test.each(["index.html", "files/020599", "files/020623"])(
+  test.each(["index.html", "files/020599", "files/020623", "files/020629"])(
     "%s pins its plugin, scripts, styles and CSP",
     async (name) => expectPinned(await read(name)),
   );
@@ -1724,6 +1724,59 @@ describe.runIf(enabled)("browser", { timeout: 180_000 }, () => {
       "4. Choose Next",
       "5. Right-click the QR code and copy it",
     ]);
+    expect(browser("errors")).toBe("");
+  });
+
+  test("Western's file sends students through Western Identity Manager, with its own devices page", async () => {
+    const western = await read("files/020629");
+    expect(western).not.toMatch(/Toronto/i);
+    expect(western).not.toContain("data-duo-prompt");
+    if (!selfContained)
+      expect(
+        [
+          ...new Set(
+            [...western.matchAll(/(setup-\d-[\w-]+?)\.[\w-]+\.webp/g)].map(([, name]) => name),
+          ),
+        ].sort(),
+      ).toEqual([
+        "setup-0-settings-devices-western",
+        "setup-0-signed-in-narrow-generic",
+        "setup-0-signed-in-wide-generic",
+        "setup-1-add-device",
+        "setup-2-tablet",
+        "setup-3-android",
+        "setup-4-duo-installed",
+        "setup-5-copy-qr-url",
+      ]);
+    const folder = join(temporary, "western");
+    await mkdir(folder);
+    const file = join(folder, "UnDuo - University of Western Ontario.html");
+    await writeFile(file, localCopy(western));
+    browser("open", pathToFileURL(file).href);
+    waitForHeading("Open your Duo device portal");
+    expect(evaluate("document.title")).toMatch(/University of Western Ontario/);
+    expect(evaluate("document.querySelector('#portal-url').value")).toBe(
+      "https://identity.uwo.ca/",
+    );
+    expect(
+      evaluate("[...document.querySelectorAll('.school-card .school-note')].at(-1).textContent"),
+    ).toBe(
+      "After you sign in, open the Security tab, choose Manage My MFA, then Launch Duo Manager.",
+    );
+    click("button", "Continue");
+    waitForHeading("Authenticate with Duo");
+    expect(evaluate("document.querySelector('.signed-in-text').textContent")).toBe(
+      "Press Continue once you land on the My Settings & Devices page:",
+    );
+    browser("wait", "--fn", "document.querySelector('.signed-in-example img')?.naturalWidth > 0");
+    expect(evaluate("document.querySelector('.signed-in-example figcaption').textContent")).toBe(
+      "In Western Identity Manager: Security → Manage My MFA → Launch Duo Manager",
+    );
+    click("button", "Continue");
+    waitForHeading("Copy the activation QR code");
+    expect(evaluate("document.querySelector('.instructions li').textContent")).toMatch(
+      /^Add a device: choose Tablet → Android → I have Duo Mobile installed\./,
+    );
     expect(browser("errors")).toBe("");
   });
 

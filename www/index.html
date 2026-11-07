@@ -1,6 +1,6 @@
 <!doctype html>
 <html lang="en">
-  <head><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'sha256-dZu710qV7pUozk9WNNw7Nr449YAqE6wv/arVKnsnH/Y=' 'sha256-pAEZrTjMNedA3JaXErz+nYEBUY7scvl31+sCTJln4I0='; script-src-attr 'none'; style-src-elem https://cdn.jsdelivr.net/npm/uikit@3.25.29/dist/css/uikit.min.css https://cdn.jsdelivr.net/gh/UnDuoMe/unduo.me@4534990792cc041a1af2796d460c46bccce1eb1e/home-styles.3_ZumG4r.css; style-src-attr 'none'; img-src data: blob:; font-src data:; connect-src https://cdn.jsdelivr.net/gh/UnDuoMe/unduo.me@4534990792cc041a1af2796d460c46bccce1eb1e/ai-reply-chatgpt.FvVOA7Zj.webp https://cdn.jsdelivr.net/gh/UnDuoMe/unduo.me@4534990792cc041a1af2796d460c46bccce1eb1e/ai-reply-claude.IBqiXgqZ.webp https://cdn.jsdelivr.net/gh/UnDuoMe/unduo.me@4534990792cc041a1af2796d460c46bccce1eb1e/ai-reply-gemini.PhqX2pJf.webp; form-action https://*.duosecurity.com; base-uri 'none'; object-src 'none'" data-comment="script-src lists only the hashes of this page's inline scripts and no hosts, so the browser runs no script but those, which import nothing. No source allows inline handlers or eval. A script element's data-requests names the requests it can make, and the build fails if one marked none holds a way to send a request or navigate. Fetches may reach only the files in connect-src, and forms only Duo. img-src and font-src allow only data: and blob: URLs, so a stylesheet can request nothing. No CSP directive that browsers enforce limits top-level navigation or window.open, so only this page's own scripts can use them.">
+  <head><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'sha256-dZu710qV7pUozk9WNNw7Nr449YAqE6wv/arVKnsnH/Y=' 'sha256-TDdtE25kt+kgkJyLOYCo9Mnfp/IehlUWvsR5hjpjlX4='; script-src-attr 'none'; style-src-elem https://cdn.jsdelivr.net/npm/uikit@3.25.29/dist/css/uikit.min.css https://cdn.jsdelivr.net/gh/UnDuoMe/unduo.me@4534990792cc041a1af2796d460c46bccce1eb1e/home-styles.3_ZumG4r.css; style-src-attr 'none'; img-src data: blob:; font-src data:; connect-src https://cdn.jsdelivr.net/gh/UnDuoMe/unduo.me@4534990792cc041a1af2796d460c46bccce1eb1e/ai-reply-chatgpt.FvVOA7Zj.webp https://cdn.jsdelivr.net/gh/UnDuoMe/unduo.me@4534990792cc041a1af2796d460c46bccce1eb1e/ai-reply-claude.IBqiXgqZ.webp https://cdn.jsdelivr.net/gh/UnDuoMe/unduo.me@4534990792cc041a1af2796d460c46bccce1eb1e/ai-reply-gemini.PhqX2pJf.webp; form-action https://*.duosecurity.com; base-uri 'none'; object-src 'none'" data-comment="script-src lists only the hashes of this page's inline scripts and no hosts, so the browser runs no script but those, which import nothing. No source allows inline handlers or eval. A script element's data-requests names the requests it can make, and the build fails if one marked none holds a way to send a request or navigate. Fetches may reach only the files in connect-src, and forms only Duo. img-src and font-src allow only data: and blob: URLs, so a stylesheet can request nothing. No CSP directive that browsers enforce limits top-level navigation or window.open, so only this page's own scripts can use them.">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="referrer" content="no-referrer">
@@ -157,44 +157,68 @@
   window.van = van_default;
 })();
 </script>
-<script type="module" data-app="unduo" data-comment="This and the vanjs element before it are all the JavaScript the page runs. This one is bundled from github.com/UnDuoMe/unduo.me without minifying. It imports nothing. With VanJS, which builds the page's elements with createElement and text nodes, it filters the list of institutions as you type and takes the one you choose through downloading its setup file, asking an AI about it and opening it. Its only requests are fetch() of the screenshots of what ChatGPT, Claude and Gemini said about a setup file (showScreenshot): each image's data-image-src in the #ai-reply-images template, which returns a file only if its SHA-256 matches, shown as a blob: URL. It changes the URL only with history.pushState(), which records the institution and step you chose in this page's own address. It opens a window only with window.open() of the AI link you click (openWindow), and only links you click go anywhere else. When you ask, it copies a prompt for an AI to your clipboard.">var universities = [{
-	"id": "IAU-020599",
-	"name": "University of Toronto",
-	"country": "Canada",
-	"aliases": [
-		"University of Toronto",
-		"utoronto.ca",
-		"toronto.edu",
-		"utoronto",
-		"U of T",
-		"UofT",
-		"UTORMFA",
-		"U Toronto"
-	],
-	"sourceUrl": "https://security.utoronto.ca/wp-content/uploads/2024/07/UTORMFA-Info-Sessions-Presentation.pdf",
-	"sourceKind": "university",
-	"checkedAt": "2026-10-31",
-	"portalUrl": "https://enroll.utormfa.utoronto.ca/",
-	"stateProvince": "Ontario"
-}, {
-	"id": "IAU-020623",
-	"name": "University of Waterloo",
-	"country": "Canada",
-	"aliases": [
-		"University of Waterloo",
-		"uwaterloo.ca",
-		"uwaterloo",
-		"Waterloo",
-		"UW",
-		"UWaterloo"
-	],
-	"sourceUrl": "https://uwaterloo.ca/mechanical-mechatronics-engineering-information-technology/two-factor-authentication-2fa#enroll",
-	"sourceKind": "university",
-	"checkedAt": "2026-11-07",
-	"portalUrl": "https://uwaterloo.login.duosecurity.com/devices",
-	"duoPrompt": "universal",
-	"stateProvince": "Ontario"
-}];
+<script type="module" data-app="unduo" data-comment="This and the vanjs element before it are all the JavaScript the page runs. This one is bundled from github.com/UnDuoMe/unduo.me without minifying. It imports nothing. With VanJS, which builds the page's elements with createElement and text nodes, it filters the list of institutions as you type and takes the one you choose through downloading its setup file, asking an AI about it and opening it. Its only requests are fetch() of the screenshots of what ChatGPT, Claude and Gemini said about a setup file (showScreenshot): each image's data-image-src in the #ai-reply-images template, which returns a file only if its SHA-256 matches, shown as a blob: URL. It changes the URL only with history.pushState(), which records the institution and step you chose in this page's own address. It opens a window only with window.open() of the AI link you click (openWindow), and only links you click go anywhere else. When you ask, it copies a prompt for an AI to your clipboard.">var universities = [
+	{
+		"id": "IAU-020599",
+		"name": "University of Toronto",
+		"country": "Canada",
+		"aliases": [
+			"University of Toronto",
+			"utoronto.ca",
+			"toronto.edu",
+			"utoronto",
+			"U of T",
+			"UofT",
+			"UTORMFA",
+			"U Toronto"
+		],
+		"sourceUrl": "https://security.utoronto.ca/wp-content/uploads/2024/07/UTORMFA-Info-Sessions-Presentation.pdf",
+		"sourceKind": "university",
+		"checkedAt": "2026-10-31",
+		"portalUrl": "https://enroll.utormfa.utoronto.ca/",
+		"stateProvince": "Ontario"
+	},
+	{
+		"id": "IAU-020623",
+		"name": "University of Waterloo",
+		"country": "Canada",
+		"aliases": [
+			"University of Waterloo",
+			"uwaterloo.ca",
+			"uwaterloo",
+			"Waterloo",
+			"UW",
+			"UWaterloo"
+		],
+		"sourceUrl": "https://uwaterloo.ca/mechanical-mechatronics-engineering-information-technology/two-factor-authentication-2fa#enroll",
+		"sourceKind": "university",
+		"checkedAt": "2026-11-07",
+		"portalUrl": "https://uwaterloo.login.duosecurity.com/devices",
+		"duoPrompt": "universal",
+		"stateProvince": "Ontario"
+	},
+	{
+		"id": "IAU-020629",
+		"name": "University of Western Ontario",
+		"country": "Canada",
+		"aliases": [
+			"University of Western Ontario",
+			"uwo.ca",
+			"western",
+			"Western University",
+			"Western",
+			"UWO",
+			"Western Ontario"
+		],
+		"sourceUrl": "https://mfa.uwo.ca/manage_your_devices/add_a_new_authentication_device.html",
+		"sourceKind": "university",
+		"checkedAt": "2026-11-07",
+		"portalUrl": "https://identity.uwo.ca/",
+		"note": "After you sign in, open the Security tab, choose Manage My MFA, then Launch Duo Manager.",
+		"whedIds": ["IAU-020629"],
+		"stateProvince": "Ontario"
+	}
+];
 /**
 * The HTML elements the pages build, each a function of its properties and
 * children. A function or `State` as a value keeps that property or child up

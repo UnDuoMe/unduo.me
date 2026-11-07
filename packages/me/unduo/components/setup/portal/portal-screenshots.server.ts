@@ -4,8 +4,8 @@ import { attributes, escapeText } from "@-/me.unduo.lib.dom/server";
 interface Screenshots {
   /** What Duo shows once the student is signed in, which `portalStep` copies. */
   signedIn: { file: string; caption?: string; label: string; size: "narrow" | "wide" }[];
-  /** The page that lists the student's devices, which `authenticateStep` copies. */
-  settings: { file: string; label: string };
+  /** The page that lists the student's devices, which `authenticateStep` copies, with how to reach it. */
+  settings: { file: string; caption?: string; label: string };
   /** Adding a device until its QR code shows, which `portalInstructions` copies. */
   steps: { file: string; label: string }[];
 }
@@ -77,10 +77,39 @@ const universal: Screenshots = {
   ],
 };
 
-const sets = { traditional, generic, universal };
+/**
+ * Western's Traditional Prompt: its own My Settings & Devices (`-western`, from
+ * Western Technology Services' enrollment guide, keeping its red box around Add
+ * another device), and UofT's examples without UofT's logo, since Western's
+ * guides show no sign-in prompt.
+ */
+const western: Screenshots = {
+  ...generic,
+  settings: {
+    file: "0-settings-devices-western",
+    caption: "In Western Identity Manager: Security → Manage My MFA → Launch Duo Manager",
+    label: "Duo's My Settings & Devices page at Western, with the device's name and number blurred",
+  },
+};
 
-/** Which screenshots a file shows: UofT's, UofT's without its logo, or Waterloo's. */
+const sets = { traditional, generic, universal, western };
+
+/** Which screenshots a file shows: UofT's, UofT's without its logo, Waterloo's or Western's. */
 export type ScreenshotSet = keyof typeof sets;
+
+/** Institutions with screenshots of their own portal, by WHED ID. */
+const ownScreenshots: Record<string, ScreenshotSet> = { "IAU-020629": "western" };
+
+/**
+ * The screenshots for a file: none of an institution's for the file that names
+ * none, an institution's own, Waterloo's for the Universal Prompt, or UofT's.
+ */
+export function screenshotSet(school?: { id: string; duoPrompt?: string }): ScreenshotSet {
+  if (!school) return "generic";
+  return (
+    ownScreenshots[school.id] ?? (school.duoPrompt === "universal" ? "universal" : "traditional")
+  );
+}
 
 /**
  * The screenshots' captions and pinned files, in `<template>`s: the signed-in
@@ -111,7 +140,10 @@ export function portalScreenshots(
       <img class="screenshot"${attributes({ ...image(`setup-${file}`), alt: label })}>
     </figure>`,
   );
-  const settingsPage = `<img class="screenshot"${attributes({ ...image(`setup-${settings.file}`), alt: settings.label })}>`;
+  const settingsImage = `<img class="screenshot"${attributes({ ...image(`setup-${settings.file}`), alt: settings.label })}>`;
+  const settingsPage = settings.caption
+    ? `<figure><figcaption class="figure-caption">${escapeText(settings.caption)}</figcaption>${settingsImage}</figure>`
+    : settingsImage;
   return `<template id="portal-signed-in">${examples.join("")}
   </template>
       <template id="portal-settings">${settingsPage}</template>

@@ -376,8 +376,8 @@ application code and plugins. It never submits a Duo activation.
 ## GitHub Pages
 
 The default build publishes only the home page, the University of Toronto file
-at `/files/020599`, the University of Waterloo file at `/files/020623` and the
-generic file at `/files/other`. `UNDUO_UNIVERSITIES=published` is
+at `/files/020599`, the University of Waterloo file at `/files/020623`, the
+Western file at `/files/020629` and the generic file at `/files/other`. `UNDUO_UNIVERSITIES=published` is
 the default; use `UNDUO_UNIVERSITIES=all vp run build:web` to generate the full
 directory. The flag also controls development routes and the picker, so it never
 links to omitted institutions. Unknown flag values fail the build.

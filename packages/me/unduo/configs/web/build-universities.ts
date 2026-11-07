@@ -2,10 +2,11 @@ import { universities } from "@-/me.unduo.data.universities";
 
 /**
  * The institutions the site publishes files for: the main records of the
- * University of Toronto and the University of Waterloo. Their branches and
- * affiliated colleges stay out.
+ * University of Toronto, the University of Waterloo and Western University
+ * (the University of Western Ontario). Their branches and affiliated colleges
+ * stay out.
  */
-const published = ["IAU-020599", "IAU-020623"];
+const published = ["IAU-020599", "IAU-020623", "IAU-020629"];
 
 /** Keep generated routes and the browser picker on the same publication scope. */
 export function getBuildUniversities(scope = process.env.UNDUO_UNIVERSITIES ?? "published") {

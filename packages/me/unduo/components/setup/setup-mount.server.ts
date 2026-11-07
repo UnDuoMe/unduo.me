@@ -1,4 +1,4 @@
-import { portalScreenshots } from "@-/me.unduo.components.setup.portal/server";
+import { portalScreenshots, screenshotSet } from "@-/me.unduo.components.setup.portal/server";
 import type { University } from "@-/me.unduo.data.universities.entities";
 import { attributes } from "@-/me.unduo.lib.dom/server";
 
@@ -23,5 +23,5 @@ export function setupMount({ university, image }: SetupMount) {
     "data-source-url": university?.sourceUrl,
   });
   return `<div${setup}></div>
-      ${portalScreenshots(image, !university ? "generic" : university.duoPrompt === "universal" ? "universal" : "traditional")}`;
+      ${portalScreenshots(image, screenshotSet(university))}`;
 }

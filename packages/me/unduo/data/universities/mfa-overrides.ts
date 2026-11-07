@@ -1025,6 +1025,20 @@ export const mfaOverrides: readonly (University & { readonly whedIds?: readonly 
     checkedAt: "2026-10-31",
   },
   {
+    id: "western",
+    name: "Western University",
+    country: "Canada",
+    aliases: ["Western", "UWO", "Western Ontario", "uwo.ca"],
+    // mymfa.uwo.ca, which Western's Student Center guide names, no longer resolves.
+    // Western Technology Services now sends students through Western Identity Manager.
+    sourceUrl: "https://mfa.uwo.ca/manage_your_devices/add_a_new_authentication_device.html",
+    sourceKind: "university",
+    checkedAt: "2026-11-07",
+    portalUrl: "https://identity.uwo.ca/",
+    note: "After you sign in, open the Security tab, choose Manage My MFA, then Launch Duo Manager.",
+    whedIds: ["IAU-020629"],
+  },
+  {
     id: "western-kentucky",
     name: "Western Kentucky University",
     country: "United States",

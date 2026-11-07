@@ -44,12 +44,14 @@ has no page that runs it.
 
 The current site publishes [University of Toronto](https://unduo.me/?university=IAU-020599),
 the institution confirmed supported so far, [University of Waterloo](https://unduo.me/?university=IAU-020623),
-whose file follows Duo's Universal Prompt from Waterloo's own instructions, and
+whose file follows Duo's Universal Prompt from Waterloo's own instructions,
+[Western University](https://unduo.me/?university=IAU-020629) (the University of Western Ontario), whose
+file goes through Western Identity Manager, and
 [Other](https://unduo.me/?university=other), a file
 for any other school or company that names no institution and links to no portal. The home picker and generated files
 use the same scope. Full-directory builds remain available through
 `UNDUO_UNIVERSITIES=all`.
-The canonical directory comes from the complete [WHED catalog snapshot](https://mix-n-match.toolforge.org/#/catalog/7299), enriched with domain aliases and 31 documented Duo portal URLs. Directory inclusion does not confirm Duo use.
+The canonical directory comes from the complete [WHED catalog snapshot](https://mix-n-match.toolforge.org/#/catalog/7299), enriched with domain aliases and 32 documented Duo portal URLs. Directory inclusion does not confirm Duo use.
 See [directory coverage and maintenance](packages/me/unduo/data/universities/README.md).
 
 The website is a set of static pages, built with Vite and styled with UIkit's CSS and Tailwind CSS. **There is
@@ -248,8 +250,8 @@ vp test                # run the unit tests (Duo calls are mocked)
 ### Deploy the website
 
 The default build publishes only the home page, the University of Toronto file
-at `/files/020599`, the University of Waterloo file at `/files/020623` and the
-generic file at `/files/other`. `UNDUO_UNIVERSITIES=published` is
+at `/files/020599`, the University of Waterloo file at `/files/020623`, the
+Western file at `/files/020629` and the generic file at `/files/other`. `UNDUO_UNIVERSITIES=published` is
 the default; use `UNDUO_UNIVERSITIES=all vp run build:web` to generate the full
 directory. The flag also controls development routes and the picker, so it never
 links to omitted institutions. Unknown flag values fail the build.
