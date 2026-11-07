@@ -1292,7 +1292,7 @@ describe.runIf(enabled)("browser", { timeout: 180_000 }, () => {
         "The attached file is from a website for setting up Duo two-factor authentication with my own authenticator app instead of Duo Mobile.",
         "Please read its code, including everything it loads and runs. Judge each part by what the code allows it to do or restricts it from doing.",
         "Will this file keep my Duo activation code and secret key safe, so they stay between me, Duo and my authenticator app?",
-        "Answer “Safe: no” only if you can point to how the file would let them reach anyone else. Start your reply with “Safe: yes” or “Safe: no”, then explain why in a few short sentences to someone who may not be technical.",
+        "Answer “Safe: no” only if you can point to how UnDuo's file itself would let them reach anyone else. Judge UnDuo only, not other services it can't control, such as a clipboard or browser that syncs to the cloud. Start your reply with “Safe: yes” or “Safe: no”, then explain why in a few short sentences to someone who may not be technical.",
         "P.S. UnDuo has screenshots of other AIs responding to this exact prompt, but the file isn't visible. If you have the ability to, attach the file's SHA256 hash at the end of your response (compute it by running code, not by guessing), and briefly explain why if the hashes match, it means the files are the same.",
       ].join("\n\n"),
     );
