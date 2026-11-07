@@ -15,6 +15,8 @@ export const {
   div,
   em,
   fieldset,
+  figcaption,
+  figure,
   footer,
   form,
   h1,

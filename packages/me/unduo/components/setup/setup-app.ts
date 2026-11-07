@@ -106,6 +106,14 @@ export function startSetupPage(load: (limits: PluginLimits) => Promise<SetupPlug
       : "Duo setup — unduo";
   });
   const page = createSetupPage(load);
+  // Fetch all of the institution's screenshots once it's known, and again
+  // when the first step changes it, so when each loads says nothing about the setup.
+  van.derive(() => {
+    const set = page.screenshots.val?.sets[school.val.screenshots];
+    if (set)
+      for (const shot of [...set.signedIn, set.settings, ...set.steps])
+        void page.loadScreenshot(shot);
+  });
   const alert = "uk-alert-danger page-alert";
   van.add(
     host,

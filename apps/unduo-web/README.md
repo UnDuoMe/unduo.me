@@ -54,8 +54,9 @@ search catalog.
 The configs package’s `html-security.mjs` checks document attributes and template contents. It rejects
 script URLs, import maps, inline scripts that import anything, mismatched SRI, native
 event handlers and embedded documents. CSP allows only the inline scripts' hashes, the
-pinned styles, `data:` and `blob:` images, fetches of the plugin and screenshot files
-alone, WebAssembly only on pages with the plugin, and form submissions only to Duo. Compiled Tailwind CSS
+pinned styles, `data:` and `blob:` images, fetches only from the setup assets commit's folder
+(the plugin, the screenshot list and the screenshots it names, each checked by SHA-256) and of the
+home page's AI screenshots, WebAssembly only on pages with the plugin, and form submissions only to Duo. Compiled Tailwind CSS
 cannot import further resources.
 
 Update UIkit through the root catalog, run `vp run update:cdn`, and review the

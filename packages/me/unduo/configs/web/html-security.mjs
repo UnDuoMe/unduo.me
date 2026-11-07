@@ -74,6 +74,9 @@ export function finalizeHtml(source, { stylesheets = {}, assetBase, selfContaine
   const stylesheetUrls = new Set();
   const plugins = new Set();
   const images = new Set();
+  // Folders of published assets the page may fetch files from: the setup
+  // file's screenshot list names the screenshots there, each with its SHA-256.
+  const folders = new Set();
   // Published assets name jsDelivr's listing of their commit, described in data-comment.
   const requireIntegritySource = (attrs, url) => {
     const expected = assetIntegritySource(url);
@@ -126,6 +129,21 @@ export function finalizeHtml(source, { stylesheets = {}, assetBase, selfContaine
       requireIntegritySource(attrs, attrs["data-plugin-url"]);
       plugins.add(attrs["data-plugin-url"]);
     }
+    // The screenshot list loads by fetch, with its SHA-256, and names the
+    // screenshots next to it, each with its SHA-256.
+    if (Object.hasOwn(attrs, "data-screenshots-url")) {
+      if (
+        !fromAssets(attrs["data-screenshots-url"]) ||
+        !attrs["data-screenshots-url"].endsWith(".json")
+      )
+        throw new Error(
+          `The screenshot list must be a published asset: ${attrs["data-screenshots-url"]}`,
+        );
+      if (!/^sha256-[A-Za-z0-9+/]{43}=$/.test(attrs["data-screenshots-integrity"] ?? ""))
+        throw new Error("The screenshot list requires a SHA-256 pin.");
+      requireIntegritySource(attrs, attrs["data-screenshots-url"]);
+      folders.add(assetBase);
+    }
     // Screenshots load by fetch, with their SHA-256, as blob: URLs.
     if (Object.hasOwn(attrs, "data-image-src")) {
       if (!fromAssets(attrs["data-image-src"]) || !attrs["data-image-src"].endsWith(".webp"))
@@ -176,7 +194,10 @@ export function finalizeHtml(source, { stylesheets = {}, assetBase, selfContaine
     return styleHashes.get(css);
   });
   if (plugins.size > 1) throw new Error("A page loads at most one setup plugin.");
-  if (selfContained !== undefined && (stylesheetUrls.size || plugins.size || images.size))
+  if (
+    selfContained !== undefined &&
+    (stylesheetUrls.size || plugins.size || images.size || folders.size)
+  )
     throw new Error("A self-contained page loads no stylesheet, plugin or screenshot by URL.");
   const scriptSources = [...new Set(hashes)];
   // Compiling WebAssembly is allowed only on pages that load the pinned plugin.
@@ -191,10 +212,18 @@ export function finalizeHtml(source, { stylesheets = {}, assetBase, selfContaine
     // Neither the markup nor the script sets inline styles; `hidden` hides elements.
     "style-src-attr 'none'",
     // Stylesheets can request nothing: images are data: or blob: URLs, and fonts data: URLs.
-    `img-src data:${images.size ? " blob:" : ""}`,
+    `img-src data:${images.size || folders.size ? " blob:" : ""}`,
     "font-src data:",
-    // The only files a page fetches are the setup plugin and its screenshots.
-    `connect-src ${[...plugins, ...[...images].sort((a, b) => (a < b ? -1 : 1))].join(" ") || "'none'"}`,
+    // The only files a page fetches are the setup plugin, its screenshot list
+    // and the screenshots it names, all in the folder of one assets commit.
+    `connect-src ${
+      [
+        ...folders,
+        ...[...plugins, ...images]
+          .filter((url) => ![...folders].some((folder) => url.startsWith(folder)))
+          .sort((a, b) => (a < b ? -1 : 1)),
+      ].join(" ") || "'none'"
+    }`,
     "form-action https://*.duosecurity.com",
     // Duo's reply shows in a frame rather than a new tab, so it stays out of browser history.
     ...(replyFrame ? ["frame-src https://*.duosecurity.com"] : []),
@@ -227,7 +256,10 @@ export function finalizeHtml(source, { stylesheets = {}, assetBase, selfContaine
           plugins.size && "'wasm-unsafe-eval' allows compiling WebAssembly only.",
           plugins.size && formNote,
           frameNote,
-          `Fetches may reach only the files in connect-src, and forms only Duo. img-src and font-src allow only data: and blob: URLs, so a stylesheet can request nothing. ${navigationNote}`,
+          folders.size
+            ? "Fetches may reach only the files in connect-src's folder, one commit of github.com/UnDuoMe/unduo.me whose files jsDelivr lists at the #setup element's data-integrity-source, and the script uses each only if its SHA-256 matches. Forms may reach only Duo."
+            : "Fetches may reach only the files in connect-src, and forms only Duo.",
+          `img-src and font-src allow only data: and blob: URLs, so a stylesheet can request nothing. ${navigationNote}`,
         ]
   )
     .filter(Boolean)

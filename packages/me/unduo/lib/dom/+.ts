@@ -8,6 +8,8 @@ export {
   div,
   em,
   fieldset,
+  figcaption,
+  figure,
   footer,
   form,
   g,

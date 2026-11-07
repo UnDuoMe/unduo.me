@@ -33,7 +33,11 @@ export function sitePages(): SitePage[] {
       render: (resources) =>
         pageLayout(
           { title: "Duo setup — unduo", entry: "setup", resources },
-          setupMount({ universities: getBuildUniversities(), image: resources.image }),
+          setupMount({
+            universities: getBuildUniversities(),
+            screenshot: resources.screenshot,
+            asset: resources.asset,
+          }),
         ),
     },
   ];

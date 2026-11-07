@@ -1,8 +1,16 @@
-import type { SetupPage, SetupSchool } from "@-/me.unduo.components.setup.entities";
+import type {
+  Screenshot,
+  ScreenshotSet,
+  SetupPage,
+  SetupSchool,
+} from "@-/me.unduo.components.setup.entities";
 import {
   a,
   button,
   div,
+  figcaption,
+  figure,
+  img,
   input,
   label,
   option,
@@ -66,13 +74,25 @@ function schoolPortal({ view, copy, popup }: SetupPage, name: string, portalUrl:
   ];
 }
 
-/** Example screenshots, copied from the page's `<template>` with this `id`, which holds their URLs and pins. */
-function examples(id: string, { screenshot }: SetupPage) {
-  const copy = (document.getElementById(id) as HTMLTemplateElement).content.cloneNode(
-    true,
-  ) as DocumentFragment;
-  copy.querySelectorAll("img").forEach(screenshot);
-  return copy;
+/** A screenshot from the page's list, which shows once it's fetched and checked. */
+export function screenshotImage(shot: Screenshot, page: SetupPage) {
+  const image = img({ class: "screenshot", alt: shot.label });
+  page.screenshot(image, shot);
+  return image;
+}
+
+/** The institution's set in the page's screenshot list, once the list is loaded. */
+export function screenshotsOf(school: SetupSchool, page: SetupPage): ScreenshotSet | undefined {
+  return page.screenshots.val?.sets[school.screenshots];
+}
+
+/** A screenshot under its caption, if it has one. */
+function captioned(shot: Screenshot, page: SetupPage, props: Record<string, string> = {}) {
+  return figure(
+    props,
+    shot.caption ? figcaption({ class: "figure-caption" }, shot.caption) : null,
+    screenshotImage(shot, page),
+  );
 }
 
 /**
@@ -123,7 +143,11 @@ export function portalStep(
     () =>
       div(
         { class: "signed-in-example" },
-        examples(`portal-signed-in-${school.val.screenshots}`, page),
+        (screenshotsOf(school.val, page)?.signedIn ?? []).map((shot) =>
+          captioned(shot, page, {
+            class: shot.size === "wide" ? "signed-in-wide" : "signed-in-narrow",
+          }),
+        ),
       ),
   );
 }
@@ -182,6 +206,16 @@ export function authenticateStep(school: SetupSchool, page: SetupPage) {
           strong("My Settings & Devices"),
           " page:",
         ),
-    div({ class: "signed-in-example" }, examples(`portal-settings-${school.screenshots}`, page)),
+    () => {
+      const settings = screenshotsOf(school, page)?.settings;
+      return div(
+        { class: "signed-in-example" },
+        !settings
+          ? null
+          : settings.caption
+            ? captioned(settings, page)
+            : screenshotImage(settings, page),
+      );
+    },
   );
 }

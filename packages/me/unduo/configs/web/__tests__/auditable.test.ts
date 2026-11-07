@@ -72,13 +72,47 @@ const pinsOf = (document: string) =>
 /** The setup page's program runs as this many script elements; see `setupParts`. */
 const setupPartCount = jsPlugin ? 7 : 6;
 
+/** A screenshot in the setup file's screenshot list. */
+interface ListedShot {
+  file: string;
+  integrity: string;
+}
+/** Every screenshot in a screenshot list, in each of its sets. */
+const listedShots = (list: {
+  sets: Record<string, { signedIn: ListedShot[]; settings: ListedShot; steps: ListedShot[] }>;
+}) =>
+  Object.values(list.sets).flatMap(({ signedIn, settings, steps }) => [
+    ...signedIn,
+    settings,
+    ...steps,
+  ]);
+/** An attribute's value as the build writes it: `&`, `<` and `"` escaped. */
+const unescaped = (value: string) =>
+  value.replaceAll("&quot;", '"').replaceAll("&lt;", "<").replaceAll("&amp;", "&");
+
 /**
- * The setup file's portal screenshots, each once: every institution's set is
- * in the one file, and sets share some screenshots.
+ * The setup file names no screenshot: it pins its screenshot list by SHA-256,
+ * and the list names every published screenshot with its SHA-256.
  */
-function portalScreenshots(document: string) {
-  const all = [...document.matchAll(/\bdata-image-src="([^"]+)" data-image-integrity="([^"]+)"/g)];
-  return [...new Map(all.map((match) => [match[1], match])).values()];
+function expectScreenshotList(document: string) {
+  const url = /\bdata-screenshots-url="([^"]+)"/.exec(document)?.[1] ?? "";
+  const name = url.slice(assets.base.length);
+  expect(url.startsWith(assets.base) && name.endsWith(".json"), "A published list").toBe(true);
+  expect(
+    /\bdata-screenshots-integrity="([^"]+)"/.exec(document)?.[1],
+    "The screenshot list is pinned by SHA-256",
+  ).toBe(assets.files[name]);
+  const shots = listedShots(JSON.parse(readFileSync(new URL(`cdn/${name}`, output), "utf8")));
+  expect(
+    [...new Set(shots.map(({ file }) => file))].sort(),
+    "The list names every published portal screenshot",
+  ).toEqual(publishedFiles.filter((file) => file.endsWith(".webp")));
+  for (const { file, integrity } of shots) expect(integrity, file).toBe(assets.files[file]);
+  expect(document, "The file names no screenshot").not.toMatch(/setup-\d-[\w-]+\.[\w-]+\.webp/);
+  expect(
+    document.includes(`connect-src ${assets.base};`),
+    "Fetches may reach only the files of the assets commit",
+  ).toBe(true);
 }
 
 /** Every document carries all the code it runs; no script loads by URL. */
@@ -129,10 +163,16 @@ function expectLoadsNothingByUrl(document: string) {
   expect(styles.uikit, "UIkit, trimmed to the classes the markup uses").toBe(
     trimUikit(uikit.css, usedUikitClasses(document)),
   );
-  const images = [...document.matchAll(/<img\b[^>]*\ssrc="data:image\/webp;base64,([^"]+)"/g)];
-  if (document.includes('aria-label="Duo portal example screenshots"'))
+  const inline = /\bdata-screenshots="([^"]*)"/.exec(document)?.[1];
+  if (inline !== undefined)
     expect(
-      [...new Set(images.map(([, data]) => sri(Buffer.from(data!, "base64"))))].sort(),
+      [
+        ...new Set(
+          listedShots(JSON.parse(unescaped(inline))).map(({ file }) =>
+            sri(Buffer.from(file.slice("data:image/webp;base64,".length), "base64")),
+          ),
+        ),
+      ].sort(),
       "Every institution's portal screenshots, as published",
     ).toEqual(
       publishedFiles
@@ -150,25 +190,10 @@ function expectPinned(document: string) {
   expect(document).not.toMatch(/'unsafe-eval'/);
   const pluginUrl = document.match(/\bdata-plugin-url="([^"]+)"/)?.[1];
   /** The experimental build's setup pages run the TypeScript logic and fetch only screenshots. */
-  const jsSetup = jsPlugin && document.includes("data-image-src=");
+  const jsSetup = jsPlugin && isSetupPage(document) && !selfContained;
   if (jsSetup) {
     expect(document).not.toMatch(/\bdata-plugin-(?:url|integrity)=/);
-    const screenshots = portalScreenshots(document);
-    expect(
-      screenshots.map(([, url]) => url!.slice(assets.base.length)).sort(),
-      "Every published portal screenshot",
-    ).toEqual(publishedFiles.filter((name) => name.endsWith(".webp")));
-    for (const [, url, integrity] of screenshots)
-      expect(integrity, url).toBe(assets.files[url!.slice(assets.base.length)]);
-    expect(
-      document.includes(
-        `connect-src ${screenshots
-          .map(([, url]) => url!)
-          .sort()
-          .join(" ")};`,
-      ),
-      "Only the screenshot files may be fetched",
-    ).toBe(true);
+    expectScreenshotList(document);
     expect(document, "No WebAssembly is compiled").not.toMatch(/wasm-unsafe-eval/);
     expect(document, "The inline code documents its guard on the logic's output").toMatch(
       /\/\*\*\n\s*\* Plugin output check\. `guard` checks each output before any other code sees/,
@@ -179,18 +204,7 @@ function expectPinned(document: string) {
       document.match(/\bdata-plugin-integrity="([^"]+)"/)?.[1],
       "The plugin is pinned by SHA-256",
     ).toBe(sri(pluginBytes));
-    const screenshots = portalScreenshots(document);
-    expect(
-      screenshots.map(([, url]) => url!.slice(assets.base.length)).sort(),
-      "Every published portal screenshot",
-    ).toEqual(publishedFiles.filter((name) => name.endsWith(".webp")));
-    for (const [, url, integrity] of screenshots)
-      expect(integrity, url).toBe(assets.files[url!.slice(assets.base.length)]);
-    const fetched = [pluginUrl, ...screenshots.map(([, url]) => url!).sort()];
-    expect(
-      document.includes(`connect-src ${fetched.join(" ")};`),
-      "Only the plugin and screenshot files may be fetched",
-    ).toBe(true);
+    expectScreenshotList(document);
     expect(document).toMatch(/'wasm-unsafe-eval'/);
     expect(document, "The inline code documents its guard on plugin output").toMatch(
       /\/\*\*\n\s*\* Plugin output check\. `guard` checks each output before any other code sees/,
@@ -217,7 +231,9 @@ function expectPinned(document: string) {
   if (selfContained) expectLoadsNothingByUrl(document);
   expect(
     document.includes(
-      /\sdata-image-src=/.test(document) ? "img-src data: blob:;" : "img-src data:;",
+      /\sdata-(?:image-src|screenshots-url)=/.test(document)
+        ? "img-src data: blob:;"
+        : "img-src data:;",
     ),
     "Images are data: URLs or blob: URLs of fetched screenshots",
   ).toBe(true);
@@ -524,8 +540,13 @@ describe.runIf(enabled)("static output", () => {
     ).toMatch(
       /<template id="setup-schools"><div data-school-id="IAU-020599"[^>]*\sdata-portal-url="https:\/\/enroll\.utormfa\.utoronto\.ca\/"/,
     );
-    expect(html, "The #setup element holds no institution's details").toContain(
-      '<div id="setup"></div>',
+    expect(
+      /<div id="setup"[^>]*>/.exec(html)?.[0],
+      "The #setup element pins the screenshot list and holds no institution's details",
+    ).toMatch(
+      selfContained
+        ? /^<div id="setup" data-screenshots="[^"]+"(?![^>]*data-school)/
+        : /^<div id="setup" data-screenshots-url="[^"]+" data-screenshots-integrity="[^"]+"(?![^>]*data-school)/,
     );
     // An AI reads the downloaded file, so it must not hold the question put to that AI.
     expect(await read("index.html")).toContain("Safe: yes");
@@ -832,7 +853,7 @@ describe.runIf(enabled)("browser", { timeout: 180_000 }, () => {
     else
       expect(
         evaluate(
-          `[...document.querySelectorAll('[aria-label="Duo portal example screenshots"] img')].filter(img => img.src.startsWith('blob:') && img.dataset.imageSrc.startsWith(${JSON.stringify(cdnBase)})).length`,
+          `[...document.querySelectorAll('[aria-label="Duo portal example screenshots"] img')].filter(img => img.src.startsWith('blob:') && ${JSON.stringify(publishedFiles)}.includes(img.dataset.screenshot)).length`,
         ),
         "Each screenshot shows its fetched file",
       ).toBe(5);
@@ -1027,8 +1048,8 @@ describe.runIf(enabled)("browser", { timeout: 180_000 }, () => {
       ).toBe(true);
       expect(
         new URL(url).pathname,
-        "Only reviewed style, image and plugin assets may be requested",
-      ).toMatch(/\.(css|webp|wasm)$/);
+        "Only reviewed style, image and plugin assets and the screenshot list may be requested",
+      ).toMatch(/\.(css|webp|wasm)$|\/screenshots\.[\w-]+\.json$/);
     }
     expect(JSON.stringify(requests), "No activation requests expected").not.toContain(
       "duosecurity.com",
@@ -1636,10 +1657,16 @@ describe.runIf(enabled)("browser", { timeout: 180_000 }, () => {
       "[...document.querySelectorAll('.signed-in-example img')].every((image) => image.naturalWidth > 0)",
     );
   }
-  /** The set each example screenshot on the current step is from, by its file's name. */
+  /**
+   * The set each example screenshot on the current step is from, by its file's
+   * name, which the self-contained experiment's data: URLs don't carry.
+   */
+  const expectShown = (selector: string, sets: string[]) => {
+    if (!selfContained) expect(shownSets(selector)).toEqual(sets);
+  };
   const shownSets = (selector: string) =>
     evaluate(
-      `[...new Set([...document.querySelectorAll(${JSON.stringify(selector)})].map((image) => /-(generic|universal|western)./.exec(image.dataset.imageSrc)?.[1] ?? "traditional"))]`,
+      `[...new Set([...document.querySelectorAll(${JSON.stringify(selector)})].map((image) => /-(generic|universal|western)./.exec(image.dataset.screenshot)?.[1] ?? "traditional"))]`,
     );
 
   test("a name that names no institution shows Other: no name, no portal link, no logo", async () => {
@@ -1659,10 +1686,10 @@ describe.runIf(enabled)("browser", { timeout: 180_000 }, () => {
       evaluate("[...document.querySelectorAll('#setup-card a')].length"),
       "No portal or source link",
     ).toBe(0);
-    expect(shownSets(".signed-in-example img")).toEqual(["generic"]);
+    expectShown(".signed-in-example img", ["generic"]);
     click("button", "Continue");
     waitForHeading("Authenticate with Duo");
-    expect(shownSets(".signed-in-example img")).toEqual(["generic"]);
+    expectShown(".signed-in-example img", ["generic"]);
     click("button", "Continue");
     waitForHeading("Copy the activation QR code");
     expect(browser("errors")).toBe("");
@@ -1686,7 +1713,7 @@ describe.runIf(enabled)("browser", { timeout: 180_000 }, () => {
     expect(evaluate("document.querySelector('.signed-in-text').textContent")).toBe(
       "Press Continue once you land on the page with Add a device:",
     );
-    expect(shownSets(".signed-in-example img")).toEqual(["universal"]);
+    expectShown(".signed-in-example img", ["universal"]);
     click("button", "Continue");
     waitForHeading("Copy the activation QR code");
     expect(evaluate("document.querySelector('.instructions li').textContent")).toBe(
@@ -1703,7 +1730,7 @@ describe.runIf(enabled)("browser", { timeout: 180_000 }, () => {
       "4. Choose Next",
       "5. Right-click the QR code and copy it",
     ]);
-    expect(shownSets('[aria-label="Duo portal example screenshots"] img')).toEqual(["universal"]);
+    expectShown('[aria-label="Duo portal example screenshots"] img', ["universal"]);
     expect(browser("errors")).toBe("");
   });
 
@@ -1718,7 +1745,7 @@ describe.runIf(enabled)("browser", { timeout: 180_000 }, () => {
     ).toBe(
       "After you sign in, open the Security tab, choose Manage My MFA, then Launch Duo Manager.",
     );
-    expect(shownSets(".signed-in-example img")).toEqual(["generic"]);
+    expectShown(".signed-in-example img", ["generic"]);
     click("button", "Continue");
     waitForHeading("Authenticate with Duo");
     expect(evaluate("document.querySelector('.signed-in-text').textContent")).toBe(
@@ -1727,13 +1754,13 @@ describe.runIf(enabled)("browser", { timeout: 180_000 }, () => {
     expect(evaluate("document.querySelector('.signed-in-example figcaption').textContent")).toBe(
       "In Western Identity Manager: Security → Manage My MFA → Launch Duo Manager",
     );
-    expect(shownSets(".signed-in-example img")).toEqual(["western"]);
+    expectShown(".signed-in-example img", ["western"]);
     click("button", "Continue");
     waitForHeading("Copy the activation QR code");
     expect(evaluate("document.querySelector('.instructions li').textContent")).toMatch(
       /^Add a device: choose Tablet → Android → I have Duo Mobile installed\./,
     );
-    expect(shownSets('[aria-label="Duo portal example screenshots"] img')).toEqual(["traditional"]);
+    expectShown('[aria-label="Duo portal example screenshots"] img', ["traditional"]);
     expect(browser("errors")).toBe("");
   });
 
@@ -1758,7 +1785,7 @@ describe.runIf(enabled)("browser", { timeout: 180_000 }, () => {
     expect(evaluate("document.querySelector('#portal-url').value")).toBe(
       "https://uwaterloo.login.duosecurity.com/devices",
     );
-    expect(shownSets(".signed-in-example img")).toEqual(["universal"]);
+    expectShown(".signed-in-example img", ["universal"]);
     choose("");
     browser("wait", "--fn", "!document.querySelector('.eyebrow')");
     expect(evaluate("document.title")).toBe("Duo setup — unduo");

@@ -1,1 +1,1 @@
-export { portalScreenshots, screenshotSet } from "#portal-screenshots";
+export { screenshotList, screenshotSet } from "#portal-screenshots";

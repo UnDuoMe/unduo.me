@@ -1,15 +1,14 @@
 import type { SetupPage, SetupSchool } from "@-/me.unduo.components.setup.entities";
-import { div, em, li, ol, span, strong } from "@-/me.unduo.lib.dom";
+import { div, em, figcaption, figure, li, ol, span, strong } from "@-/me.unduo.lib.dom";
+import { screenshotImage, screenshotsOf } from "#portal-step";
 
 const instruction = "instruction";
 
-/** The institution's example screenshots, copied from its set's `<template>`, which holds their URLs and pins. */
-function screenshotFigures(set: string, { screenshot }: SetupPage) {
-  const figures = (
-    document.getElementById(`portal-screenshot-figures-${set}`) as HTMLTemplateElement
-  ).content.cloneNode(true) as DocumentFragment;
-  figures.querySelectorAll("img").forEach(screenshot);
-  return figures;
+/** The institution's screenshots of each click, numbered in their captions. */
+function screenshotFigures(school: SetupSchool, page: SetupPage) {
+  return (screenshotsOf(school, page)?.steps ?? []).map((shot) =>
+    figure(figcaption({ class: "figure-caption" }, shot.label), screenshotImage(shot, page)),
+  );
 }
 
 /** What to choose in the portal until it shows a Duo Mobile QR code, in each design of Duo's pages. */
@@ -53,13 +52,14 @@ export function portalInstructions(school: SetupSchool, page: SetupPage) {
         ),
       ),
     ),
-    div(
-      {
-        class: "screenshot-list",
-        role: "group",
-        "aria-label": "Duo portal example screenshots",
-      },
-      screenshotFigures(school.screenshots, page),
-    ),
+    () =>
+      div(
+        {
+          class: "screenshot-list",
+          role: "group",
+          "aria-label": "Duo portal example screenshots",
+        },
+        screenshotFigures(school, page),
+      ),
   );
 }

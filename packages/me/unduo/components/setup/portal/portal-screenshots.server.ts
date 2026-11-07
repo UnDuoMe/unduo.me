@@ -1,13 +1,20 @@
-import { attributes, escapeText } from "@-/me.unduo.lib.dom/server";
+import type {
+  Screenshot,
+  ScreenshotList,
+  ScreenshotSet as ListedSet,
+} from "@-/me.unduo.components.setup.entities";
+
+/** A screenshot in `src/assets/`, named without `setup-` and `.webp`, with its text. */
+type Shot = Omit<Screenshot, "file" | "integrity"> & { file: string };
 
 /** Example screenshots of Duo's pages, with only account text (device names and numbers) blurred. */
 interface Screenshots {
-  /** What Duo shows once the student is signed in, which `portalStep` copies. */
-  signedIn: { file: string; caption?: string; label: string; size: "narrow" | "wide" }[];
-  /** The page that lists the student's devices, which `authenticateStep` copies, with how to reach it. */
-  settings: { file: string; caption?: string; label: string };
-  /** Adding a device until its QR code shows, which `portalInstructions` copies. */
-  steps: { file: string; label: string }[];
+  /** What Duo shows once the student is signed in, which `portalStep` shows. */
+  signedIn: Shot[];
+  /** The page that lists the student's devices, which `authenticateStep` shows, with how to reach it. */
+  settings: Shot;
+  /** Adding a device until its QR code shows, which `portalInstructions` shows. */
+  steps: Shot[];
 }
 
 /**
@@ -92,10 +99,10 @@ const western: Screenshots = {
   },
 };
 
-const sets = { traditional, generic, universal, western };
+const defined = { traditional, generic, universal, western };
 
 /** Which screenshots a file shows: UofT's, UofT's without its logo, Waterloo's or Western's. */
-export type ScreenshotSet = keyof typeof sets;
+export type ScreenshotSet = keyof typeof defined;
 
 /** Institutions with screenshots of their own portal, by WHED ID. */
 const ownScreenshots: Record<string, ScreenshotSet> = { "IAU-020629": "western" };
@@ -112,48 +119,25 @@ export function screenshotSet(school?: { id: string; duoPrompt?: string }): Scre
 }
 
 /**
- * Each set's captions and pinned files, in `<template>`s named for the set:
- * the signed-in examples (`#portal-signed-in-<set>`), which `portalStep`
- * copies, the devices page (`#portal-settings-<set>`), which
- * `authenticateStep` copies, and the enrollment steps
- * (`#portal-screenshot-figures-<set>`), which `portalInstructions` copies.
- * `image` gives the attributes that load each file.
+ * The screenshot list for `sets`: each screenshot's text, and the file and
+ * SHA-256 that `image` gives for it. The build publishes it with the setup
+ * files' assets, and the file pins it by its SHA-256, so it names every
+ * screenshot the page can show without the file naming any.
  */
-export function portalScreenshots(
-  image: (file: string) => Record<string, string>,
+export function screenshotList(
   sets: readonly ScreenshotSet[],
-) {
-  return sets.map((set) => screenshotTemplates(image, set)).join("\n      ");
-}
-
-/** One set's three templates. */
-function screenshotTemplates(image: (file: string) => Record<string, string>, set: ScreenshotSet) {
-  const { signedIn, settings, steps } = sets[set];
-  const examples = signedIn.map(
-    ({ file, caption, label, size }) => `
-    <figure class="signed-in-${size}">${
-      caption
-        ? `
-      <figcaption class="figure-caption">${escapeText(caption)}</figcaption>`
-        : ""
-    }
-      <img class="screenshot"${attributes({ ...image(`setup-${file}`), alt: label })}>
-    </figure>`,
-  );
-  const figures = steps.map(
-    ({ file, label }) => `
-    <figure>
-      <figcaption class="figure-caption">${escapeText(label)}</figcaption>
-      <img class="screenshot"${attributes({ ...image(`setup-${file}`), alt: label })}>
-    </figure>`,
-  );
-  const settingsImage = `<img class="screenshot"${attributes({ ...image(`setup-${settings.file}`), alt: settings.label })}>`;
-  const settingsPage = settings.caption
-    ? `<figure><figcaption class="figure-caption">${escapeText(settings.caption)}</figcaption>${settingsImage}</figure>`
-    : settingsImage;
-  return `<template id="portal-signed-in-${set}">${examples.join("")}
-  </template>
-      <template id="portal-settings-${set}">${settingsPage}</template>
-      <template id="portal-screenshot-figures-${set}">${figures.join("")}
-  </template>`;
+  image: (name: string) => { file: string; integrity: string },
+): ScreenshotList {
+  const listed = (shot: Shot): Screenshot => ({ ...shot, ...image(`setup-${shot.file}`) });
+  return {
+    sets: Object.fromEntries(
+      sets.map((set): [string, ListedSet] => {
+        const { signedIn, settings, steps } = defined[set];
+        return [
+          set,
+          { signedIn: signedIn.map(listed), settings: listed(settings), steps: steps.map(listed) },
+        ];
+      }),
+    ),
+  };
 }

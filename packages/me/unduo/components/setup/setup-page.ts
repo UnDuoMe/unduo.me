@@ -1,7 +1,7 @@
 import { defaultPluginLimits, newPublicKey } from "@-/me.unduo.components.setup.plugin";
 import { readQrCodes } from "@-/me.unduo.lib.qr-reader";
 import { qrImage } from "#qr-code";
-import type { SetupPage } from "#entities";
+import type { Screenshot, ScreenshotList, SetupPage } from "#entities";
 import type {
   PluginLimits,
   SetupEffect,
@@ -49,8 +49,11 @@ export function createSetupPage(load: (limits: PluginLimits) => Promise<SetupPlu
   let formHost = "";
   /** Activation values posted from this page, so a double click posts once. */
   const sent = new Set<string>();
-  /** Each screenshot's blob: URL, by its `data-image-src`. */
+  /** Each screenshot's blob: URL, by its file. */
   const images = new Map<string, Promise<string>>();
+  /** Where the screenshot list came from, which its files are relative to. */
+  let listUrl = "";
+  const screenshots = van.state<ScreenshotList | undefined>(undefined);
 
   const view = van.state(noView);
   const started = van.derive(() => view.val !== noView);
@@ -66,11 +69,10 @@ export function createSetupPage(load: (limits: PluginLimits) => Promise<SetupPlu
   };
 
   function begin() {
-    // Fetch every institution's screenshots now, so neither when they load nor
-    // which ones load says anything about the setup or the institution shown.
-    document
-      .querySelectorAll<HTMLTemplateElement>('template[id^="portal-"]')
-      .forEach((template) => template.content.querySelectorAll("img").forEach(screenshot));
+    void screenshotList().then(
+      (list) => (screenshots.val = list),
+      () => {},
+    );
     // Start only where the browser enforces this page's CSP, whose connect-src
     // allows no data: URL: this fetch must fail.
     void fetch("data:,").then(
@@ -308,22 +310,48 @@ export function createSetupPage(load: (limits: PluginLimits) => Promise<SetupPlu
     opened.opener = null;
     event.preventDefault();
   }
+  /** A published file, which `fetch` returns only if its SHA-256 matches `integrity`. */
+  function pinned(url: string, integrity: string) {
+    return fetch(url, { integrity, credentials: "omit" }).then((response) =>
+      response.ok ? response : Promise.reject(new Error(url)),
+    );
+  }
   /**
-   * Show a screenshot: a blob: URL of the file at the image's `data-image-src`,
-   * which `fetch` returns only if its SHA-256 matches `data-image-integrity`.
-   * An image with no `data-image-src` already holds its picture.
+   * The screenshot list: the text in `#setup`'s data-screenshots, or the file
+   * at its data-screenshots-url, only if its SHA-256 matches
+   * data-screenshots-integrity. Anything but a list of checked file names and
+   * SHA-256s is refused.
    */
-  function screenshot(picture: HTMLImageElement) {
-    const { imageSrc: url, imageIntegrity: integrity = "" } = picture.dataset;
-    if (!url) return;
-    if (!images.has(url))
+  function screenshotList() {
+    const data = document.getElementById("setup")!.dataset;
+    listUrl = new URL(data.screenshotsUrl ?? "", document.baseURI).href;
+    const text =
+      data.screenshots !== undefined
+        ? Promise.resolve(data.screenshots)
+        : pinned(listUrl, data.screenshotsIntegrity ?? "").then((response) => response.text());
+    return text.then((json) => checkedList(JSON.parse(json)));
+  }
+  /**
+   * Fetch a screenshot, once: the file next to the screenshot list, only if its
+   * SHA-256 matches the list's, as a blob: URL. The self-contained experiment's
+   * list holds each screenshot as a data: URL instead.
+   */
+  function loadScreenshot(shot: Screenshot) {
+    if (!images.has(shot.file))
       images.set(
-        url,
-        fetch(url, { integrity, credentials: "omit" })
-          .then((response) => (response.ok ? response.blob() : Promise.reject(new Error(url))))
-          .then((blob) => URL.createObjectURL(blob)),
+        shot.file,
+        shot.file.startsWith("data:image/webp;base64,")
+          ? Promise.resolve(shot.file)
+          : pinned(new URL(shot.file, listUrl).href, shot.integrity)
+              .then((response) => response.blob())
+              .then((blob) => URL.createObjectURL(blob)),
       );
-    void images.get(url)!.then(
+    return images.get(shot.file)!;
+  }
+  /** Show a screenshot in `picture` once it's fetched and checked. */
+  function screenshot(picture: HTMLImageElement, shot: Screenshot) {
+    if (!shot.file.startsWith("data:")) picture.dataset.screenshot = shot.file;
+    void loadScreenshot(shot).then(
       (source) => (picture.src = source),
       () => {},
     );
@@ -358,7 +386,44 @@ export function createSetupPage(load: (limits: PluginLimits) => Promise<SetupPlu
     retry,
     copy,
     popup,
+    screenshots,
+    loadScreenshot,
     screenshot,
     focusStep,
+  };
+}
+
+/** A screenshot's file: a plain file name, or in the self-contained experiment a data: URL. */
+const shotFile = /^(?:[\w.-]+\.webp|data:image\/webp;base64,[A-Za-z0-9+/]+=*)$/;
+const shotIntegrity = /^sha256-[A-Za-z0-9+/]{43}=$/;
+
+/** `value` as a screenshot list, if it is one: every set's files and SHA-256s checked. */
+function checkedList(value: unknown): ScreenshotList {
+  const fail = (): never => {
+    throw new Error("Invalid screenshot list.");
+  };
+  const text = (field: unknown) => (typeof field === "string" ? field : fail());
+  const shot = (raw: unknown): Screenshot => {
+    const { file, integrity, label, caption, size } = (raw ?? fail()) as Record<string, unknown>;
+    if (!shotFile.test(text(file)) || !shotIntegrity.test(text(integrity))) fail();
+    if (size !== undefined && size !== "narrow" && size !== "wide") fail();
+    return {
+      file: text(file),
+      integrity: text(integrity),
+      label: text(label),
+      ...(caption === undefined ? {} : { caption: text(caption) }),
+      ...(size === undefined ? {} : { size: text(size) }),
+    };
+  };
+  const list = (raw: unknown) => (Array.isArray(raw) ? raw.map(shot) : fail());
+  const { sets } = (value ?? fail()) as { sets?: Record<string, unknown> };
+  if (!sets || typeof sets !== "object") fail();
+  return {
+    sets: Object.fromEntries(
+      Object.entries(sets!).map(([name, raw]) => {
+        const { signedIn, settings, steps } = (raw ?? fail()) as Record<string, unknown>;
+        return [name, { signedIn: list(signedIn), settings: shot(settings), steps: list(steps) }];
+      }),
+    ),
   };
 }

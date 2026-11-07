@@ -53,17 +53,23 @@ export { startSetupPage } from "#setup-app";
 The build writes each page's mount through `@-/me.unduo.components.setup/server`:
 
 ```ts
-setupMount({ universities, image });
+setupMount({ universities, screenshot, asset });
 ```
 
-That is the empty `#setup` element, the `#setup-schools` template, whose elements hold each
-institution's details as data attributes for the script to read, and one set of screenshot
-templates per kind of portal (`#portal-*-<set>`). The script picks the institution whose name
-the file's own name holds (`schoolFromPath` in `school-choice.ts`: `UnDuo - <name>.html`, even
-with a browser's ` (1)` or ` 2`), or Other, and the first step's **Your school** menu changes
-it. It fetches every set's screenshots when the page opens, so what loads says nothing about
-the institution shown. `image` gives the attributes that load a
-screenshot. The file links home to `https://unduo.me/`. The adapter calls `startSetupPage(load)`,
+That is the `#setup` element and the `#setup-schools` template, whose elements hold each
+institution's details as data attributes for the script to read, including the name of its set
+of example screenshots. The file names no screenshot: `asset` publishes the screenshot list,
+`screenshots.<hash>.json`, with the setup files' assets, and `#setup`'s
+`data-screenshots-url` and `data-screenshots-integrity` pin it by its SHA-256. The list gives
+each set's screenshots, their text, and their files and SHA-256s, which `screenshot` resolves;
+the page fetches the list, then the shown institution's screenshots from the same folder, each
+only if its SHA-256 matches, and the CSP allows fetches only from that assets commit's folder.
+The script picks the institution whose name the file's own name holds (`schoolFromPath` in
+`school-choice.ts`: `UnDuo - <name>.html`, even with a browser's ` (1)` or ` 2`), or Other, and
+the first step's **Your school** menu changes it. It fetches all of an institution's
+screenshots as soon as it's shown, never step by step, so when they load says nothing about the
+setup. In the self-contained experiment the list is `#setup`'s `data-screenshots`, with each
+screenshot a `data:` URL. The file links home to `https://unduo.me/`. The adapter calls `startSetupPage(load)`,
 which builds the alerts, stepper and step card in `#setup` and the header, introduction, help
 dialogs, footer and Advanced panel around it with VanJS, where `load(limits)` calls
 `loadSetupPlugin(url, integrity, limits)` with the root element's

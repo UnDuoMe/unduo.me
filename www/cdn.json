@@ -1,6 +1,6 @@
 {
-  "commit": "4190594c25320c06f210461e72c099a6f656eb62",
-  "base": "https://cdn.jsdelivr.net/gh/UnDuoMe/unduo.me@4190594c25320c06f210461e72c099a6f656eb62/",
+  "commit": "e888dcbd0143eda1527caaa1d4dac1b74e302d67",
+  "base": "https://cdn.jsdelivr.net/gh/UnDuoMe/unduo.me@e888dcbd0143eda1527caaa1d4dac1b74e302d67/",
   "files": {
     "setup-styles.w1-CA8Mw.css": "sha256-w1+CA8MwmJQMeEUjabvoaUCqa8OE3kyDcW934+NfhZw=",
     "setup.7wz-vxOz.wasm": "sha256-7wz+vxOzfqx4LEs5QVsqwM2TMAJHkXAJisveKoD7omE=",
@@ -22,6 +22,7 @@
     "setup-4-duo-installed.gRuBBlLy.webp": "sha256-gRuBBlLyFDf/O7hDA1We6UGoBR7myv82TygyQ2KxTAA=",
     "setup-4-next-universal.TOLAyRxJ.webp": "sha256-TOLAyRxJpSvX37/8O8Snd0KPgvIx4AkxT2YVm3gSlbQ=",
     "setup-5-copy-qr-universal.ObpRx0Z1.webp": "sha256-ObpRx0Z1V8UPup+5aUDymzl35437ISNaQVhS6OGItpY=",
-    "setup-5-copy-qr-url.0e4hdp7M.webp": "sha256-0e4hdp7MHqfVJkbXPdJH4AdllvOb2bysxLxdJxaHLR8="
+    "setup-5-copy-qr-url.0e4hdp7M.webp": "sha256-0e4hdp7MHqfVJkbXPdJH4AdllvOb2bysxLxdJxaHLR8=",
+    "screenshots.7O7-SI89.json": "sha256-7O7+SI897pT/dA+Jz6MsI361niEcv9yctaAKoV93Bo8="
   }
 }

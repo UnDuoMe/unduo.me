@@ -1,1 +1,1 @@
-export { setupMount } from "#setup-mount";
+export { setupMount, type PublishedAsset } from "#setup-mount";
