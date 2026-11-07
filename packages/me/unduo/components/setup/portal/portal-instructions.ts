@@ -1,5 +1,5 @@
 import type { SetupPage } from "@-/me.unduo.components.setup.entities";
-import { details, div, em, li, ol, span, strong, summary } from "@-/me.unduo.lib.dom";
+import { div, em, li, ol, span, strong } from "@-/me.unduo.lib.dom";
 
 const instruction = "instruction";
 
@@ -46,17 +46,13 @@ export function portalInstructions(page: SetupPage) {
         ),
       ),
     ),
-    details(
-      { class: "screenshots", id: "portal-screenshots" },
-      summary({ class: "summary-label" }, "Show example screenshots"),
-      div(
-        {
-          class: "screenshot-list",
-          role: "group",
-          "aria-label": "Duo portal example screenshots",
-        },
-        screenshotFigures(page),
-      ),
+    div(
+      {
+        class: "screenshot-list",
+        role: "group",
+        "aria-label": "Duo portal example screenshots",
+      },
+      screenshotFigures(page),
     ),
   );
 }

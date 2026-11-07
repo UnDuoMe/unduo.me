@@ -332,8 +332,8 @@ test("from a blank browser to a passcode that signs in", async ({
     const steps = setup.locator(".instructions li");
     const add = await namesIn(steps.first());
     expect(add).toEqual(["Tablet", "Android", "I have Duo Mobile installed"]);
-    await setup.locator("#portal-screenshots summary").click();
     const examples = setup.getByRole("group", { name: "Duo portal example screenshots" });
+    await expect(examples, "The example screenshots show without a click").toBeVisible();
     await expect(examples.locator("img")).toHaveCount(5);
     await expect
       .poll(() =>

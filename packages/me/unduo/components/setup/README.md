@@ -18,8 +18,8 @@ five steps:
    passcode or a push, and press **Continue** on Duo's My Settings & Devices page,
    shown in `setup-0-settings-devices.webp` (with only the devices'
    names and numbers blurred).
-3. **Copy the activation QR code** (`linkStep`). How to add a device, optional
-   example screenshots, and one input. Anything pasted anywhere on the page
+3. **Copy the activation QR code** (`linkStep`). How to add a device, an
+   example screenshot of each click, and one input. Anything pasted anywhere on the page
    (from the portal step too) is routed by the
    setup plugin: a copied QR image (its `<img src>` is preferred when present),
    an image address, a `duo://` or activation link, or even Duo's reply. Dropped
@@ -130,7 +130,7 @@ institution's download on the home page.
 
 Use UIkit classes on native HTML for cards, buttons, fields and notices; no UIkit
 JavaScript runs. The help and privacy dialogs are native popovers opened by
-`popovertarget` buttons, and the example screenshots use `<details>`, so the CSP
+`popovertarget` buttons, and the Advanced limits use `<details>`, so the CSP
 allows no style attributes. The screenshots load with `fetch` and their SHA-256
 (`data-image-integrity`) as `blob:` URLs, so the CSP allows images only as `data:`
 and `blob:` URLs and stylesheets can request nothing. The "Open in authenticator app" link shows only on

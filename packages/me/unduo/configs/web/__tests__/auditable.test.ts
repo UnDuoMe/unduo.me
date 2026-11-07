@@ -798,10 +798,8 @@ describe.runIf(enabled)("browser", { timeout: 180_000 }, () => {
     browser("wait", "--fn", "document.activeElement.id === 'step-title'");
     click("button", "Continue");
     waitForHeading("Copy the activation QR code");
-    // The page scrolls to the step's title and focuses it a task later; a click aimed before that can miss.
+    // The page scrolls to the step's title and focuses it a task later.
     browser("wait", "--fn", "document.activeElement.id === 'step-title'");
-    browser("click", "#portal-screenshots summary");
-    browser("wait", "--fn", "document.querySelector('#portal-screenshots').open");
     browser(
       "wait",
       "--fn",

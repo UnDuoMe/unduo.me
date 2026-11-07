@@ -249,11 +249,8 @@ summary {
   .instruction-note {
     @apply block! text-muted!;
   }
-  .screenshots {
-    @apply mt-3! ml-4.5!;
-  }
   .screenshot-list {
-    @apply mt-3! grid! gap-5!;
+    @apply mt-5! grid! gap-5!;
   }
   .figure-caption {
     @apply mb-2! text-sm! text-muted!;
