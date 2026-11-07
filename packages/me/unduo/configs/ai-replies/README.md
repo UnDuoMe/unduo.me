@@ -33,30 +33,35 @@ reasoning) and Claude Fable 5.1 at High effort, so choose those two in Chrome fi
 stay chosen. Their menus open only for a foreground click too. Pro can think for twenty
 minutes or more, so the script waits up to 45 minutes for a reply.
 
-Once a reply has its verdict and reads the same twice, the script scrolls the chat to the
-top, so the screenshot shows the attached file and the prompt above the reply. Gemini folds
-a long prompt to its first sentence, and the screenshot shows it that way. The crop drops
-the browser's toolbar, ChatGPT's sidebar, and each site's prompt box, ending at the lowest
-gap between paragraphs above it.
+Once a reply has its verdict and reads the same twice, the script takes one screenshot of
+the whole conversation, nothing joined: the attached file, the whole prompt and the whole
+reply, down to its end, where the prompt's P.S. asks for the file's SHA-256. ChatGPT and
+Claude fold a long prompt behind "Show more" and Gemini behind "Expand"; the script
+unfolds it first, and stops if it stays folded. A window can't be taller than the screen,
+so the script zooms the page out one of Chrome's steps at a time (90, 80, 75, 67, 50, 33
+and 25%, as ⌘− does) until it fits. At each step it narrows the window so the page stays
+880 CSS pixels wide, the width at which the sites keep their sidebars closed, down to
+Chrome's narrowest window, 500 points. The page fits when a scroll from its top to its end
+brings in nothing but blank space (`showsAll`), as a site's padding under the last message
+does; text renders a little differently after a scroll, so screenshots are compared row by
+row by their mean gray. The site's zoom goes back to 100% afterward, since Chrome keeps it
+for the site's next visit, and a run that stopped partway is undone at the next run's start.
+The script stops without a screenshot if scrolling never moved the page, since then it
+can't tell whether the page fits, or if the page shows a list of the account's chats.
 
-The prompt's P.S. asks for the attached file's SHA-256 at the end of the reply, if the AI
-can compute it, so the screenshot shows the whole conversation: from the top, the script
-scrolls half a window at a time, re-finding the reply each time, and joins each new
-screenshot under the last (`joinScreenshots`) until the page stops moving. Joining drops
-the site's bar, which stays at the top of each, and the rows already shown; rows never match
-exactly, since text renders a little differently after a scroll and the scroll bar shows
-over some rows, so the overlap is the one whose rows' mean gray differs least, if it differs
-little and clearly less than any other, and blank space alone never counts as a match. If two
-screenshots don't meet, a band of three dots marks what's skipped. Chrome's bar across the
-page, such as "isn't your default browser", is closed first. Each reply in `results.json`
-records `hash`: the last SHA-256 in the reply or anywhere on the page under it, as in a code
-block, and whether it matches the file's; the script warns when it doesn't. Gemini and
-Claude's incognito chat can't run code, and say so instead of giving one.
+The screenshot leaves out only the browser's toolbar and the strips at the page's edges that
+show the signed-in account: ChatGPT's and Gemini's rail of icons, with the account's picture
+at its foot, and Gemini's line under the prompt box, which names the account's domain
+(`account` in `sites.ts`, in CSS pixels). Chrome's bar across the page, such as "isn't your
+default browser", is closed first. Each reply in `results.json` records the zoom, and
+`hash`: the last SHA-256 in the reply or anywhere on the page under it, as in a code block,
+and whether it matches the file's; the script warns when it doesn't. Gemini and Claude's
+incognito chat can't run code, and say so instead of giving one.
 
 ## Output
 
-- `apps/unduo-web/src/assets/ai-reply-<site>.webp`: each cropped screenshot, 1,400 pixels
-  wide, which the home page shows under its hero. The build publishes them with the other
+- `apps/unduo-web/src/assets/ai-reply-<site>.webp`: each screenshot, as lossless WebP at
+  most 1,400 pixels wide, which the home page shows under its hero. The build publishes them with the other
   assets, so run `vp run publish:assets` before pushing.
 - `results.json`: the prompt, and per site when it ran, the file's name and SHA-256, the
   model, the verdict (`yes` or `no`) and the whole reply as Markdown, or why the site
@@ -67,8 +72,10 @@ Claude's incognito chat can't run code, and say so instead of giving one.
   "..."; then `whole` is false and the command says so. Copying the reply with the site's
   Copy button doesn't work from the background: a page without focus can't write to the
   clipboard.
-- `.output/ai-replies/<site>.png` and `<site>-cropped.png` at the repository root: the
-  window, uncropped and cropped, one per scroll (`<site>-<n>.png`, `<site>-<n>-cropped.png`, and `<site>-joined-<n>.png` as they're joined), and `<site>-tree.txt`, the tree the reply was read from.
+- `.output/ai-replies/` at the repository root: `<site>-<zoom>-top.png` and
+  `<site>-<zoom>-end.png`, the window at each zoom tried, scrolled to the top and to the end;
+  `<site>-cropped.png`, the screenshot before WebP; and `<site>-tree.txt`, the tree the
+  reply was read from.
 
 The home page's cards show each whole reply and its model, from `aiReplies` in
 `packages/me/unduo/components/home/ai-replies.ts`. Copy the replies there from

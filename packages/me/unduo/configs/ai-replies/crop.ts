@@ -34,47 +34,9 @@ export function pageTop(png: string, scale: number) {
   return line ? line.y + 1 : Math.round(87 * scale);
 }
 
-/** The darkest gray a row may hold and still count as blank space between lines. */
-const blank = 235;
-
 /**
- * The row to end the crop on, so it ends between paragraphs rather than through
- * a paragraph: the lowest band of blank rows above `limit` that is clearly
- * taller than the gap between lines, which is the bands' usual height, leaving
- * up to 10 points of it under the text. Rows count as blank across the middle,
- * without 40 points at each side, where a site may draw a frame. A band that
- * runs into `limit` doesn't count, since the text below it is cut. Falls back
- * to `limit`.
- */
-export function blankRowAbove(
-  gray: Buffer,
-  width: number,
-  limit: number,
-  floor: number,
-  scale: number,
-) {
-  const margin = Math.round(40 * scale);
-  const bands: { start: number; height: number }[] = [];
-  let run = 0;
-  for (let y = floor; y < limit; y++) {
-    const row = gray.subarray(y * width + margin, (y + 1) * width - margin);
-    if (row.every((value) => value >= blank)) run++;
-    else if (run) {
-      bands.push({ start: y - run, height: run });
-      run = 0;
-    }
-  }
-  const heights = bands.map(({ height }) => height).sort((a, b) => a - b);
-  const lineGap = heights[Math.floor(heights.length / 2)] ?? 0;
-  const enough = Math.max(Math.round(6 * scale), Math.ceil(lineGap * 1.5));
-  const band = bands.findLast(({ height }) => height >= enough);
-  return band ? band.start + Math.min(Math.floor(band.height / 2), Math.round(10 * scale)) : limit;
-}
-
-/**
- * Crop a window screenshot to the conversation: below the browser's toolbar,
- * past the site's sidebar `left` points wide, and ending between paragraphs
- * above the bottom `bottom` points, where the site keeps its prompt box.
+ * Crop a window screenshot to the page under the browser's toolbar, without
+ * `left` and `bottom` points along its edges.
  */
 export function cropToPage(
   raw: string,
@@ -82,46 +44,25 @@ export function cropToPage(
   scale: number,
   { left, bottom }: { left: number; bottom: number },
 ) {
-  const [width, height] = execFileSync("magick", ["identify", "-format", "%w %h", raw], {
-    encoding: "utf8",
-  })
-    .split(" ")
-    .map(Number) as [number, number];
+  const [width, height] = size(raw);
   const top = pageTop(raw, scale);
   const x = Math.round(left * scale);
-  const w = width - x;
-  // Grayscale bytes of the page, one per pixel, a row of `w` after another.
-  const gray = execFileSync(
-    "magick",
-    [
-      raw,
-      "-crop",
-      `${w}x${height - top}+${x}+${top}`,
-      "+repage",
-      "-colorspace",
-      "Gray",
-      "-depth",
-      "8",
-      "gray:-",
-    ],
-    { maxBuffer: 1 << 28 },
-  );
-  const limit = height - top - Math.round(bottom * scale);
-  const end = blankRowAbove(gray, w, limit, Math.round(limit / 2), scale);
-  execFileSync("magick", [raw, "-crop", `${w}x${end}+${x}+${top}`, "+repage", out]);
+  const h = height - top - Math.round(bottom * scale);
+  execFileSync("magick", [raw, "-crop", `${width - x}x${h}+${x}+${top}`, "+repage", out]);
 }
 
 /**
- * Save a cropped screenshot for the web: 1,400 pixels wide, enough to read
- * when it opens larger, as WebP.
+ * Save a cropped screenshot for the web as lossless WebP, at most 1,400 pixels
+ * wide: a zoomed-out conversation's text is small, and lossy compression would
+ * blur it.
  */
 export function toWebp(png: string, webp: string) {
   execFileSync("magick", [
     png,
     "-resize",
     "1400x>",
-    "-quality",
-    "82",
+    "-define",
+    "webp:lossless=true",
     "-define",
     "webp:method=6",
     webp,
@@ -140,44 +81,62 @@ export function rowMeans(gray: Buffer, width: number) {
 }
 
 /**
- * How to join a screenshot of a conversation to the next one down, given each
- * row's mean gray: `header`, the rows both start with, which is the site's bar
- * that stays put as the page scrolls; and `overlap`, how many rows after that
- * repeat the bottom of the first. Text renders a little differently after a
- * scroll, and the scroll bar shows over some rows, so rows never match
- * exactly: the overlap is the one whose rows differ least, if they differ by
- * under 3 gray levels on average and by half as much as any other overlap a few
- * rows away. It must be `minimum` rows or more, and rows too alike to tell
- * apart, as blank space is, never count. `fits` is true when the next shows
- * nothing new.
+ * Whether two screenshots' rows, as their mean gray, show the same page: at
+ * most 1% of rows differ by more than one gray level, as a text caret
+ * blinking does. A scroll of even a few points moves every line of text, which
+ * changes far more rows.
  */
-export function joinRows(top: number[], end: number[], minimum: number) {
+export function sameRows(a: number[], b: number[]) {
+  if (a.length !== b.length) return false;
+  const differing = a.filter((value, row) => Math.abs(value - b[row]!) > 1).length;
+  return differing <= a.length / 100;
+}
+
+const spread = (rows: number[]) => Math.max(...rows) - Math.min(...rows);
+/**
+ * Whether rows hold no text or lines: each is within 0.75 gray levels of the
+ * one before. A background that shades off, as Gemini's does, changes slowly.
+ */
+const blankRows = (rows: number[]) =>
+  rows.every((value, row) => row === 0 || Math.abs(value - rows[row - 1]!) < 0.75);
+
+/**
+ * Whether a screenshot of a page scrolled to its top, `top`, shows all of it,
+ * given one scrolled to its end, `end`, as rows of mean gray: the scroll moved
+ * nothing, or it moved the page and brought in only blank space (`blankRows`),
+ * as a site's padding under the last message does. Rows both start and end with are the
+ * site's bars, which don't scroll. The page moved by the shift whose rows
+ * differ least, if they differ by under 3 gray levels on average and by half
+ * as much as at any shift a few rows away; rows too alike to tell apart, as
+ * blank space is, never count as a match.
+ */
+export function showsAll(top: number[], end: number[]) {
+  if (sameRows(top, end)) return true;
+  if (top.length !== end.length) return false;
+  const still = (row: number) => Math.abs(top[row]! - end[row]!) < 0.5;
   let header = 0;
-  while (header < Math.min(top.length, end.length) && Math.abs(top[header]! - end[header]!) < 0.05)
-    header++;
-  const rest = end.slice(header);
-  if (!rest.length) return { header, overlap: 0, fits: true };
-  const candidates: { overlap: number; difference: number }[] = [];
-  for (let overlap = Math.min(top.length - header, rest.length); overlap >= minimum; overlap--) {
-    const rows = rest.slice(0, overlap);
-    const mean = rows.reduce((total, value) => total + value, 0) / overlap;
-    const spread = Math.sqrt(
-      rows.reduce((total, value) => total + (value - mean) ** 2, 0) / overlap,
-    );
-    if (spread < 1) continue;
+  while (header < top.length && still(header)) header++;
+  let footer = top.length;
+  while (footer > header && still(footer - 1)) footer--;
+  const before = top.slice(header, footer);
+  const after = end.slice(header, footer);
+  const candidates: { shift: number; difference: number }[] = [];
+  for (let shift = 1; shift < before.length; shift++) {
+    const overlap = before.length - shift;
+    if (spread(after.slice(0, overlap)) < 1 || spread(before.slice(shift)) < 1) continue;
     let sum = 0;
-    for (let row = 0; row < overlap; row++)
-      sum += Math.abs(top[top.length - overlap + row]! - rest[row]!);
-    candidates.push({ overlap, difference: sum / overlap });
+    for (let row = 0; row < overlap; row++) sum += Math.abs(after[row]! - before[row + shift]!);
+    candidates.push({ shift, difference: sum / overlap });
   }
   const best = candidates.reduce<(typeof candidates)[number] | undefined>(
     (found, candidate) => (!found || candidate.difference < found.difference ? candidate : found),
     undefined,
   );
-  const others = candidates.filter(({ overlap }) => Math.abs(overlap - (best?.overlap ?? 0)) > 3);
-  const next = Math.min(...others.map(({ difference }) => difference));
-  const overlap = best && best.difference < 3 && best.difference * 2 <= next ? best.overlap : 0;
-  return { header, overlap, fits: overlap === rest.length };
+  if (!best || best.difference >= 3) return false;
+  const others = candidates.filter(({ shift }) => Math.abs(shift - best.shift) > 3);
+  if (others.some(({ difference }) => difference < best.difference * 2)) return false;
+  // What the scroll brought in under what the top already showed.
+  return blankRows(after.slice(before.length - best.shift));
 }
 
 /** An image's width and height in pixels. */
@@ -195,45 +154,16 @@ function grayBytes(png: string) {
 }
 
 /**
- * Join the cropped screenshot of a conversation so far, `top`, to the next one
- * down, `end`. The next loses the site's bar and any rows the top already
- * shows; if the two don't meet, a band of three dots marks the rows skipped
- * between them. When the next shows nothing new, the image is the top alone,
- * and `fits` is true.
+ * Whether a window screenshot of a page at its top shows all of the page,
+ * given one at its end: see `showsAll`. Only rows under the browser's toolbar count.
  */
-export function joinScreenshots(top: string, end: string, out: string, scale: number) {
-  const [width] = size(top);
-  const [endWidth, endHeight] = size(end);
-  if (endWidth !== width) throw new Error("The screenshots aren't the same width.");
-  const { header, overlap, fits } = joinRows(
-    rowMeans(grayBytes(top), width),
-    rowMeans(grayBytes(end), width),
-    Math.round(24 * scale),
+export function showsWholePage(top: string, end: string, scale: number) {
+  const [width, height] = size(top);
+  const [otherWidth, otherHeight] = size(end);
+  if (width !== otherWidth || height !== otherHeight) return false;
+  const toolbar = pageTop(top, scale);
+  return showsAll(
+    rowMeans(grayBytes(top), width).slice(toolbar),
+    rowMeans(grayBytes(end), width).slice(toolbar),
   );
-  if (fits) {
-    execFileSync("magick", [top, out]);
-    return { fits };
-  }
-  const from = header + overlap;
-  const rest = ["(", end, "-crop", `${width}x${endHeight - from}+0+${from}`, "+repage", ")"];
-  const band = Math.round(28 * scale);
-  const dot = (offset: number) => {
-    const x = Math.round(width / 2 + offset * 10 * scale);
-    return `circle ${x},${band / 2} ${x + Math.round(2.5 * scale)},${band / 2}`;
-  };
-  const gap = overlap
-    ? []
-    : [
-        "(",
-        "-size",
-        `${width}x${band}`,
-        "xc:#f1f5f9",
-        "-fill",
-        "#94a3b8",
-        "-draw",
-        `${dot(-1)} ${dot(0)} ${dot(1)}`,
-        ")",
-      ];
-  execFileSync("magick", [top, ...gap, ...rest, "-append", out]);
-  return { fits };
 }

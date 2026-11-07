@@ -27,11 +27,12 @@ export interface Site {
   /** An upload still in progress. */
   uploading?: RegExp;
   /**
-   * What to cut from the window screenshot, in points: the site's sidebar on
-   * the left, and at the bottom its prompt box and the arrow that offers to
-   * scroll down. The browser's toolbar is found in the image.
+   * The strips along the page's left and bottom edges, in CSS pixels, that
+   * show the signed-in account, its picture or its domain, which the
+   * screenshot leaves out: the site's rail of icons, with the account's
+   * picture at its foot, and the line under the prompt box.
    */
-  crop: { left: number; bottom: number };
+  account: { left: number; bottom: number };
 }
 
 const escape = (text: string) => text.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
@@ -111,7 +112,7 @@ export const sites: Site[] = [
     attached: (fileName) => new RegExp(`^button Remove ${escape(fileName)}$`),
     uploading: /^progress indicator Uploading/,
     send: /^button Send$/,
-    crop: { left: 52, bottom: 150 },
+    account: { left: 52, bottom: 0 },
   },
   {
     id: "gemini",
@@ -130,7 +131,8 @@ export const sites: Site[] = [
     // Its chip shortens the name, but keeps its close button.
     attached: () => /^button close \S/,
     send: /^button Send message$/,
-    crop: { left: 0, bottom: 150 },
+    // "Your <domain> chats aren't used to improve our models."
+    account: { left: 56, bottom: 44 },
   },
   {
     id: "claude",
@@ -152,7 +154,7 @@ export const sites: Site[] = [
     // A pasted file's name gets a timestamp in front.
     attached: (fileName) => new RegExp(`^button Remove (?:\\d+_)?${escape(fileName)}$`),
     send: /^button Send( message)?$/,
-    // Incognito's prompt box is short: more would cut the reply's last paragraph.
-    crop: { left: 0, bottom: 100 },
+    // An incognito chat shows no rail and nothing of the account.
+    account: { left: 0, bottom: 0 },
   },
 ];

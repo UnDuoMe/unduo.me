@@ -5,7 +5,9 @@ import {
   finishedReply,
   holdsOnly,
   joinPieces,
+  promptUnfolder,
   replyMarkdown,
+  showsChatList,
   treeLines,
 } from "#tree";
 
@@ -146,4 +148,29 @@ test("sends only a box that holds exactly the prompt", () => {
     false,
   );
   expect(holdsOnly(tree(["3 button Send"]), box, prompt)).toBe(false);
+});
+
+test("finds the button that unfolds the prompt, not one in the reply", () => {
+  const asked =
+    "The attached file is from a website for setting up Duo two-factor authentication. Please read it.";
+  const page = (unfold: string) =>
+    tree([
+      "5 button Show more",
+      "10 heading You said:",
+      "11 text The attached file is from a website for setting up Duo two-factor  authentication.",
+      `12 button ${unfold}`,
+      "40 text Safe: yes",
+      "41 button Show more",
+    ]);
+  expect(promptUnfolder(page("Show more"), asked)).toBe("12");
+  expect(promptUnfolder(page("Expand"), asked)).toBe("12");
+  // Unfolded, it offers to fold again; the reply's own button doesn't count.
+  expect(promptUnfolder(page("Show less"), asked)).toBeUndefined();
+  expect(promptUnfolder(page("Collapse"), asked)).toBeUndefined();
+});
+
+test("notices a sidebar's list of chats", () => {
+  expect(showsChatList(tree(["5 link New chat", "6 button Open sidebar"]))).toBe(false);
+  expect(showsChatList(tree(["5 heading Recents", "6 link Plans for Friday"]))).toBe(true);
+  expect(showsChatList(tree(["5 text Your chats"]))).toBe(true);
 });

@@ -12,9 +12,17 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { aiPrompt } from "@-/me.unduo.components.home/server";
 import { bringToFront, ChromeWindow, frontApp, sleep } from "#chrome";
-import { cropToPage, joinScreenshots, toWebp } from "#crop";
+import { cropToPage, showsWholePage, toWebp } from "#crop";
 import { type Site, sites } from "#sites";
-import { copyButton, finishedReply, holdsOnly, type Reply, replyMarkdown } from "#tree";
+import {
+  copyButton,
+  finishedReply,
+  holdsOnly,
+  promptUnfolder,
+  type Reply,
+  replyMarkdown,
+  showsChatList,
+} from "#tree";
 
 export interface CaptureOptions {
   /** The setup file to attach, and the name a student's browser saves it under. */
@@ -43,8 +51,10 @@ export interface Capture {
   reply?: string;
   /** Whether the reply is whole: the tree sums up some long paragraphs cut short. */
   whole?: boolean;
-  /** The screenshot's file name in `images`: the conversation's top, joined to its end. */
+  /** The screenshot's file name in `images`: one screenshot of the whole conversation. */
   screenshot?: string;
+  /** The page's zoom in that screenshot, in percent: as far out as it took to fit. */
+  zoom?: number;
   /**
    * The last SHA-256 the reply gives, which the prompt's P.S. asks for, and
    * whether it's the attached file's.
@@ -100,48 +110,83 @@ async function copyReply(window: ChromeWindow, tree: string, reply: Reply) {
   return text !== marker && /\bSafe:\W*(?:yes|no)\b/i.test(text) ? text : undefined;
 }
 
-/** The most screenshots to join for one conversation. */
-const maxScreenshots = 16;
+/**
+ * The page's width in CSS pixels at every zoom: Chrome's first window on a
+ * 1728-point-wide screen is 871 points wide, and the sites lay a page this
+ * wide out with their sidebars closed.
+ */
+const pageWidth = 880;
 
 /**
- * Screenshot the conversation, already at its top, then half a window further
- * down at a time until it stops moving, joining each screenshot under the last.
- * The reply is found again before each scroll, since the page's elements
- * change as it scrolls. If half a window doesn't move it, a whole one is tried.
+ * Screenshot the whole conversation, from the file and the prompt down to the
+ * end of the reply, as one window screenshot, nothing joined. The prompt is
+ * unfolded first. A window can't be taller than the screen, so the page zooms
+ * out one of Chrome's steps at a time, the window narrowing to keep the page
+ * `pageWidth` CSS pixels wide (down to Chrome's 500 points), until a scroll
+ * from the top brings in nothing but blank space. The screenshot leaves out
+ * only the browser's toolbar and the strips that show the signed-in account.
+ * The site's zoom goes back to 100% after.
  */
-async function screenshotConversation(window: ChromeWindow, site: Site, raw: string) {
-  const shoot = (step: number) => {
-    const shot = window.screenshot();
-    const path = join(raw, `${site.id}-${step}.png`);
-    copyFileSync(shot.path, path);
-    const cropped = join(raw, `${site.id}-${step}-cropped.png`);
-    cropToPage(path, cropped, shot.scale, site.crop);
-    return { cropped, scale: shot.scale };
-  };
-  const first = shoot(0);
-  let joined = first.cropped;
-  let pages = 0.5;
-  for (let step = 1; step < maxScreenshots; step++) {
-    const reply = finishedReply(window.tree());
-    if (!reply) break;
-    window.scroll(reply.index, "down", pages);
-    await sleep(1200);
-    const next = shoot(step);
-    const out = join(raw, `${site.id}-joined-${step}.png`);
-    const { fits } = joinScreenshots(joined, next.cropped, out, first.scale);
-    if (fits && step === 1 && pages < 1) {
-      pages = 1;
-      continue;
-    }
-    if (fits) break;
-    joined = out;
+async function screenshotWhole(window: ChromeWindow, site: Site, raw: string) {
+  const unfolder = promptUnfolder(window.tree(), aiPrompt);
+  if (unfolder) {
+    window.click(unfolder);
+    await sleep(1500);
+    if (promptUnfolder(window.tree(), aiPrompt))
+      throw new Error(`${site.name}'s prompt didn't unfold.`);
   }
-  return joined;
+  const shoot = (name: string) => {
+    const shot = window.screenshot();
+    const path = join(raw, `${site.id}-${name}.png`);
+    copyFileSync(shot.path, path);
+    return { path, scale: shot.scale };
+  };
+  // A scroll that brings in nothing proves the page fits only if scrolling works at all.
+  let moved = false;
+  try {
+    for (;;) {
+      const zoom = window.zoom();
+      await window.resize((pageWidth * zoom) / 100);
+      window.scrollMiddle("up", 50);
+      await sleep(2000);
+      const top = shoot(`${zoom}-top`);
+      window.scrollMiddle("down", 50);
+      await sleep(2000);
+      const end = shoot(`${zoom}-end`);
+      if (showsWholePage(top.path, end.path, top.scale)) {
+        if (!moved)
+          throw new Error(
+            `Scrolling didn't move ${site.name}'s page, so the screenshot may not hold the whole conversation.`,
+          );
+        if (showsChatList(window.tree()))
+          throw new Error(
+            `${site.name} shows a list of chats at ${zoom}%; no screenshot was saved.`,
+          );
+        const cropped = join(raw, `${site.id}-cropped.png`);
+        // The account's strips, in CSS pixels, are this many points at this zoom.
+        cropToPage(top.path, cropped, top.scale, {
+          left: (site.account.left * zoom) / 100,
+          bottom: (site.account.bottom * zoom) / 100,
+        });
+        return { cropped, zoom };
+      }
+      moved = true;
+      if (zoom <= 25)
+        throw new Error(`${site.name}'s conversation doesn't fit the window even at 25%.`);
+      await window.zoomOut();
+    }
+  } finally {
+    await window.resetZoom();
+    await window.resize(pageWidth);
+  }
 }
 
 /** Ask `site` about the file in a new temporary chat, then screenshot the whole conversation. */
 async function ask(window: ChromeWindow, site: Site, upload: string, options: CaptureOptions) {
+  await window.resize(pageWidth);
   const model = await site.start(window, { focus: options.focus });
+  // A run that stopped partway can leave the site zoomed out.
+  if (window.zoom() !== 100) await window.resetZoom();
   if (site.attach) await site.attach(window, upload, { focus: options.focus });
   else window.pasteFile(site.box, upload);
   await window.waitFor(site.attached(options.fileName));
@@ -167,13 +212,11 @@ async function ask(window: ChromeWindow, site: Site, upload: string, options: Ca
   const copied = options.focus ? await copyReply(window, tree, reply) : undefined;
   const { markdown, whole } = copied ? { markdown: copied, whole: true } : replyMarkdown(tree)!;
   // The whole conversation, from the file and prompt down to the end of the reply,
-  // where it gives the file's SHA-256, joined from screenshots half a window apart.
+  // where it gives the file's SHA-256, in one screenshot.
   window.dismissInfobar();
-  window.scroll(reply.index, "up", 20);
-  await sleep(1500);
-  const joined = await screenshotConversation(window, site, options.raw);
+  const { cropped, zoom } = await screenshotWhole(window, site, options.raw);
   const screenshot = `ai-reply-${site.id}.webp`;
-  toWebp(joined, join(options.images, screenshot));
+  toWebp(cropped, join(options.images, screenshot));
   return {
     tree,
     site: site.id,
@@ -183,6 +226,7 @@ async function ask(window: ChromeWindow, site: Site, upload: string, options: Ca
     reply: markdown,
     whole,
     screenshot,
+    zoom,
   };
 }
 

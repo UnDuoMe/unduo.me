@@ -178,3 +178,31 @@ export function holdsOnly(tree: string, box: RegExp, text: string) {
   const label = box.exec(line.text)![0];
   return words(line.text.slice(label.length)).replace(/^, Value: /, "") === words(text);
 }
+
+/** A button that unfolds a long prompt: ChatGPT's and Claude's "Show more", Gemini's "Expand". */
+const unfold = /^button (?:Show more|Expand)$/;
+
+/**
+ * The button that unfolds `prompt` in the conversation, if the site folded it:
+ * the first such button after the prompt's opening words and before the reply.
+ */
+export function promptUnfolder(tree: string, prompt: string) {
+  const lines = treeLines(tree);
+  const opening = words(prompt).slice(0, 60);
+  const start = lines.findIndex(
+    ({ text }) => /^(?:text|heading) /.test(text) && words(text).includes(opening),
+  );
+  if (start === -1) return undefined;
+  const end = lines.findIndex(
+    ({ text }, at) => at > start && verdictLine.test(text) && !text.includes("Start your reply"),
+  );
+  return lines.slice(start, end === -1 ? undefined : end).find(({ text }) => unfold.test(text))
+    ?.index;
+}
+
+/** A list of past chats, as a site's sidebar shows one when it's open. */
+const chatList = /^(?:heading|text) (?:Recents?|Chats|Your chats|Chat history)$/;
+
+/** Whether the page shows a list of the account's other chats, which a screenshot mustn't. */
+export const showsChatList = (tree: string) =>
+  treeLines(tree).some(({ text }) => chatList.test(text));

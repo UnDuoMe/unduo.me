@@ -42,6 +42,14 @@ function computer(args: string[]): Result {
 const windowIds = () =>
   (computer(["list-windows", "--app", chrome]).windows ?? []).map(({ id }) => id);
 
+/** Tell Chrome, through AppleScript, to do `command`, and return its answer. */
+const tellChrome = (command: string) =>
+  execFileSync("osascript", ["-e", `tell application "Google Chrome" to ${command}`], {
+    encoding: "utf8",
+  }).trim();
+/** Chrome's own ids for its windows, which AppleScript uses. */
+const scriptIds = () => tellChrome("get id of every window").split(", ").filter(Boolean);
+
 /** The app in front, by bundle ID, so it can be put back after Chrome takes the front. */
 export function frontApp() {
   const asn = execFileSync("lsappinfo", ["front"], { encoding: "utf8" }).trim();
@@ -58,7 +66,11 @@ export function bringToFront(bundleId: string | undefined) {
  * indexes come from its accessibility tree.
  */
 export class ChromeWindow {
-  private constructor(readonly id: number) {}
+  private constructor(
+    readonly id: number,
+    /** The window's id in AppleScript, which can move and resize it. */
+    private readonly scriptId: string,
+  ) {}
 
   /**
    * Open `url` in a new window of your Chrome. Chrome comes to the front when it
@@ -67,15 +79,17 @@ export class ChromeWindow {
    */
   static async open(url: string) {
     const before = new Set(windowIds());
+    const scriptsBefore = new Set(scriptIds());
     const front = frontApp();
     execFileSync("open", ["-g", "-n", "-a", "Google Chrome", "--args", "--new-window", url]);
     for (let attempt = 0; attempt < 100; attempt++) {
       const id = windowIds().find((id) => !before.has(id));
-      if (id !== undefined) {
+      const scriptId = scriptIds().find((id) => !scriptsBefore.has(id));
+      if (id !== undefined && scriptId !== undefined) {
         bringToFront(front);
         await sleep(800);
         if (frontApp() === chrome) bringToFront(front);
-        return new ChromeWindow(id);
+        return new ChromeWindow(id, scriptId);
       }
       await sleep(150);
     }
@@ -142,10 +156,14 @@ export class ChromeWindow {
   focused() {
     return /The focused UI element is (\d+) /.exec(this.tree())?.[1];
   }
-  scroll(index: string, direction: "up" | "down", pages: number) {
+  /** Scroll what's in the middle of the window, as a scroll wheel there would. */
+  scrollMiddle(direction: "up" | "down", pages: number) {
+    const [left, top, right, bottom] = this.bounds();
     this.run("scroll", [
-      "--element-index",
-      index,
+      "--x",
+      String(Math.round((right - left) / 2)),
+      "--y",
+      String(Math.round((bottom - top) / 2)),
       "--direction",
       direction,
       "--pages",
@@ -184,6 +202,51 @@ export class ChromeWindow {
   pasteText(box: RegExp, text: string) {
     execFileSync("pbcopy", { input: text });
     this.paste(box);
+  }
+  private bounds() {
+    return tellChrome(`get bounds of window id ${this.scriptId}`).split(", ").map(Number) as [
+      number,
+      number,
+      number,
+      number,
+    ];
+  }
+  /**
+   * Make the window `width` points wide and as tall as the screen allows,
+   * keeping its left edge, and return the size it gets: macOS keeps a window
+   * within the screen, and Chrome keeps one at least 500 points wide.
+   */
+  async resize(width: number) {
+    const [left] = this.bounds();
+    tellChrome(
+      `set bounds of window id ${this.scriptId} to {${left}, 0, ${left + Math.round(width)}, 10000}`,
+    );
+    await sleep(1000);
+    const [x, y, right, bottom] = this.bounds();
+    return { width: right - x, height: bottom - y };
+  }
+  /** The page's zoom, in percent: Chrome shows a Zoom button in the address bar when it isn't 100%. */
+  zoom() {
+    return Number(/^\s*\d+ button Zoom: (\d+)%$/m.exec(this.tree())?.[1] ?? 100);
+  }
+  /**
+   * Zoom the page out one of Chrome's steps (90, 80, 75, 67, 50, 33 and 25%), as
+   * ⌘− does. Chrome keeps a site's zoom for its next visit, so put it back with
+   * `resetZoom()`.
+   */
+  async zoomOut() {
+    this.hotkey("CmdOrCtrl+-");
+    await this.zoomSettled();
+  }
+  async resetZoom() {
+    this.hotkey("CmdOrCtrl+0");
+    await this.zoomSettled();
+  }
+  /** Wait for the bubble Chrome shows under the address bar on a zoom to close, so it isn't in a screenshot. */
+  private async zoomSettled() {
+    const end = Date.now() + 15_000;
+    await sleep(500);
+    while (/^\s*\d+ container Zoom: \d+%$/m.test(this.tree()) && Date.now() < end) await sleep(500);
   }
   /** A screenshot of the whole window, at the display's scale. */
   screenshot() {
