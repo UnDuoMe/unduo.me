@@ -186,9 +186,6 @@ summary {
   .sent-note {
     @apply mt-3! flex! items-start! gap-1.5! text-xs! text-muted!;
   }
-  .tab-note {
-    @apply mt-3! flex! flex-wrap! items-center! gap-1.5! text-xs! text-muted!;
-  }
   .retry-note {
     @apply flex! flex-wrap! items-center! gap-1.5! text-xs! text-muted!;
   }

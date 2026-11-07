@@ -27,13 +27,12 @@ five steps:
    with the input are shown on this step.
 4. **Activate with Duo.** A native form submits directly to Duo, into a sandboxed
    frame on the page, so the address that holds the code stays out of browser
-   history. The reply is pasted across; Duo errors explain whether a new QR code
-   is needed. If the frame stays empty, the user can activate again or choose the
-   second button, which opens the reply in a new tab and says that history keeps
-   that address, though opening it uses the code up, since Duo accepts each code
-   once. A note says Duo's reply holds the new key, so a clipboard that syncs or
-   keeps a history should be cleared after pasting. **Use a new QR code** clears
-   the used code and returns to step 3.
+   history; nothing opens it in a new tab. The reply is pasted across; browsers
+   refuse a drag from another origin's frame into the page. A note says Duo's reply
+   holds the new key, so a clipboard that syncs or keeps a history should be
+   cleared after pasting. Duo errors explain whether a new QR code is needed. If the frame stays empty, the
+   user can activate again. **Use a new QR code** clears the used code and returns
+   to step 3.
 5. **Add it to your authenticator.** The authenticator result template shows the QR,
    key (no copy buttons: some systems sync the clipboard to the cloud), defaulting
    to counter-based (HOTP) codes.

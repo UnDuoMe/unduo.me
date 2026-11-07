@@ -209,7 +209,7 @@ export function finalizeHtml(source, { stylesheets = {}, assetBase, selfContaine
     "Once the page accepts a Duo form, its script adds a second policy, form-action and frame-src https://api-XXXXXXXX.duosecurity.com for that form's host, and browsers enforce both.";
   const frameNote =
     replyFrame &&
-    "The script builds one frame, duo-reply, with the sandbox attribute, no permissions and no src. Only the Duo form loads anything in it, and scripts can't run there or read it from this page: you copy Duo's reply out of it by hand. A second button with formTarget _blank sends the same form to a new tab instead, if you choose it.";
+    "The script builds one frame, duo-reply, with the sandbox attribute, no permissions and no src. Only the Duo form loads anything in it, and scripts can't run there or read it from this page: you copy Duo's reply out of it by hand. No form or button sends Duo's form anywhere else, such as a new tab.";
   const navigationNote =
     "No CSP directive that browsers enforce limits top-level navigation or window.open, so only this page's own scripts can use them.";
   const comment = (

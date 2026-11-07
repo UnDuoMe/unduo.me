@@ -836,12 +836,12 @@ describe.runIf(enabled)("browser", { timeout: 180_000 }, () => {
         "[...document.querySelectorAll('iframe')].flatMap(frame => [frame.name, frame.getAttribute('sandbox'), frame.getAttribute('src')])",
       ),
     ).toEqual(["duo-reply", "", null]);
-    // The one way to a new tab is the button that says what it costs.
+    // No button sends the form anywhere else, such as a new tab.
     expect(
       evaluate(
-        "[...document.querySelectorAll('button')].filter(button => button.formTarget).map(button => [button.formTarget, button.textContent.trim()])",
+        "[...document.querySelectorAll('button')].filter(button => button.formTarget).map(button => button.formTarget)",
       ),
-    ).toEqual([["_blank", "Open Duo's reply in a new tab instead"]]);
+    ).toEqual([]);
     // A second policy then limits forms to that one Duo host.
     expect(
       evaluate(

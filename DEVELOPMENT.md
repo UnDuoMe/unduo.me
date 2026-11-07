@@ -168,13 +168,14 @@ DNS and TLS send the host name unencrypted. The guard then writes the form's
 fields and key itself. The user's click POSTs it directly to Duo
 into the page's sandboxed `duo-reply` frame, with no referrer. A frame, not a new
 tab, because browsers write a new tab's address to history and it holds the code;
-Chrome and Firefox don't write the frame's there. A second button sends the same
-form to a new tab, for browsers where the frame doesn't work, and says so. The host's submit guard prevents
+Chrome and Firefox don't write the frame's there. Nothing sends the form to a new
+tab. The host's submit guard prevents
 duplicate submissions, and the form stays connected while the browser submits.
 Never try a real activation with `fetch` and retry through a form: a CORS
 failure can occur after Duo has already consumed the code.
 
-The user copies Duo's reply back. The plugin accepts JSON (also with browser
+The user copies Duo's reply back: browsers refuse a drag from another origin's frame
+into the page. The plugin accepts JSON (also with browser
 labels around it, or Firefox's JSON-viewer text), explains Duo errors (40403
 means "get a new QR code"), and keeps only the customer and base32 secret. Step
 4 renders the authenticator QR with a counter-based/time-based switch. The
@@ -187,7 +188,7 @@ activation value, submitted flag and parsed account) lives only in the plugin's
 memory. The page never writes it to its URL, history state or browser
 storage, so the page's copied links and history entries never carry it. The
 Duo request's own URL holds the activation code, but only the sandboxed frame
-navigates to it unless the user chooses a new tab, and Duo accepts each code once.
+navigates to it, and Duo accepts each code once.
 Back and Forward change the step and leave the session alone. Refreshing or
 closing the tab discards it, so the host asks the browser to confirm leaving
 once there is an activation or account. Legacy `?step=` and `#/?step=` links

@@ -56,7 +56,6 @@ export function createSetupPage(load: (limits: PluginLimits) => Promise<SetupPlu
   const started = van.derive(() => view.val !== noView);
   const failed = van.state(false);
   const activated = van.state(false);
-  const newTab = van.state(false);
   const unenforced = van.state(false);
   const text = van.state("");
   const dragging = van.state(false);
@@ -277,7 +276,6 @@ export function createSetupPage(load: (limits: PluginLimits) => Promise<SetupPlu
     if (!request || submitted || sent.has(value)) return event.preventDefault();
     sent.add(value);
     activated.val = true;
-    newTab.val = (event.submitter as HTMLButtonElement | null)?.formTarget === "_blank";
     // Leave the form in place while the browser starts its POST.
     setTimeout(() => send({ type: "submitted", value }));
   }
@@ -357,7 +355,6 @@ export function createSetupPage(load: (limits: PluginLimits) => Promise<SetupPlu
     scan,
     stopScan,
     activated,
-    newTab,
     submit,
     retry,
     copy,

@@ -34,11 +34,9 @@ has no page that runs it.
    uploaded screenshot, or **Scan my screen** work too.
 4. **Activate with Duo.** Your browser submits the activation directly to Duo,
    and its reply shows in a box on the page. Select all, copy, and paste it into
-   the field under the box. If the box doesn't work, a second button opens the
-   reply in a new tab, where your browser history keeps the address, though opening it
-   uses the code up. Duo's reply holds your new key, so clear your clipboard after
-   pasting if it syncs to other devices. Each QR code works once; if Duo says the code expired or was used, unduo tells you to make a new
-   one.
+   the field under the box. Duo's reply holds your new key, so clear your clipboard
+   after pasting if it syncs to other devices. Each QR code works once; if Duo says the code expired or was used, unduo tells you
+   to make a new one.
 5. **Add it to your authenticator.** Scan the QR code with an app that supports
    counter-based codes (Google Authenticator, 2FAS, Aegis, FreeOTP), then test a
    passcode on any Duo sign-in. Switch to **Time-based** only if your

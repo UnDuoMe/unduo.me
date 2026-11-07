@@ -621,33 +621,6 @@ test.describe("what else the pages offer", () => {
     await expect(stepTitle(setup)).toHaveText("Copy the activation QR code");
   });
 
-  test("Duo's reply can open in a new tab instead", async ({
-    context,
-    page: home,
-    world: { duo },
-  }) => {
-    const path = await fileFromSharedLink(home);
-    const { setup, code } = await toQrStep(context, path);
-    await copyImage(code);
-    await pasteOnPage(setup);
-    await expect(stepTitle(setup)).toHaveText("Activate with Duo");
-    const [tab] = await Promise.all([
-      context.waitForEvent("page"),
-      setup.getByRole("button", { name: "Open Duo's reply in a new tab instead" }).click(),
-    ]);
-    await expect(tab.locator("body")).toContainText('"stat":"OK"');
-    await tab.bringToFront();
-    await tab.keyboard.press("ControlOrMeta+A");
-    await tab.keyboard.press("ControlOrMeta+C");
-    await setup.bringToFront();
-    await setup.locator("#duo-reply").click();
-    await setup.keyboard.press("ControlOrMeta+V");
-    await expect(stepTitle(setup)).toHaveText("Add it to your authenticator");
-    expect(readOtpauth(await scanQrCode(setup.locator(".qr-image"))).secret.toString()).toBe(
-      duo.activations.at(-1)!.secret,
-    );
-  });
-
   test("leaving with a key in the page asks first, and forgets it", async ({
     context,
     page: home,

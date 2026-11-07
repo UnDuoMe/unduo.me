@@ -33,8 +33,6 @@ export interface SetupPage {
   stopScan: () => void;
   /** Whether Duo's reply may be in its frame, which then stays through earlier steps. */
   activated: State<boolean>;
-  /** Whether the last activation chose a new tab over the frame. */
-  newTab: State<boolean>;
   submit: (event: SubmitEvent) => void;
   retry: () => void;
   /** Copy the portal link. Nothing copies the setup key or its link. */

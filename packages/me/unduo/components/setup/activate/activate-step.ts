@@ -23,12 +23,15 @@ const textButton = "uk-button uk-button-text btn btn-inline";
 
 /**
  * The step that posts the activation to Duo, then takes Duo's reply. Duo's reply
- * shows in a frame rather than a new tab, because browsers write a new tab's
- * address, which holds the code, to history. Removing the frame discards the
- * reply, so `setupCard` keeps this step in the page through earlier steps.
+ * shows in a frame in the page, never a new tab, because browsers write a new
+ * tab's address, which holds the code, to history. The frame is another origin's,
+ * so the page can't read it: the student copies the reply across. (Browsers
+ * refuse a drag from another origin's frame into the page.) Removing the frame
+ * discards the reply, so `setupCard` keeps this step in the page through
+ * earlier steps.
  */
 export function activateStep(page: SetupPage) {
-  const { view, text, send, newTab } = page;
+  const { view, text, send } = page;
   return div(
     // The native form stays connected while the browser starts its POST.
     form(
@@ -65,19 +68,6 @@ export function activateStep(page: SetupPage) {
         span(van.derive(() => view.val.request?.host ?? "")),
         ". Each QR code works once.",
       ),
-      p(
-        { class: "tab-note" },
-        button(
-          {
-            type: "submit",
-            formTarget: "_blank",
-            class: textButton,
-            disabled: () => !view.val.request,
-          },
-          "Open Duo's reply in a new tab instead",
-        ),
-        "Use this if the box doesn't show the reply. Your browser history keeps a new tab's address, which holds the activation code, but opening it uses the code up: Duo accepts each code once, so the copy in history can't activate anything.",
-      ),
     ),
     form(
       {
@@ -92,27 +82,9 @@ export function activateStep(page: SetupPage) {
         {
           class: "reply-steps",
         },
-        li(
-          span(
-            van.derive(() =>
-              newTab.val
-                ? "In the Duo tab, select everything with "
-                : "Click in the box, then select everything with ",
-            ),
-          ),
-          shortcutKeys(page, "A"),
-        ),
+        li(span("Click in the box, then select everything with "), shortcutKeys(page, "A")),
         li("Copy it with ", shortcutKeys(page, "C")),
-        li(
-          span(
-            van.derive(() =>
-              newTab.val
-                ? "Come back and paste it in the field below with "
-                : "Click the field under the box and paste with ",
-            ),
-          ),
-          shortcutKeys(page, "V"),
-        ),
+        li(span("Click the field under the box and paste with "), shortcutKeys(page, "V")),
       ),
       p(
         { class: "hint" },
@@ -124,7 +96,6 @@ export function activateStep(page: SetupPage) {
         sandbox: "",
         title: "Duo's reply",
         class: "reply-frame",
-        hidden: () => newTab.val,
       }),
       div(
         { class: "stack-2" },
@@ -148,14 +119,7 @@ export function activateStep(page: SetupPage) {
         }),
         p(
           { id: "reply-description", class: "hint" },
-          van.derive(
-            () =>
-              `It contains your key, so it's read only in this page. ${
-                newTab.val
-                  ? "Close the Duo tab afterwards."
-                  : "The box empties when you go on to the next step."
-              }`,
-          ),
+          "It contains your key, so it's read only in this page. The box empties when you go on to the next step.",
         ),
         p(
           {
@@ -188,13 +152,7 @@ export function activateStep(page: SetupPage) {
           class: "retry-note",
           hidden: () => !!view.val.problem,
         },
-        span(
-          van.derive(() =>
-            newTab.val
-              ? "No Duo tab appeared? Your browser may have blocked it, so Duo never got the request."
-              : "Box still empty? Try again, or open the reply in a new tab.",
-          ),
-        ),
+        span("Box still empty?"),
         button(
           {
             type: "button",
