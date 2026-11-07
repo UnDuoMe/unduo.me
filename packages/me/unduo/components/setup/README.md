@@ -161,4 +161,7 @@ is used, and raw pasted replies are never serialized.
 
 The build publishes the help images with the
 pinned assets. The home page links to each institution's file, `files/<WHED-number>`,
-built from these components. It never serializes current page state.
+and to `files/other` for any other school or company, all built from these components.
+`setupMount()` without an institution writes a `#setup` element with no data attributes:
+that file shows no institution's name ("isn't affiliated with your organization"), no
+portal or Source link, and the signed-in and My Settings examples with the logo painted out. It never serializes current page state.

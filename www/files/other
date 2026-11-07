@@ -1,0 +1,3008 @@
+<!doctype html>
+<html lang="en">
+  <head><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'sha256-dZu710qV7pUozk9WNNw7Nr449YAqE6wv/arVKnsnH/Y=' 'sha256-+Yp56U11EJFZUXDpR1uV+z5nUTr0bTTXYkfnuRg0fL8=' 'sha256-Rk8KnOZTGvkeJSeVJ5U/VJH8a5z6WToFyDV7exdMWPg=' 'sha256-79GgWB5zhRMfbyPW5nkutnLgvSJKnKaFPcGp1AGEkW0=' 'sha256-qiKprtQROut91i2Lp+j1D/7TSyr7p0jld3F55iMt4qU=' 'sha256-48rvhg+YvhQf98/as27dQzXlBv34wj3vlVOZ/cChg+s=' 'wasm-unsafe-eval'; script-src-attr 'none'; style-src-elem https://cdn.jsdelivr.net/npm/uikit@3.25.29/dist/css/uikit.min.css https://cdn.jsdelivr.net/gh/UnDuoMe/unduo.me@99295788d39ac1dbb9cff4e5e53f653a7b1f697d/setup-styles.Jm6_LVqp.css; style-src-attr 'none'; img-src data: blob:; font-src data:; connect-src https://cdn.jsdelivr.net/gh/UnDuoMe/unduo.me@99295788d39ac1dbb9cff4e5e53f653a7b1f697d/setup.7wz-vxOz.wasm https://cdn.jsdelivr.net/gh/UnDuoMe/unduo.me@99295788d39ac1dbb9cff4e5e53f653a7b1f697d/setup-0-settings-devices-generic.PpPFYaDw.webp https://cdn.jsdelivr.net/gh/UnDuoMe/unduo.me@99295788d39ac1dbb9cff4e5e53f653a7b1f697d/setup-0-signed-in-narrow-generic.musqUsbi.webp https://cdn.jsdelivr.net/gh/UnDuoMe/unduo.me@99295788d39ac1dbb9cff4e5e53f653a7b1f697d/setup-0-signed-in-wide-generic.K4qf61UV.webp https://cdn.jsdelivr.net/gh/UnDuoMe/unduo.me@99295788d39ac1dbb9cff4e5e53f653a7b1f697d/setup-1-add-device.HfrEhtPk.webp https://cdn.jsdelivr.net/gh/UnDuoMe/unduo.me@99295788d39ac1dbb9cff4e5e53f653a7b1f697d/setup-2-tablet.qSlLoa3c.webp https://cdn.jsdelivr.net/gh/UnDuoMe/unduo.me@99295788d39ac1dbb9cff4e5e53f653a7b1f697d/setup-3-android.F5QoYAql.webp https://cdn.jsdelivr.net/gh/UnDuoMe/unduo.me@99295788d39ac1dbb9cff4e5e53f653a7b1f697d/setup-4-duo-installed.gRuBBlLy.webp https://cdn.jsdelivr.net/gh/UnDuoMe/unduo.me@99295788d39ac1dbb9cff4e5e53f653a7b1f697d/setup-5-copy-qr-url.0e4hdp7M.webp; form-action https://*.duosecurity.com; frame-src https://*.duosecurity.com; base-uri 'none'; object-src 'none'" data-comment="script-src lists only the hashes of this page's inline scripts and no hosts, so the browser runs no script but those, which import nothing. No source allows inline handlers or eval. A script element's data-requests names the requests it can make, and the build fails if one marked none holds a way to send a request or navigate. 'wasm-unsafe-eval' allows compiling WebAssembly only. Once the page accepts a Duo form, its script adds a second policy, form-action and frame-src https://api-XXXXXXXX.duosecurity.com for that form's host, and browsers enforce both. The script builds one frame, duo-reply, with the sandbox attribute, no permissions and no src. Only the Duo form loads anything in it, and scripts can't run there or read it from this page: you copy Duo's reply out of it by hand. No form or button sends Duo's form anywhere else, such as a new tab. Fetches may reach only the files in connect-src, and forms only Duo. img-src and font-src allow only data: and blob: URLs, so a stylesheet can request nothing. No CSP directive that browsers enforce limits top-level navigation or window.open, so only this page's own scripts can use them.">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="referrer" content="no-referrer">
+    <meta name="description" content="Use your favorite authenticator with Duo. Activation goes directly to Duo; your key stays in your browser. No install or account.">
+    <title>Duo setup — unduo</title>
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2064%2064'%3E%3Cpath%20d='M17%2020v17a9%209%200%200%200%2018%200V20m12%200v24'%20fill='none'%20stroke='currentColor'%20stroke-width='6'%20stroke-linecap='round'/%3E%3C/svg%3E">
+    <!-- CDN stylesheet URL and SRI hash: update with vp run update:cdn. The page loads no scripts from a CDN. -->
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/uikit@3.25.29/dist/css/uikit.min.css"
+      integrity="sha256-u7rK4EvrYUNLlBrA/s9SFru2CdHqGY8S2bizol9fSw4="
+      crossorigin="anonymous"
+      referrerpolicy="no-referrer"
+      data-vendor="uikit"
+      data-integrity-source="https://data.jsdelivr.com/v1/packages/npm/uikit@3.25.29?structure=flat"
+      data-integrity-file="/dist/css/uikit.min.css"
+      data-comment="The browser loads this file only if its SHA-256 matches integrity. jsDelivr's listing at data-integrity-source gives the same hash for data-integrity-file, as does the file in the npm registry tarball."
+    />
+    <link rel="stylesheet" data-vendor="app" href="https://cdn.jsdelivr.net/gh/UnDuoMe/unduo.me@99295788d39ac1dbb9cff4e5e53f653a7b1f697d/setup-styles.Jm6_LVqp.css" integrity="sha256-Jm6/LVqp08akIpBrHVpcHmH5GnbulR5rSqT44FfHASs=" crossorigin="anonymous" referrerpolicy="no-referrer" data-integrity-source="https://data.jsdelivr.com/v1/packages/gh/UnDuoMe/unduo.me@99295788d39ac1dbb9cff4e5e53f653a7b1f697d?structure=flat" data-integrity-file="/setup-styles.Jm6_LVqp.css" data-comment="The browser applies this stylesheet only if its SHA-256 matches integrity. jsDelivr's listing at data-integrity-source, a commit of github.com/UnDuoMe/unduo.me, gives the same hash for data-integrity-file.">
+  </head>
+  <body class="page-body">
+    <div id="root" data-plugin-url="https://cdn.jsdelivr.net/gh/UnDuoMe/unduo.me@99295788d39ac1dbb9cff4e5e53f653a7b1f697d/setup.7wz-vxOz.wasm" data-plugin-integrity="sha256-7wz+vxOzfqx4LEs5QVsqwM2TMAJHkXAJisveKoD7omE=" data-integrity-source="https://data.jsdelivr.com/v1/packages/gh/UnDuoMe/unduo.me@99295788d39ac1dbb9cff4e5e53f653a7b1f697d?structure=flat" data-integrity-file="/setup.7wz-vxOz.wasm" data-comment="The page treats the WebAssembly module at data-plugin-url as untrusted code and runs any module the same way, whatever its bytes. loadSetupPlugin() refuses a module unless it imports exactly alloc, input_length, input_load_u8, input_load_u64, store_u8, store_u64, output_set and error_set, which kernel(), in the script below, implements, and exports exactly memory and update. A WebAssembly module computes on its own memory and can reach anything else only through its imports, and these only copy one call's input in and its output or error out. So the module acts only through its output, and the script decides what that output can do. The module runs the setup steps. It receives events as JSON and never pixels: readQrCodes(), in the script, reads QR codes from images and screen frames, and the module gets only their text. check() validates each of its outputs against the Output schema before the page uses it. Its output reaches only what the page shows, the text field, the Duo form's URL and the otpauth:// link. The page shows only the titles, labels and messages listed in pageTexts in the script, and text built from what you pasted: the organization name and setup key from Duo's reply, Duo's reason when it refuses, from a pasted reply that says it failed, and your pasted text in the text field. Its output never reaches the address: the script changes the address only once, with history.replaceState() when the page opens, before anything is pasted, to drop any query or hash. The Duo form's URL, the only output sent to a server, is an api-XXXXXXXX.duosecurity.com host, the same for the whole page load, with a 5 to 128 character activation code in its path, and fromInput() requires that code and host in text the page read: pasted text or HTML, or the text readQrCodes() read from a QR code. The otpauth:// link becomes a QR code, a link and clipboard text when you ask, and fromReply() requires the text its secret encodes, and its organization name, to appear in text you pasted, where Duo's reply arrives. Calls run on the page's thread, so the page can't stop a call that never returns; limits apply once it returns. So whatever its bytes compute, the module can only choose among this page's own steps and messages, leave setup unfinished or hang the tab. Its bytes decide only whether setup works. They are built from crates/setup in github.com/UnDuoMe/unduo.me; the browser fetches them only if their SHA-256 matches data-plugin-integrity, the hash jsDelivr's listing at data-integrity-source gives for data-integrity-file; and GitHub's artifact attestation for this file names the commit and workflow run that built it: gh attestation verify FILE --repo UnDuoMe/unduo.me."><div id="setup"></div>
+      <template id="portal-signed-in">
+    <figure class="signed-in-narrow">
+      <figcaption class="figure-caption">In a narrow window</figcaption>
+      <img class="screenshot" data-image-src="https://cdn.jsdelivr.net/gh/UnDuoMe/unduo.me@99295788d39ac1dbb9cff4e5e53f653a7b1f697d/setup-0-signed-in-narrow-generic.musqUsbi.webp" data-image-integrity="sha256-musqUsbi6LKG07Q0Sc09Hj2aQCTtk6/2gAvVQB6Oa3k=" alt="Duo's sign-in prompt in a narrow window, with the device's name and number blurred">
+    </figure>
+    <figure class="signed-in-wide">
+      <figcaption class="figure-caption">In a wide window</figcaption>
+      <img class="screenshot" data-image-src="https://cdn.jsdelivr.net/gh/UnDuoMe/unduo.me@99295788d39ac1dbb9cff4e5e53f653a7b1f697d/setup-0-signed-in-wide-generic.K4qf61UV.webp" data-image-integrity="sha256-K4qf61UVoJCm4XmvFK8wcRSP6TtWv5PmtC3OrTHa5nM=" alt="Duo's sign-in prompt in a wide window, with the device's name and number blurred">
+    </figure>
+  </template>
+      <template id="portal-settings"><img class="screenshot" data-image-src="https://cdn.jsdelivr.net/gh/UnDuoMe/unduo.me@99295788d39ac1dbb9cff4e5e53f653a7b1f697d/setup-0-settings-devices-generic.PpPFYaDw.webp" data-image-integrity="sha256-PpPFYaDwrYSdXYs/mF8UhVqURY0yEzLW03lLiS/1gpY=" alt="Duo's My Settings &amp; Devices page, with the devices' names and numbers blurred"></template>
+      <template id="portal-screenshot-figures">
+    <figure>
+      <figcaption class="figure-caption">1. Choose “Add another device”</figcaption>
+      <img class="screenshot" data-image-src="https://cdn.jsdelivr.net/gh/UnDuoMe/unduo.me@99295788d39ac1dbb9cff4e5e53f653a7b1f697d/setup-1-add-device.HfrEhtPk.webp" data-image-integrity="sha256-HfrEhtPk9c4GMWguU9TCXl43w9zp9bDwUoagxQZrOsI=" alt="1. Choose “Add another device”">
+    </figure>
+    <figure>
+      <figcaption class="figure-caption">2. Choose Tablet</figcaption>
+      <img class="screenshot" data-image-src="https://cdn.jsdelivr.net/gh/UnDuoMe/unduo.me@99295788d39ac1dbb9cff4e5e53f653a7b1f697d/setup-2-tablet.qSlLoa3c.webp" data-image-integrity="sha256-qSlLoa3cOOu5hxK7FpPOf92oip/58zxaag4MKJt22dY=" alt="2. Choose Tablet">
+    </figure>
+    <figure>
+      <figcaption class="figure-caption">3. Choose Android</figcaption>
+      <img class="screenshot" data-image-src="https://cdn.jsdelivr.net/gh/UnDuoMe/unduo.me@99295788d39ac1dbb9cff4e5e53f653a7b1f697d/setup-3-android.F5QoYAql.webp" data-image-integrity="sha256-F5QoYAqlJigm9qem3M78P0y4KQdLJXbQE8lvDthL3fQ=" alt="3. Choose Android">
+    </figure>
+    <figure>
+      <figcaption class="figure-caption">4. Choose “I have Duo Mobile installed”</figcaption>
+      <img class="screenshot" data-image-src="https://cdn.jsdelivr.net/gh/UnDuoMe/unduo.me@99295788d39ac1dbb9cff4e5e53f653a7b1f697d/setup-4-duo-installed.gRuBBlLy.webp" data-image-integrity="sha256-gRuBBlLyFDf/O7hDA1We6UGoBR7myv82TygyQ2KxTAA=" alt="4. Choose “I have Duo Mobile installed”">
+    </figure>
+    <figure>
+      <figcaption class="figure-caption">5. Right-click the QR code and copy it</figcaption>
+      <img class="screenshot" data-image-src="https://cdn.jsdelivr.net/gh/UnDuoMe/unduo.me@99295788d39ac1dbb9cff4e5e53f653a7b1f697d/setup-5-copy-qr-url.0e4hdp7M.webp" data-image-integrity="sha256-0e4hdp7MHqfVJkbXPdJH4AdllvOb2bysxLxdJxaHLR8=" alt="5. Right-click the QR code and copy it">
+    </figure>
+  </template></div>
+    <noscript>Enable JavaScript to use unduo.</noscript>
+    <script data-app="unduo" data-part="vanjs" data-upstream="https://raw.githubusercontent.com/vanjs-org/van/84f30ae917107c9d4b4c38b9969a0d56aaac5ac8/public/van-1.6.2.nomodule.js" data-upstream-sha256="759bbbd74a95ee9528ce4f5634dc3b36be38f5802a13ac2ffdaad52a7b271ff6" data-requests="none" data-comment="These script elements, which run in order and share one scope, are all the JavaScript the page runs, bundled from github.com/UnDuoMe/unduo.me without minifying. Together they are the script this comment describes. It imports nothing. It holds VanJS 1.6.2 (this element: the file at data-upstream, byte for byte, whose SHA-256 is data-upstream-sha256; it sets window.van and nothing else), which builds the page's elements with createElement and text nodes and updates them when state changes; the setup page and its steps (startSetupPage, createSetupPage, screenshot); the QR code encoder and reader (qrModules, qrImage, readQrCodes), and the plugin loader and its output checks (kernel, loadSetupPlugin, guard, check, fromInput, fromReply). Nothing in the script writes HTML or evaluates text as code, and no attribute in the page's HTML holds an expression: the #setup element's data attributes are text the script shows or sets as links. Its only requests are the Duo form, whose action check() approves, and fetch() of data-plugin-url and of each screenshot's data-image-src, which returns a file only if its SHA-256 matches. Before setup starts, it tries fetch() of a data: URL, which the CSP forbids, and starts only if that fails. It navigates only with window.open() of the portal link the user clicked (popup), and with one history.replaceState() when the page opens, before anything is pasted, which drops any query or hash from its address. The script sets four kinds of changing URL: the Duo form's action and the otpauth:// link's href, both approved by check(); the authenticator QR code's src, a data: URL from qrImage(); and each screenshot's src, a blob: URL of its fetched file. Every other link's href is written in the script or comes from the #setup element's data-home, data-portal-url, data-source-url or data-download-href.">(() => {
+  // van.js
+  var protoOf = Object.getPrototypeOf;
+  var changedStates;
+  var derivedStates;
+  var curDeps;
+  var curNewDerives;
+  var alwaysConnectedDom = { isConnected: 1 };
+  var gcCycleInMs = 1e3;
+  var statesToGc;
+  var propSetterCache = {};
+  var objProto = protoOf(alwaysConnectedDom);
+  var funcProto = protoOf(protoOf);
+  var _undefined;
+  var addAndScheduleOnFirst = (set, s, f, waitMs) => (set ?? (waitMs ? setTimeout(f, waitMs) : queueMicrotask(f), /* @__PURE__ */ new Set())).add(s);
+  var runAndCaptureDeps = (f, deps, arg) => {
+    let prevDeps = curDeps;
+    curDeps = deps;
+    try {
+      return f(arg);
+    } catch (e) {
+      console.error(e);
+      return arg;
+    } finally {
+      curDeps = prevDeps;
+    }
+  };
+  var keepConnected = (l) => l.filter((b) => b._dom?.isConnected);
+  var addStatesToGc = (d) => statesToGc = addAndScheduleOnFirst(statesToGc, d, () => {
+    for (let s of statesToGc)
+      s._bindings = keepConnected(s._bindings), s._listeners = keepConnected(s._listeners);
+    statesToGc = _undefined;
+  }, gcCycleInMs);
+  var stateProto = {
+    get val() {
+      curDeps?._getters?.add(this);
+      return this.rawVal;
+    },
+    get oldVal() {
+      curDeps?._getters?.add(this);
+      return this._oldVal;
+    },
+    set val(v) {
+      curDeps?._setters?.add(this);
+      if (v !== this.rawVal) {
+        this.rawVal = v;
+        this._bindings.length + this._listeners.length ? (derivedStates?.add(this), changedStates = addAndScheduleOnFirst(changedStates, this, updateDoms)) : this._oldVal = v;
+      }
+    }
+  };
+  var state = (initVal) => ({
+    __proto__: stateProto,
+    rawVal: initVal,
+    _oldVal: initVal,
+    _bindings: [],
+    _listeners: []
+  });
+  var bind = (f, dom) => {
+    let deps = { _getters: /* @__PURE__ */ new Set(), _setters: /* @__PURE__ */ new Set() }, binding = { f }, prevNewDerives = curNewDerives;
+    curNewDerives = [];
+    let newDom = runAndCaptureDeps(f, deps, dom);
+    newDom = (newDom ?? document).nodeType ? newDom : new Text(newDom);
+    for (let d of deps._getters)
+      deps._setters.has(d) || (addStatesToGc(d), d._bindings.push(binding));
+    for (let l of curNewDerives) l._dom = newDom;
+    curNewDerives = prevNewDerives;
+    return binding._dom = newDom;
+  };
+  var derive = (f, s = state(), dom) => {
+    let deps = { _getters: /* @__PURE__ */ new Set(), _setters: /* @__PURE__ */ new Set() }, listener = { f, s };
+    listener._dom = dom ?? curNewDerives?.push(listener) ?? alwaysConnectedDom;
+    s.val = runAndCaptureDeps(f, deps, s.rawVal);
+    for (let d of deps._getters)
+      deps._setters.has(d) || (addStatesToGc(d), d._listeners.push(listener));
+    return s;
+  };
+  var add = (dom, ...children) => {
+    for (let c of children.flat(Infinity)) {
+      let protoOfC = protoOf(c ?? 0);
+      let child = protoOfC === stateProto ? bind(() => c.val) : protoOfC === funcProto ? bind(c) : c;
+      child != _undefined && dom.append(child);
+    }
+    return dom;
+  };
+  var tag = (ns, name, ...args) => {
+    let [{ is, ...props }, ...children] = protoOf(args[0] ?? 0) === objProto ? args : [{}, ...args];
+    let dom = ns ? document.createElementNS(ns, name, { is }) : document.createElement(name, { is });
+    for (let [k, v] of Object.entries(props)) {
+      let getPropDescriptor = (proto) => proto && (Object.getOwnPropertyDescriptor(proto, k) ?? getPropDescriptor(protoOf(proto)));
+      let propSetter = !ns && !is && !name.includes("-") ? propSetterCache[name + "," + k] ??= getPropDescriptor(protoOf(dom))?.set ?? 0 : getPropDescriptor(protoOf(dom))?.set;
+      let isEvent = k.startsWith("on");
+      let setter = isEvent ? (v2, oldV) => {
+        let event = k.slice(2);
+        dom.removeEventListener(event, oldV);
+        dom.addEventListener(event, v2);
+      } : propSetter ? propSetter.bind(dom) : dom.setAttribute.bind(dom, k);
+      let protoOfV = protoOf(v ?? 0);
+      isEvent || protoOfV === funcProto && (v = derive(v, _undefined, dom), protoOfV = stateProto);
+      protoOfV === stateProto ? bind(() => (setter(v.val, v._oldVal), dom)) : setter(v);
+    }
+    return add(dom, children);
+  };
+  var handler = (ns) => ({ get: (_, name) => tag.bind(_undefined, ns, name) });
+  var update = (dom, newDom) => newDom ? newDom !== dom && dom.replaceWith(newDom) : dom.remove();
+  var updateDoms = () => {
+    let iterationsLeft = 100, derivedStatesArray = [...changedStates].filter((s) => s.rawVal !== s._oldVal);
+    do {
+      derivedStates = /* @__PURE__ */ new Set();
+      for (let l of new Set(derivedStatesArray.flatMap((s) => s._listeners = keepConnected(s._listeners))))
+        derive(l.f, l.s, l._dom), l._dom = _undefined;
+    } while (--iterationsLeft && (derivedStatesArray = [...derivedStates]).length);
+    let changedStatesArray = [...changedStates].filter((s) => s.rawVal !== s._oldVal);
+    changedStates = _undefined;
+    for (let b of new Set(changedStatesArray.flatMap((s) => s._bindings = keepConnected(s._bindings))))
+      update(b._dom, bind(b.f, b._dom)), b._dom = _undefined;
+    for (let s of changedStatesArray) s._oldVal = s.rawVal;
+  };
+  var van_default = {
+    tags: new Proxy((ns) => new Proxy(tag, handler(ns)), handler()),
+    hydrate: (dom, f) => update(dom, bind(f, dom)),
+    add,
+    state,
+    derive
+  };
+
+  // van.forbundle.js
+  window.van = van_default;
+})();
+</script>
+<script data-app="unduo" data-part="plugin-checks" data-source="packages/me/unduo/components/setup/plugin/setup-plugin.ts" data-requests="fetch() of data-plugin-url" data-comment="kernel() gives the WebAssembly module its only imports, loadSetupPlugin() refuses a module with any others, and guard() and check() test each of its outputs before the page uses it. fromInput() and fromReply() bind what it names to what the page read. fetch() returns the module only if its SHA-256 matches.">"use strict";
+/**
+* The plugin's default limits. Each call's input is one event as JSON, such as
+* a pasted page of HTML or the decoded text of a QR code.
+*/
+var defaultPluginLimits = {
+	maxPages: 1024,
+	timeoutMs: 5e3
+};
+/**
+* Plugin output check. `guard` checks each output before any other code sees
+* it. On a mismatch it throws, and every later call fails. The output must
+* match `Output` exactly: each field listed below and no others, with the type,
+* pattern or value shown. An output is at most `maxOutput` UTF-16 code units of
+* JSON, with at most `maxEffects` effects and `maxText` units in each string.
+* Plugin output leaves the page in two places. The address isn't one: the page
+* changes it only once, when it opens and before anything is pasted, so nothing
+* the plugin returns reaches browser history or sync.
+*
+* 1. The Duo form (`view.request`): the plugin names only its URL; the fields
+*    and this page's key are written here. DNS and TLS send the host name
+*    unencrypted, so it must have Duo's eight-character shape and stay the same
+*    all page long. A new URL's code and host must also appear in text the
+*    page read since it loaded or started over: pasted text or HTML, or the
+*    text of a QR code in an image or screen frame, which this page's own
+*    `readQrCodes` read and the plugin never sees as pixels (`fromInput`).
+*    TLS encrypts the path, which holds the activation code.
+*    CSP also limits forms to `*.duosecurity.com`.
+* 2. The authenticator link (`view.account`) becomes a QR code, a link and
+*    clipboard text. It must be an `otpauth://` link, not a web address, with
+*    only the standard parameters (apps may fetch a URL given as `image`), and
+*    its secret must be `account.secret`. Duo's reply must be among the text
+*    pasted since the page loaded or started over: some pasted text must hold
+*    the text the secret encodes and the link's organization name (`fromReply`).
+*
+* Everything else is set as text, booleans and classes; nothing
+* writes HTML. That text is one of `pageTexts` or built from what you pasted:
+* the organization name, its QR code description and the setup key come from
+* the link and its secret, Duo's refusal quotes a pasted failure reply, which
+* holds no key, and `setText`
+* fills the field only with pasted text. The other effects set the text field, move focus, stop the
+* screen share or make the page call the plugin again.
+*/
+var duoUrl = /^https:\/\/(api-[a-z0-9]{8}\.duosecurity\.com)\/push\/v2\/activation\/[A-Za-z0-9]{5,128}\?customer_protocol=1$/;
+/** Duo Mobile's activation fields, in order; `pubkey` becomes this page's key. */
+var duoFields = [...new URLSearchParams("pkpush=rsa-sha512&pubkey=&jailbroken=false&architecture=arm64&region=US&app_id=com.duosecurity.duomobile&full_disk_encryption=true&passcode_status=true&platform=Android&app_version=4.33.0&app_build_number=433000&version=13&manufacturer=Google&language=en&model=Cheetah&security_patch_level=2024-01-01")];
+var otpauth = /^otpauth:\/\/[ht]otp\/Duo:[\w.!~*'()%-]*\?secret=([A-Z2-7]+)&issuer=Duo&algorithm=SHA1&digits=6&(?:counter=0|period=30)$/;
+/**
+* Size caps. `crates/setup` echoes pasted text up to `maxText` units. Its
+* longest other string, the otpauth link for the longest organization name and
+* secret it accepts from Duo's reply (4096 units each), is under 57,000.
+*/
+var maxText = 65536;
+var maxEffects = 16;
+var maxOutput = 1048576;
+/**
+* The text the page shows from the plugin. Titles, step labels and messages
+* must be one of these, word for word; `crates/setup` writes the same strings,
+* and a test compares the two. Text built from what you pasted is checked
+* where it is used: see `check`.
+*/
+var pageTexts = {
+	titles: [
+		"Open your Duo device portal",
+		"Authenticate with Duo",
+		"Copy the activation QR code",
+		"Activate with Duo",
+		"Add it to your authenticator"
+	],
+	labels: [
+		"Open portal",
+		"Authenticate with Duo",
+		"Copy QR code",
+		"Activate with Duo",
+		"Add to authenticator"
+	],
+	messages: [
+		"That isn't a Duo activation code. Copy the QR code from your Duo portal's “Add a device” screen.",
+		"The activation code contains an invalid Duo host.",
+		"The activation code must point to a Duo API host (api-….duosecurity.com).",
+		"That link is incomplete. Copy the whole QR image address or activation link.",
+		"That's a Duo page, not the QR code. Right-click the QR code and copy the image or its address.",
+		"That Duo link isn't an activation link. Copy the QR code shown after choosing “I have Duo Mobile installed”.",
+		"That's not a Duo link. Sign in to your Duo portal, add a device, then copy the QR code it shows.",
+		"Paste the QR code, its image address, or your activation link.",
+		"That's too long to be a Duo activation link.",
+		"Your browser couldn't prepare the request. Use a current browser over HTTPS. Nothing was sent to Duo.",
+		"That QR code isn't a Duo activation code. Copy the one shown after choosing “I have Duo Mobile installed”.",
+		"No QR code found in that image. Copy the QR code itself, or a screenshot where it's fully visible.",
+		"Found a QR code, but not Duo's. Keep the Duo activation QR code visible.",
+		"No Duo QR code appeared within five minutes, so sharing stopped.",
+		"That image couldn't be read. Try a PNG or JPEG screenshot.",
+		"Choose the window that shows the Duo QR code. Nothing is recorded or uploaded.",
+		"Looking for the Duo QR code in the shared window…",
+		"Screen sharing was cancelled. Paste the QR code instead.",
+		"Couldn't read the shared screen. Paste the QR code instead.",
+		"That doesn't look like Duo's reply. Click in Duo's reply, select everything (Ctrl+A or ⌘A), copy it, then paste it here.",
+		"Duo didn't accept this QR code: it has expired or was already used. Each code works once — create a new one in your Duo portal.",
+		"That's too long to be Duo's reply. Copy only the text of Duo's reply."
+	],
+	/** The setup key until you reveal it. */
+	hiddenKey: "•••• •••• •••• •••• •••• ••••"
+};
+/** A step's place for screen readers, as `crates/setup` writes it. */
+var stepDescription = /^, step [1-5] of 5, (?:current step|done|not started)$/;
+/**
+* Duo's refusal, with the reason and error code from its reply, both of which
+* must appear in pasted text.
+*/
+var duoRefusal = /^Duo didn't activate the device(?:: “([^]{1,200}?)”)?(?: \(error (-?\d{1,16})\))?\. Your organization may not allow adding devices this way\.$/u;
+var at = (path, key) => path ? `${path}.${key}` : `${key}`;
+var boolean = (value, path) => {
+	if (typeof value !== "boolean") unsafe(path);
+};
+/** A string of at most `maxText` units, matching `pattern` if one is given. */
+var text = (pattern) => (value, path) => {
+	if (typeof value !== "string" || value.length > maxText || pattern && !pattern.test(value)) unsafe(path);
+};
+/** A whole number from `min` to `max`. */
+var range = (min, max) => (value, path) => {
+	if (typeof value !== "number" || !Number.isInteger(value) || value < min || value > max) unsafe(path);
+};
+/** Exactly one of `values`. */
+var oneOf = (...values) => (value, path) => {
+	if (!values.includes(value)) unsafe(path);
+};
+var nullable = (check) => (value, path) => {
+	if (value !== null) check(value, path);
+};
+/** An array of `min` to `max` entries, each matching `entry`. */
+var list = (entry, min, max) => (value, path) => {
+	if (!Array.isArray(value) || value.length < min || value.length > max) unsafe(path);
+	value.forEach((item, index) => entry(item, at(path, index)));
+};
+/** An object with exactly these keys, each value matching its check. */
+var shape = (fields) => (value, path) => {
+	if (typeof value !== "object" || value === null || Array.isArray(value)) unsafe(path);
+	const keys = Object.keys(value);
+	const expected = Object.keys(fields);
+	if (keys.length !== expected.length || !keys.every((key) => Object.hasOwn(fields, key))) unsafe(path);
+	for (const key of expected) fields[key](value[key], at(path, key));
+};
+var step = range(0, 4);
+var ticket = range(0, 2 ** 32 - 1);
+/** The closed list of effects, by `type`; see `SetupEffect`. */
+var effects = {
+	prepare: shape({
+		type: oneOf("prepare"),
+		value: text()
+	}),
+	readImage: shape({
+		type: oneOf("readImage"),
+		ticket
+	}),
+	scanFrame: shape({
+		type: oneOf("scanFrame"),
+		ticket
+	}),
+	stopScan: shape({ type: oneOf("stopScan") }),
+	setText: shape({
+		type: oneOf("setText"),
+		text: text()
+	}),
+	focus: shape({
+		type: oneOf("focus"),
+		id: oneOf("step-title", "duo-reply"),
+		scroll: oneOf("setup-progress", "duo-reply")
+	}),
+	later: shape({
+		type: oneOf("later"),
+		ms: range(0, 6e4),
+		event: shape({
+			type: oneOf("copyDone"),
+			id: ticket
+		})
+	})
+};
+var Effect = (value, path) => {
+	const type = value?.type;
+	if (typeof type !== "string" || !Object.hasOwn(effects, type)) unsafe(path);
+	effects[type](value, path);
+};
+/** The authenticator account, whose link must hold `secret`. */
+var Account = (value, path) => {
+	shape({
+		customer: text(),
+		secret: text(/^[A-Z2-7]+$/),
+		key: text(),
+		revealed: boolean,
+		uri: text(otpauth),
+		qrAlt: text()
+	})(value, path);
+	const { uri, secret } = value;
+	if (otpauth.exec(uri)[1] !== secret) unsafe(at(path, "uri"));
+};
+/** Every output the plugin may return. */
+var Output = shape({
+	view: shape({
+		current: step,
+		furthest: step,
+		title: oneOf(...pageTexts.titles),
+		progress: list(shape({
+			index: step,
+			number: range(1, 5),
+			label: oneOf(...pageTexts.labels),
+			state: oneOf("active", "complete", "upcoming"),
+			finished: boolean,
+			reachable: boolean,
+			description: text(stepDescription)
+		}), 5, 5),
+		value: text(),
+		request: nullable(shape({ url: text(duoUrl) })),
+		submitted: boolean,
+		codeType: oneOf("hotp", "totp"),
+		account: nullable(Account),
+		linkError: oneOf("", ...pageTexts.messages),
+		linkBusy: oneOf("", "prepare", "image", "scan"),
+		scanNote: oneOf("", ...pageTexts.messages),
+		canScan: boolean,
+		problem: nullable(shape({
+			message: text(),
+			needsNewCode: boolean
+		})),
+		copied: oneOf("", "key", "uri", "portal"),
+		copyError: boolean,
+		shortcut: oneOf("⌘", "Ctrl+")
+	}),
+	effects: list(Effect, 0, maxEffects)
+});
+/** The page's public key as PEM, from `newPublicKey`. */
+var pubkey = "";
+/** The first Duo host the plugin named; later forms must match it. */
+var duoHost = "";
+/**
+* What the page read since it loaded or started over: pasted text and HTML,
+* and the text of QR codes it read from images and screen frames.
+*/
+var typed = new Set();
+/** Pasted text and HTML since the page loaded or started over, which is how Duo's reply arrives. */
+var pasted = new Set();
+/** The last Duo URL `duoForm` accepted. */
+var formUrl = "";
+function unsafe(path) {
+	throw new Error(`The setup plugin returned unsafe output at ${path || "the top level"}.`);
+}
+/** Note the text in an event the page sends the plugin. */
+function record(event) {
+	if (event.type === "load" || event.type === "startOver") {
+		typed.clear();
+		pasted.clear();
+		formUrl = "";
+	}
+	const parts = event.type === "input" ? [event.text, event.html] : event.type === "decoded" ? event.texts : [];
+	for (const part of parts) if (part) typed.add(part);
+	if (event.type === "input") {
+		for (const part of [event.text, event.html]) if (part) pasted.add(part);
+	}
+}
+/** The text a base32 secret encodes, or nothing unless it is UTF-8. */
+function fromBase32(secret) {
+	const bytes = [];
+	let value = 0;
+	let bits = 0;
+	for (const char of secret) {
+		value = (value << 5 | "ABCDEFGHIJKLMNOPQRSTUVWXYZ234567".indexOf(char)) & 4095;
+		bits += 5;
+		if (bits >= 8) {
+			bits -= 8;
+			bytes.push(value >>> bits & 255);
+		}
+	}
+	try {
+		return new TextDecoder("utf-8", { fatal: true }).decode(new Uint8Array(bytes));
+	} catch {
+		return;
+	}
+}
+/**
+* Whether the account came from Duo's reply: some pasted text holds the text
+* that `secret` encodes and the organization name in `uri`, as written or as
+* JSON escapes them. A reply with no name gives the name Duo.
+*/
+function fromReply(uri, secret) {
+	const text = fromBase32(secret);
+	let name;
+	try {
+		name = decodeURIComponent(/\/Duo:([^?]*)\?/.exec(uri)[1]);
+	} catch {
+		return false;
+	}
+	const holds = (value) => [...pasted].some((part) => [value, JSON.stringify(value).slice(1, -1)].some((form) => part.includes(form)));
+	return !!text && holds(text) && (name === "Duo" || holds(name));
+}
+/** Decode `%XX` escapes byte by byte; Duo's QR address nests one encoded link in another. */
+var unescape = (text) => text.replace(/%([0-9a-f]{2})/gi, (_, hex) => String.fromCharCode(parseInt(hex, 16)));
+/**
+* Whether one of the `typed` texts, percent-decoded twice, holds the URL's code
+* where an activation keeps it: right before the host in base64, as `CODE-BASE64`
+* (`+` and `/` may be written `-` and `_`), or at the end of a link on the host's
+* `m-` name, as `m-XXXXXXXX.duosecurity.com/activate/CODE` (or `android`, `iphone`).
+* Host names ignore case; codes don't.
+*/
+function fromInput(url, host) {
+	const code = url.slice(url.lastIndexOf("/") + 1, url.indexOf("?"));
+	const base64 = btoa(host).replace(/=+$/, "").replaceAll("+", "[-+]").replaceAll("/", "[_/]");
+	const mobile = `m${host.slice(3)}`.replace(/[a-z]/g, (letter) => `[${letter}${letter.toUpperCase()}]`).replaceAll(".", "\\.");
+	const activation = new RegExp(`(?<![A-Za-z0-9])${code}-${base64}|(?<![A-Za-z0-9.-])${mobile}/(?:activate|android|iphone)/${code}(?![A-Za-z0-9])`);
+	return [...typed].some((part) => activation.test(unescape(unescape(part))));
+}
+/** The Duo form for a checked URL, with the plugin's one host per page load. */
+function duoForm(url) {
+	const host = duoUrl.exec(url)[1];
+	if (!pubkey || host !== (duoHost ||= host)) unsafe("view.request.url");
+	if (url !== formUrl && !fromInput(url, host)) unsafe("view.request.url");
+	formUrl = url;
+	return {
+		url,
+		host,
+		fields: duoFields.map(([name, value]) => ({
+			name,
+			value: name === "pubkey" ? pubkey : value
+		}))
+	};
+}
+/** Check one output against `Output`, then build the Duo form here from its URL. */
+/**
+* Whether a pasted reply from Duo that says it failed holds `value`, as written,
+* JSON-escaped or with its spaces collapsed. A reply that succeeded holds the key,
+* so it can't supply the words of a refusal.
+*/
+var inFailedReply = (value) => [...pasted].some((part) => /\bstat\W+FAIL\b/.test(part) && !part.includes("hotp_secret") && [value, JSON.stringify(value).slice(1, -1)].some((form) => part.includes(form) || part.split(/\s+/).join(" ").includes(form)));
+/**
+* Check one output against `Output`, then the text built from what you
+* pasted, then build the Duo form here from its URL.
+*/
+function check(output) {
+	Output(output, "");
+	const { view, effects } = output;
+	const { account, problem } = view;
+	if (account) {
+		if (!fromReply(account.uri, account.secret)) unsafe("view.account");
+		const name = decodeURIComponent(/\/Duo:([^?]*)\?/.exec(account.uri)[1]) || "Duo";
+		const kind = account.uri.startsWith("otpauth://totp/") ? "Time-based" : "Counter-based";
+		if (account.customer !== name) unsafe("view.account.customer");
+		if (account.qrAlt !== `${kind} authenticator QR code for ${name}`) unsafe("view.account.qrAlt");
+		const grouped = account.secret.match(/.{1,4}/g).join(" ");
+		if (account.key !== (account.revealed ? grouped : pageTexts.hiddenKey)) unsafe("view.account.key");
+	}
+	if (problem && !pageTexts.messages.includes(problem.message)) {
+		const [, reason, code] = duoRefusal.exec(problem.message) ?? [];
+		if (!problem.message.match(duoRefusal) || reason && !inFailedReply(reason) || code && !inFailedReply(code)) unsafe("view.problem.message");
+	}
+	effects.forEach((effect, index) => {
+		if (effect.type === "setText" && effect.text && ![...pasted].some((part) => part.trim() === effect.text)) unsafe(`effects.${index}.text`);
+	});
+	return {
+		view: {
+			...view,
+			request: view.request && duoForm(view.request.url)
+		},
+		effects
+	};
+}
+/**
+* Make the page's key for the Duo form. The private half is created
+* non-extractable and never used; Duo Push approvals would need it.
+*/
+async function newPublicKey() {
+	const pair = await crypto.subtle.generateKey({
+		name: "RSASSA-PKCS1-v1_5",
+		modulusLength: 2048,
+		publicExponent: new Uint8Array([
+			1,
+			0,
+			1
+		]),
+		hash: "SHA-512"
+	}, false, ["sign", "verify"]);
+	const spki = new Uint8Array(await crypto.subtle.exportKey("spki", pair.publicKey));
+	pubkey = `-----BEGIN PUBLIC KEY-----\n${btoa(String.fromCharCode(...spki)).match(/.{1,64}/g).join("\n")}\n-----END PUBLIC KEY-----\n`;
+}
+/**
+* Run calls one at a time, in order, through `check`. `call` passes an event's
+* JSON to the plugin's `update` export and returns its output, which is parsed
+* as JSON only if it is at most `maxOutput` units long. A call that takes
+* longer than `timeoutMs` fails too. The plugin runs on the page's thread, so
+* nothing on the page can interrupt a call that is running, but its late
+* output is never used. After a failure every later call fails.
+*/
+function guard(call, timeoutMs = defaultPluginLimits.timeoutMs) {
+	let queue = Promise.resolve();
+	return (event) => {
+		const result = queue.then(async () => {
+			record(event);
+			const start = performance.now();
+			const json = await call(JSON.stringify(event));
+			if (performance.now() - start > timeoutMs) throw new Error("The setup plugin timed out.");
+			if (typeof json !== "string" || json.length > maxOutput) unsafe("");
+			return check(JSON.parse(json));
+		});
+		queue = result;
+		return result;
+	};
+}
+/** The bytes of a 64 KiB WebAssembly page. */
+var page = 65536;
+/** Everything the module may import, all from `extism:host/env`, and export. */
+var moduleImports = [
+	"alloc",
+	"error_set",
+	"input_length",
+	"input_load_u64",
+	"input_load_u8",
+	"output_set",
+	"store_u64",
+	"store_u8"
+];
+var moduleExports = ["memory", "update"];
+/**
+* One instance's imports: Extism's eight kernel functions, which hand the
+* instance one call's input and take back its output or error. `alloc`
+* reserves blocks of one buffer of at most `maxBytes`, and returns 0 past that.
+* Reading or writing outside the reserved blocks, or outside the input, throws,
+* which ends the call. `start` sets a call's input and clears the blocks.
+*/
+function kernel(maxBytes) {
+	let memory = new Uint8Array(0);
+	let input = new Uint8Array(0);
+	/** The next free offset; 0 is never a block. */
+	let top = 1;
+	const blocks = new Map();
+	let output;
+	let error;
+	/** Where `length` bytes at `offset` start, if they lie from `from` to `to`. */
+	const within = (offset, length, from, to) => {
+		const at = Number(offset);
+		if (!(at >= from && at + length <= to)) throw new RangeError("The setup plugin used memory outside its blocks.");
+		return at;
+	};
+	const copy = (offset, length) => {
+		const at = within(offset, length, 1, top);
+		return memory.slice(at, at + length);
+	};
+	const imports = {
+		alloc(length) {
+			const at = top;
+			const end = at + Number(length);
+			if (length < 0n || end > maxBytes) return 0n;
+			if (end > memory.length) {
+				const grown = new Uint8Array(Math.min(maxBytes, Math.max(end, 2 * memory.length)));
+				grown.set(memory);
+				memory = grown;
+			}
+			blocks.set(at, end - at);
+			top = end;
+			return BigInt(at);
+		},
+		store_u8(offset, byte) {
+			memory[within(offset, 1, 1, top)] = byte;
+		},
+		store_u64(offset, word) {
+			new DataView(memory.buffer).setBigUint64(within(offset, 8, 1, top), word, true);
+		},
+		input_length: () => BigInt(input.length),
+		input_load_u8: (offset) => input[within(offset, 1, 0, input.length)],
+		input_load_u64: (offset) => new DataView(input.buffer).getBigUint64(within(offset, 8, 0, input.length), true),
+		output_set(offset, length) {
+			output = copy(offset, Number(length));
+		},
+		error_set(offset) {
+			error = copy(offset, blocks.get(Number(offset)) ?? 0);
+		}
+	};
+	const utf8 = (bytes) => bytes && new TextDecoder().decode(bytes);
+	return {
+		imports,
+		start: (bytes) => {
+			input = bytes;
+			top = 1;
+			blocks.clear();
+			output = error = void 0;
+		},
+		output: () => utf8(output),
+		error: () => utf8(error)
+	};
+}
+/**
+* Load the setup logic: a WebAssembly module compiled from `crates/setup`.
+* `fetch` returns its bytes only if their SHA-256 matches `integrity`, and the
+* page refuses a module whose imports and exports aren't exactly
+* `moduleImports` and `moduleExports`. The module runs the setup flow on events,
+* through `guard`, and gets QR codes as text, never pixels. Its only imports are
+* `kernel`'s eight functions: instantiating a module that imports anything else
+* fails. A call fails if its export reports an error, if the module's memory then
+* holds more than `maxPages` pages, which `kernel` also caps, or if it took
+* longer than `timeoutMs`.
+*/
+async function loadSetupPlugin(url, integrity, { maxPages, timeoutMs } = defaultPluginLimits) {
+	if (![maxPages, timeoutMs].every((limit) => Number.isInteger(limit) && limit > 0)) throw new RangeError("Each plugin limit must be a positive whole number.");
+	if (!/^sha256-[A-Za-z0-9+/]{43}=$/.test(integrity)) throw new Error("The setup plugin needs its SHA-256.");
+	const response = await fetch(url, {
+		integrity,
+		credentials: "omit"
+	});
+	if (!response.ok) throw new Error("The setup plugin didn't load.");
+	const module = await WebAssembly.compile(await response.arrayBuffer());
+	const imported = WebAssembly.Module.imports(module).map(({ module: from, name, kind }) => from === "extism:host/env" && kind === "function" ? name : `${from}.${name}`);
+	const exported = WebAssembly.Module.exports(module).map(({ name }) => name);
+	if (imported.sort().join() !== moduleImports.join() || exported.sort().join() !== moduleExports.join()) throw new Error("The setup plugin imports or exports something else.");
+	const { imports, start, output, error } = kernel(maxPages * page);
+	const { exports } = await WebAssembly.instantiate(module, { "extism:host/env": imports });
+	const update = exports.update;
+	const memory = exports.memory;
+	return guard(async (event) => {
+		start(new TextEncoder().encode(event));
+		if (update() !== 0) throw new Error(error() || "The setup plugin failed.");
+		if (memory.buffer.byteLength > maxPages * page) throw new RangeError("The setup plugin went over its memory limit.");
+		return output();
+	}, timeoutMs);
+}
+</script>
+<script data-app="unduo" data-part="qr-codes" data-source="packages/me/unduo/lib/qr-reader/qr-reader.ts packages/me/unduo/components/setup/qr-code.ts" data-requests="none" data-comment="readQrCodes() reads the text of QR codes from gray pixels, and qrModules() and qrImage() draw the authenticator QR code as a data: URL. They take and return numbers and text.">"use strict";
+/**
+* Reads the text of QR codes in a gray image, as ISO/IEC 18004 lays them out:
+* find the three corner patterns, sample the grid of modules between them,
+* correct errors with Reed–Solomon, then read the data segments. It takes
+* numbers and returns strings; it uses no browser API but `TextDecoder`.
+*/
+/** The longest side the page sends; it scales larger images down first. */
+var maxSide = 1920;
+/** At most this many codes are returned. */
+var maxCodes = 16;
+/** Bounds on the work one image can cause, however many patterns it shows. */
+var maxFinders = 64;
+var maxAttempts = 400;
+var isDark = ({ dark, width, height }, x, y) => x >= 0 && y >= 0 && x < width && y < height && dark[Math.floor(y) * width + Math.floor(x)] === 1;
+/** Dark below the level that best separates the image's two groups of pixels (Otsu's method). */
+function belowGlobalLevel(gray) {
+	const counts = new Uint32Array(256);
+	let total = 0;
+	for (const value of gray) {
+		counts[value]++;
+		total += value;
+	}
+	let level = 127;
+	let best = -1;
+	let below = 0;
+	let sumBelow = 0;
+	for (let value = 0; value < 256; value++) {
+		below += counts[value];
+		const above = gray.length - below;
+		if (!above) break;
+		if (!below) continue;
+		sumBelow += value * counts[value];
+		const gap = sumBelow / below - (total - sumBelow) / above;
+		const spread = below * above * gap * gap;
+		if (spread > best) [best, level] = [spread, value];
+	}
+	return gray.map((value) => value <= level ? 1 : 0);
+}
+/** Dark below 95% of the mean of the square around each pixel, for uneven light in photos. */
+function belowLocalMean(gray, width, height, radius) {
+	const stride = width + 1;
+	const sums = new Uint32Array(stride * (height + 1));
+	for (let y = 0; y < height; y++) {
+		let row = 0;
+		for (let x = 0; x < width; x++) {
+			row += gray[y * width + x];
+			sums[(y + 1) * stride + x + 1] = sums[y * stride + x + 1] + row;
+		}
+	}
+	const dark = new Uint8Array(gray.length);
+	for (let y = 0; y < height; y++) {
+		const top = Math.max(0, y - radius);
+		const bottom = Math.min(height, y + radius + 1);
+		for (let x = 0; x < width; x++) {
+			const left = Math.max(0, x - radius);
+			const right = Math.min(width, x + radius + 1);
+			const sum = sums[bottom * stride + right] - sums[top * stride + right] - sums[bottom * stride + left] + sums[top * stride + left];
+			const area = (right - left) * (bottom - top);
+			dark[y * width + x] = gray[y * width + x] * area * 100 < sum * 95 ? 1 : 0;
+		}
+	}
+	sums.fill(0);
+	return dark;
+}
+/** The module width of five runs in the 1:1:3:1:1 of a corner pattern, or 0. */
+function patternUnit(a, b, c, d, e) {
+	const total = a + b + c + d + e;
+	if (total < 7) return 0;
+	const unit = total / 7;
+	const slack = unit / 2;
+	return Math.abs(a - unit) < slack && Math.abs(b - unit) < slack && Math.abs(c - 3 * unit) < 3 * slack && Math.abs(d - unit) < slack && Math.abs(e - unit) < slack ? unit : 0;
+}
+/** Whether a 1:1:3:1:1 pattern crosses (x, y) along one axis: its exact centre on that axis and module width. */
+function crossCheck(bitmap, x, y, horizontal, limit) {
+	const [column, row] = [Math.floor(x), Math.floor(y)];
+	const start = horizontal ? column : row;
+	const on = (at) => horizontal ? isDark(bitmap, at, row) : isDark(bitmap, column, at);
+	if (!on(start)) return null;
+	/** The rest of the centre, the light ring and the dark ring, walking one way. */
+	const walk = (step) => {
+		const runs = [
+			0,
+			0,
+			0
+		];
+		let at = start + step;
+		for (let part = 0; part < 3; part++) while (on(at) === (part !== 1) && runs[part] < limit) {
+			runs[part]++;
+			at += step;
+		}
+		return runs;
+	};
+	const [before, gapBefore, ringBefore] = walk(-1);
+	const [after, gapAfter, ringAfter] = walk(1);
+	const unit = patternUnit(ringBefore, gapBefore, before + after + 1, gapAfter, ringAfter);
+	return unit ? {
+		at: start + (after - before + 1) / 2,
+		unit
+	} : null;
+}
+/** Every corner pattern seen on at least two rows, those on the most rows first. */
+function findFinders(bitmap) {
+	const { dark, width, height } = bitmap;
+	const finders = [];
+	const note = (x, y, unit) => {
+		for (const finder of finders) if (Math.abs(finder.x - x) <= finder.unit * 1.5 && Math.abs(finder.y - y) <= finder.unit * 1.5 && Math.abs(finder.unit - unit) <= Math.max(1, finder.unit / 2)) {
+			const hits = finder.hits + 1;
+			finder.x += (x - finder.x) / hits;
+			finder.y += (y - finder.y) / hits;
+			finder.unit += (unit - finder.unit) / hits;
+			finder.hits = hits;
+			return;
+		}
+		if (finders.length < 512) finders.push({
+			x,
+			y,
+			unit,
+			hits: 1
+		});
+	};
+	for (let y = 0; y < height; y++) {
+		let [a, b, c, d, e] = [
+			0,
+			0,
+			0,
+			0,
+			0
+		];
+		let current = 0;
+		let run = 0;
+		for (let x = 0; x <= width; x++) {
+			const value = x < width ? dark[y * width + x] : 0;
+			if (value === current) {
+				run++;
+				continue;
+			}
+			[a, b, c, d, e] = [
+				b,
+				c,
+				d,
+				e,
+				run
+			];
+			if (current === 1 && patternUnit(a, b, c, d, e)) {
+				const total = a + b + c + d + e;
+				const down = crossCheck(bitmap, x - e - d - c / 2, y, false, total);
+				const across = down && crossCheck(bitmap, x - e - d - c / 2, down.at, true, total);
+				if (down && across) note(across.at, down.at, (down.unit + across.unit) / 2);
+			}
+			current = value;
+			run = 1;
+		}
+	}
+	return finders.filter((finder) => finder.hits >= 2).sort((one, other) => other.hits - one.hits).slice(0, maxFinders);
+}
+var between = (from, to) => ({
+	x: to.x - from.x,
+	y: to.y - from.y
+});
+var length = ({ x, y }) => Math.hypot(x, y);
+var along = (from, step, times) => ({
+	x: from.x + step.x * times,
+	y: from.y + step.y * times
+});
+/** The three patterns as top left, top right and bottom left, or null if they can't be one code's corners. */
+function arrange(one, two, three) {
+	const units = [
+		one.unit,
+		two.unit,
+		three.unit
+	];
+	if (Math.max(...units) > Math.min(...units) * 1.6) return null;
+	const [ab, bc, ca] = [
+		length(between(one, two)),
+		length(between(two, three)),
+		length(between(three, one))
+	];
+	const [corner, first, second] = bc >= ab && bc >= ca ? [
+		one,
+		two,
+		three
+	] : ca >= ab ? [
+		two,
+		three,
+		one
+	] : [
+		three,
+		one,
+		two
+	];
+	const [u, v] = [between(corner, first), between(corner, second)];
+	const [lengthU, lengthV] = [length(u), length(v)];
+	if (Math.max(lengthU, lengthV) > Math.min(lengthU, lengthV) * 1.5) return null;
+	if (Math.abs(u.x * v.x + u.y * v.y) > .35 * lengthU * lengthV) return null;
+	return u.x * v.y - u.y * v.x > 0 ? [
+		corner,
+		first,
+		second
+	] : [
+		corner,
+		second,
+		first
+	];
+}
+/**
+* The code's size from its timing line, which starts 2.5 modules past the
+* centres of two corner patterns: size − 13 changes between dark and light
+* lie between them. 0 if that isn't a possible size.
+*/
+function sizeFromTiming(bitmap, from, to, sideways, unit) {
+	const offset = along({
+		x: 0,
+		y: 0
+	}, sideways, 2.5 * unit / length(sideways));
+	const steps = Math.ceil(length(between(from, to)) * 2);
+	let changes = 0;
+	let last = true;
+	for (let step = 1; step <= steps; step++) {
+		const x = from.x + offset.x + (to.x - from.x) * step / steps;
+		const y = from.y + offset.y + (to.y - from.y) * step / steps;
+		const dark = isDark(bitmap, x, y);
+		if (dark !== last) changes++;
+		last = dark;
+	}
+	const size = changes + 13;
+	return size >= 21 && size <= 177 && size % 4 === 1 ? size : 0;
+}
+/**
+* The centre of the 5×5 alignment pattern near `guess`: the spot within four
+* modules that best shows its dark centre, light ring and dark ring, or null if
+* none matches at least 23 of its 25 modules.
+*/
+function findAlignment(bitmap, guess, across, down) {
+	let best = 22;
+	let [sumX, sumY, count] = [
+		0,
+		0,
+		0
+	];
+	for (let offsetY = -4; offsetY <= 4; offsetY += 1 / 3) for (let offsetX = -4; offsetX <= 4; offsetX += 1 / 3) {
+		const centre = along(along(guess, across, offsetX), down, offsetY);
+		let score = 0;
+		for (let y = -2; y <= 2; y++) for (let x = -2; x <= 2; x++) {
+			const at = along(along(centre, across, x), down, y);
+			if (isDark(bitmap, at.x, at.y) === (Math.max(Math.abs(x), Math.abs(y)) !== 1)) score++;
+		}
+		if (score > best) [best, sumX, sumY, count] = [
+			score,
+			0,
+			0,
+			0
+		];
+		if (score === best) [sumX, sumY, count] = [
+			sumX + centre.x,
+			sumY + centre.y,
+			count + 1
+		];
+	}
+	return count ? {
+		x: sumX / count,
+		y: sumY / count
+	} : null;
+}
+/** The perspective map that takes each of four grid points to its image point. */
+function perspective(from, to) {
+	const rows = [];
+	from.forEach(({ x, y }, i) => {
+		const { x: u, y: v } = to[i];
+		rows.push([
+			x,
+			y,
+			1,
+			0,
+			0,
+			0,
+			-x * u,
+			-y * u,
+			u
+		], [
+			0,
+			0,
+			0,
+			x,
+			y,
+			1,
+			-x * v,
+			-y * v,
+			v
+		]);
+	});
+	for (let column = 0; column < 8; column++) {
+		let pivot = column;
+		for (let row = column + 1; row < 8; row++) if (Math.abs(rows[row][column]) > Math.abs(rows[pivot][column])) pivot = row;
+		[rows[column], rows[pivot]] = [rows[pivot], rows[column]];
+		const lead = rows[column][column];
+		if (Math.abs(lead) < 1e-9) return null;
+		for (let row = 0; row < 8; row++) {
+			if (row === column) continue;
+			const factor = rows[row][column] / lead;
+			for (let i = column; i <= 8; i++) rows[row][i] -= factor * rows[column][i];
+		}
+	}
+	const [a, b, c, d, e, f, g, h] = rows.map((row, i) => row[8] / row[i]);
+	return (x, y) => {
+		const scale = g * x + h * y + 1;
+		return {
+			x: (a * x + b * y + c) / scale,
+			y: (d * x + e * y + f) / scale
+		};
+	};
+}
+/** Error correction codewords per block by version, for levels M, L, H and Q, the order of their format bits. */
+var eccPerBlock$1 = [
+	[
+		0,
+		10,
+		16,
+		26,
+		18,
+		24,
+		16,
+		18,
+		22,
+		22,
+		26,
+		30,
+		22,
+		22,
+		24,
+		24,
+		28,
+		28,
+		26,
+		26,
+		26,
+		26,
+		28,
+		28,
+		28,
+		28,
+		28,
+		28,
+		28,
+		28,
+		28,
+		28,
+		28,
+		28,
+		28,
+		28,
+		28,
+		28,
+		28,
+		28,
+		28
+	],
+	[
+		0,
+		7,
+		10,
+		15,
+		20,
+		26,
+		18,
+		20,
+		24,
+		30,
+		18,
+		20,
+		24,
+		26,
+		30,
+		22,
+		24,
+		28,
+		30,
+		28,
+		28,
+		28,
+		28,
+		30,
+		30,
+		26,
+		28,
+		30,
+		30,
+		30,
+		30,
+		30,
+		30,
+		30,
+		30,
+		30,
+		30,
+		30,
+		30,
+		30,
+		30
+	],
+	[
+		0,
+		17,
+		28,
+		22,
+		16,
+		22,
+		28,
+		26,
+		26,
+		24,
+		28,
+		24,
+		28,
+		22,
+		24,
+		24,
+		30,
+		28,
+		28,
+		26,
+		28,
+		30,
+		24,
+		30,
+		30,
+		30,
+		30,
+		30,
+		30,
+		30,
+		30,
+		30,
+		30,
+		30,
+		30,
+		30,
+		30,
+		30,
+		30,
+		30,
+		30
+	],
+	[
+		0,
+		13,
+		22,
+		18,
+		26,
+		18,
+		24,
+		18,
+		22,
+		20,
+		24,
+		28,
+		26,
+		24,
+		20,
+		30,
+		24,
+		28,
+		28,
+		26,
+		30,
+		28,
+		30,
+		30,
+		30,
+		30,
+		28,
+		30,
+		30,
+		30,
+		30,
+		30,
+		30,
+		30,
+		30,
+		30,
+		30,
+		30,
+		30,
+		30,
+		30
+	]
+];
+/** The number of blocks by version, for levels M, L, H and Q. */
+var blockCount$1 = [
+	[
+		0,
+		1,
+		1,
+		1,
+		2,
+		2,
+		4,
+		4,
+		4,
+		5,
+		5,
+		5,
+		8,
+		9,
+		9,
+		10,
+		10,
+		11,
+		13,
+		14,
+		16,
+		17,
+		17,
+		18,
+		20,
+		21,
+		23,
+		25,
+		26,
+		28,
+		29,
+		31,
+		33,
+		35,
+		37,
+		38,
+		40,
+		43,
+		45,
+		47,
+		49
+	],
+	[
+		0,
+		1,
+		1,
+		1,
+		1,
+		1,
+		2,
+		2,
+		2,
+		2,
+		4,
+		4,
+		4,
+		4,
+		4,
+		6,
+		6,
+		6,
+		6,
+		7,
+		8,
+		8,
+		9,
+		9,
+		10,
+		12,
+		12,
+		12,
+		13,
+		14,
+		15,
+		16,
+		17,
+		18,
+		19,
+		19,
+		20,
+		21,
+		22,
+		24,
+		25
+	],
+	[
+		0,
+		1,
+		1,
+		2,
+		4,
+		4,
+		4,
+		5,
+		6,
+		8,
+		8,
+		11,
+		11,
+		16,
+		16,
+		18,
+		16,
+		19,
+		21,
+		25,
+		25,
+		25,
+		34,
+		30,
+		32,
+		35,
+		37,
+		40,
+		42,
+		45,
+		48,
+		51,
+		54,
+		57,
+		60,
+		63,
+		66,
+		70,
+		74,
+		77,
+		81
+	],
+	[
+		0,
+		1,
+		1,
+		2,
+		2,
+		4,
+		4,
+		6,
+		6,
+		8,
+		8,
+		8,
+		10,
+		12,
+		16,
+		12,
+		17,
+		16,
+		18,
+		21,
+		20,
+		23,
+		23,
+		25,
+		27,
+		29,
+		34,
+		34,
+		35,
+		38,
+		40,
+		43,
+		45,
+		48,
+		51,
+		53,
+		56,
+		59,
+		62,
+		65,
+		68
+	]
+];
+/** Modules left for codewords once the function patterns are drawn. */
+function dataModules(version) {
+	let modules = (16 * version + 128) * version + 64;
+	if (version >= 2) {
+		const count = Math.floor(version / 7) + 2;
+		modules -= (25 * count - 10) * count - 55;
+		if (version >= 7) modules -= 36;
+	}
+	return modules;
+}
+/** The centres of the alignment patterns along either axis. */
+function alignmentCentres(version) {
+	if (version === 1) return [];
+	const count = Math.floor(version / 7) + 2;
+	const last = version * 4 + 10;
+	const gap = Math.floor((version * 8 + count * 3 + 5) / (count * 4 - 4)) * 2;
+	return [6, ...Array.from({ length: count - 1 }, (_, i) => last - (count - 2 - i) * gap)];
+}
+/** The eight data masks: whether to flip the module in column `x`, row `y`. */
+var masks = [
+	(x, y) => (x + y) % 2 === 0,
+	(_, y) => y % 2 === 0,
+	(x) => x % 3 === 0,
+	(x, y) => (x + y) % 3 === 0,
+	(x, y) => (Math.floor(x / 3) + Math.floor(y / 2)) % 2 === 0,
+	(x, y) => x * y % 2 + x * y % 3 === 0,
+	(x, y) => (x * y % 2 + x * y % 3) % 2 === 0,
+	(x, y) => ((x + y) % 2 + x * y % 3) % 2 === 0
+];
+/** Every valid format value, indexed by its five data bits: the level, then the mask. */
+var formats = Array.from({ length: 32 }, (_, bits) => {
+	let remainder = bits;
+	for (let i = 0; i < 10; i++) remainder = remainder << 1 ^ (remainder >>> 9) * 1335;
+	return (bits << 10 | remainder) ^ 21522;
+});
+/** Every valid version value from version 7 on, indexed by version. */
+var versionValues = Array.from({ length: 41 }, (_, version) => {
+	let remainder = version;
+	for (let i = 0; i < 12; i++) remainder = remainder << 1 ^ (remainder >>> 11) * 7973;
+	return version << 12 | remainder;
+});
+/** The index of the value within three bits of `read`, or −1. */
+function nearest(values, read, first = 0) {
+	for (let i = first; i < values.length; i++) {
+		let differing = values[i] ^ read;
+		let count = 0;
+		for (; differing; differing &= differing - 1) count++;
+		if (count <= 3) return i;
+	}
+	return -1;
+}
+/** Powers of 2 and their logarithms in GF(256) modulo x⁸ + x⁴ + x³ + x² + 1. */
+var powers = new Uint8Array(512);
+var logarithms = new Uint8Array(256);
+for (let i = 0, value = 1; i < 255; i++) {
+	powers[i] = powers[i + 255] = value;
+	logarithms[value] = i;
+	value = value << 1 ^ (value & 128 ? 285 : 0);
+}
+var times = (x, y) => x && y ? powers[logarithms[x] + logarithms[y]] : 0;
+var over = (x, y) => powers[logarithms[x] + 255 - logarithms[y]];
+/** The value at `x` of a polynomial listed from the constant term up. */
+var evaluate = (polynomial, x) => polynomial.reduceRight((sum, coefficient) => times(sum, x) ^ coefficient, 0);
+/** The syndromes of a block, its codewords listed from the highest power down. */
+var syndromes = (block, ecc) => Array.from({ length: ecc }, (_, i) => block.reduce((sum, codeword) => times(sum, powers[i]) ^ codeword, 0));
+/** Correct a block in place (Berlekamp–Massey, then Forney). False if it can't be corrected. */
+function correct(block, ecc) {
+	const remainders = syndromes(block, ecc);
+	if (remainders.every((value) => value === 0)) return true;
+	let locator = [1];
+	let previous = [1];
+	let errors = 0;
+	let shift = 1;
+	let lastGap = 1;
+	remainders.forEach((value, n) => {
+		let gap = value;
+		for (let i = 1; i <= errors; i++) gap ^= times(locator[i] ?? 0, remainders[n - i]);
+		if (!gap) {
+			shift++;
+			return;
+		}
+		const before = locator;
+		const factor = over(gap, lastGap);
+		locator = Array.from({ length: Math.max(locator.length, previous.length + shift) }, (_, i) => (locator[i] ?? 0) ^ times(factor, previous[i - shift] ?? 0));
+		if (2 * errors <= n) {
+			errors = n + 1 - errors;
+			previous = before;
+			lastGap = gap;
+			shift = 1;
+		} else shift++;
+	});
+	if (2 * errors > ecc) return false;
+	const evaluator = remainders.map((_, i) => {
+		let sum = 0;
+		for (let j = 0; j <= i; j++) sum ^= times(locator[j] ?? 0, remainders[i - j]);
+		return sum;
+	});
+	const slope = locator.map((coefficient, i) => i % 2 ? coefficient : 0).slice(1);
+	let found = 0;
+	block.forEach((_, position) => {
+		const power = block.length - 1 - position;
+		const inverse = powers[(255 - power) % 255];
+		if (evaluate(locator, inverse)) return;
+		const below = evaluate(slope, inverse);
+		if (!below) return;
+		block[position] ^= times(powers[power], over(evaluate(evaluator, inverse), below));
+		found++;
+	});
+	return found === errors && syndromes(block, ecc).every((value) => value === 0);
+}
+/** The text of the segments in the corrected data codewords, or null if it can't be read. */
+function readSegments(data, version) {
+	const group = version < 10 ? 0 : version < 27 ? 1 : 2;
+	let at = 0;
+	const left = () => data.length * 8 - at;
+	const take = (count) => {
+		let value = 0;
+		for (let i = 0; i < count; i++, at++) value = value * 2 + (data[at >>> 3] >>> 7 - (at & 7) & 1);
+		return value;
+	};
+	const alphanumerics = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ $%*+-./:";
+	const bytes = [];
+	while (left() >= 4) {
+		const mode = take(4);
+		if (mode === 0) break;
+		if (mode === 7) {
+			const first = take(8);
+			if (first & 128) take(first & 64 ? 16 : 8);
+			continue;
+		}
+		const bits = {
+			1: [
+				10,
+				12,
+				14
+			],
+			2: [
+				9,
+				11,
+				13
+			],
+			4: [
+				8,
+				16,
+				16
+			]
+		}[mode]?.[group];
+		if (!bits || left() < bits) return null;
+		let count = take(bits);
+		if (mode === 4) {
+			if (left() < count * 8) return null;
+			while (count--) bytes.push(take(8));
+		} else if (mode === 2) {
+			if (left() < Math.floor(count / 2) * 11 + count % 2 * 6) return null;
+			for (; count >= 2; count -= 2) {
+				const pair = take(11);
+				const [one, two] = [alphanumerics[Math.floor(pair / 45)], alphanumerics[pair % 45]];
+				if (!one || !two) return null;
+				bytes.push(one.charCodeAt(0), two.charCodeAt(0));
+			}
+			if (count) {
+				const one = alphanumerics[take(6)];
+				if (!one) return null;
+				bytes.push(one.charCodeAt(0));
+			}
+		} else for (; count > 0; count -= 3) {
+			const digits = Math.min(count, 3);
+			const width = [
+				0,
+				4,
+				7,
+				10
+			][digits];
+			if (left() < width) return null;
+			const value = String(take(width)).padStart(digits, "0");
+			if (value.length > digits) return null;
+			for (const digit of value) bytes.push(digit.charCodeAt(0));
+		}
+	}
+	return new TextDecoder().decode(new Uint8Array(bytes));
+}
+/** The modules that hold function patterns rather than codewords. */
+function functionModules(version) {
+	const size = version * 4 + 17;
+	const reserved = Array.from({ length: size }, () => new Uint8Array(size));
+	const fill = (left, top, width, height) => {
+		for (let y = top; y < top + height; y++) reserved[y].fill(1, left, left + width);
+	};
+	fill(0, 0, 9, 9);
+	fill(size - 8, 0, 8, 9);
+	fill(0, size - 8, 9, 8);
+	fill(6, 0, 1, size);
+	fill(0, 6, size, 1);
+	const centres = alignmentCentres(version);
+	const end = centres.length - 1;
+	centres.forEach((y, i) => centres.forEach((x, j) => {
+		if (i === 0 && j === 0 || i === 0 && j === end || i === end && j === 0) return;
+		fill(x - 2, y - 2, 5, 5);
+	}));
+	if (version >= 7) {
+		fill(size - 11, 0, 3, 6);
+		fill(0, size - 11, 6, 3);
+	}
+	return reserved;
+}
+/** The text of a code from its sampled modules, or null if they don't hold one. */
+function readModules(modules) {
+	const size = modules.length;
+	const version = (size - 17) / 4;
+	const dark = (x, y) => modules[y][x];
+	const number = (bits) => bits.reduce((value, on, i) => on ? value + 2 ** i : value, 0);
+	const nearCorner = [];
+	const nearEdges = [];
+	for (let i = 0; i <= 5; i++) nearCorner.push(dark(8, i));
+	nearCorner.push(dark(8, 7), dark(8, 8), dark(7, 8));
+	for (let i = 9; i < 15; i++) nearCorner.push(dark(14 - i, 8));
+	for (let i = 0; i < 8; i++) nearEdges.push(dark(size - 1 - i, 8));
+	for (let i = 8; i < 15; i++) nearEdges.push(dark(8, size - 15 + i));
+	let format = nearest(formats, number(nearCorner));
+	if (format < 0) format = nearest(formats, number(nearEdges));
+	if (format < 0) return null;
+	const level = format >>> 3;
+	const mask = masks[format & 7];
+	if (version >= 7) {
+		const above = [];
+		const beside = [];
+		for (let i = 0; i < 18; i++) {
+			above.push(dark(size - 11 + i % 3, Math.floor(i / 3)));
+			beside.push(dark(Math.floor(i / 3), size - 11 + i % 3));
+		}
+		const read = [number(above), number(beside)].map((value) => nearest(versionValues, value, 7));
+		if (read[0] !== version && read[1] !== version) return null;
+	}
+	const reserved = functionModules(version);
+	const total = Math.floor(dataModules(version) / 8);
+	const stream = Array.from({ length: total }, () => 0);
+	let next = 0;
+	for (let right = size - 1; right >= 1; right -= 2) {
+		if (right === 6) right = 5;
+		const upward = (right + 1 & 2) === 0;
+		for (let step = 0; step < size; step++) {
+			const y = upward ? size - 1 - step : step;
+			for (const x of [right, right - 1]) {
+				if (reserved[y][x] || next >= total * 8) continue;
+				if (dark(x, y) !== mask(x, y)) stream[next >>> 3] |= 128 >>> (next & 7);
+				next++;
+			}
+		}
+	}
+	const ecc = eccPerBlock$1[level][version];
+	const blocks = blockCount$1[level][version];
+	const shortBlocks = blocks - total % blocks;
+	const shortLength = Math.floor(total / blocks) - ecc;
+	const parts = Array.from({ length: blocks }, () => []);
+	let from = 0;
+	for (let i = 0; i <= shortLength; i++) parts.forEach((part, index) => {
+		if (i < shortLength || index >= shortBlocks) part.push(stream[from++]);
+	});
+	for (let i = 0; i < ecc; i++) for (const part of parts) part.push(stream[from++]);
+	const data = [];
+	for (const part of parts) {
+		if (!correct(part, ecc)) return null;
+		data.push(...part.slice(0, part.length - ecc));
+	}
+	return readSegments(data, version);
+}
+/** The text of the code with these three corner patterns, or null. */
+function readCode(bitmap, corner, right, below) {
+	const across = between(corner, right);
+	const down = between(corner, below);
+	const turn = Math.atan2(across.y, across.x);
+	const unit = (corner.unit + right.unit + below.unit) / 3 * Math.max(Math.abs(Math.cos(turn)), Math.abs(Math.sin(turn)));
+	const estimate = Math.round(((length(across) + length(down)) / 2 / unit + 7 - 17) / 4) * 4 + 17;
+	const sizes = new Set([
+		sizeFromTiming(bitmap, corner, right, down, unit),
+		sizeFromTiming(bitmap, corner, below, across, unit),
+		estimate,
+		estimate - 4,
+		estimate + 4
+	]);
+	for (const size of sizes) {
+		if (size < 21 || size > 177) continue;
+		const far = size - 3.5;
+		const from = [
+			{
+				x: 3.5,
+				y: 3.5
+			},
+			{
+				x: far,
+				y: 3.5
+			},
+			{
+				x: 3.5,
+				y: far
+			}
+		];
+		const to = [
+			corner,
+			right,
+			below
+		];
+		const span = size - 7;
+		const [stepAcross, stepDown] = [{
+			x: across.x / span,
+			y: across.y / span
+		}, {
+			x: down.x / span,
+			y: down.y / span
+		}];
+		const maps = [];
+		if (size > 21) {
+			const found = findAlignment(bitmap, along(along(corner, stepAcross, size - 10), stepDown, size - 10), stepAcross, stepDown);
+			if (found) maps.push(perspective([...from, {
+				x: size - 6.5,
+				y: size - 6.5
+			}], [...to, found]));
+		}
+		maps.push(perspective([...from, {
+			x: far,
+			y: far
+		}], [...to, along(right, down, 1)]));
+		for (const map of maps) {
+			if (!map) continue;
+			const text = readModules(Array.from({ length: size }, (_, y) => Array.from({ length: size }, (_, x) => {
+				const at = map(x + .5, y + .5);
+				return isDark(bitmap, at.x, at.y);
+			})));
+			if (text !== null) return text;
+		}
+	}
+	return null;
+}
+/** Add the text of every code in `bitmap` to `texts`. */
+function readBitmap(bitmap, texts) {
+	const finders = findFinders(bitmap);
+	const used = new Set();
+	let attempts = 0;
+	for (let i = 0; i < finders.length; i++) for (let j = i + 1; j < finders.length; j++) for (let k = j + 1; k < finders.length; k++) {
+		const three = [
+			finders[i],
+			finders[j],
+			finders[k]
+		];
+		if (three.some((finder) => used.has(finder))) continue;
+		const corners = arrange(...three);
+		if (!corners) continue;
+		if (attempts++ >= maxAttempts) return;
+		const text = readCode(bitmap, ...corners);
+		if (text === null) continue;
+		for (const finder of three) used.add(finder);
+		if (text && !texts.includes(text)) texts.push(text);
+		if (texts.length >= 16) return;
+	}
+}
+/**
+* The text of every QR code in `gray`, one byte per pixel, row by row. It splits
+* the image into dark and light by one overall level, then, if no code turned
+* up, by the light around each pixel; dark codes on a light background come
+* first, and light codes on a dark one are read only when none are found. At
+* most `maxCodes` distinct texts, in the order found. Impossible dimensions
+* hold no codes. Its copies of the pixels are wiped once read.
+*/
+function readQrCodes(gray, width, height) {
+	if (width === 0 || height === 0 || Math.max(width, height) > 1920 || gray.length !== width * height) return [];
+	const texts = [];
+	const side = Math.max(width, height);
+	const splits = [
+		() => belowGlobalLevel(gray),
+		() => belowLocalMean(gray, width, height, Math.max(7, Math.round(side / 16))),
+		() => belowLocalMean(gray, width, height, Math.max(15, Math.round(side / 4)))
+	];
+	for (const inverted of [false, true]) for (const split of splits) {
+		const dark = split();
+		if (inverted) for (let i = 0; i < dark.length; i++) dark[i] = dark[i] ^ 1;
+		readBitmap({
+			dark,
+			width,
+			height
+		}, texts);
+		dark.fill(0);
+		if (texts.length) return texts;
+	}
+	return texts;
+}
+/**
+* The authenticator QR code, drawn by this page's own code: the text as UTF-8
+* bytes, error correction level M, the smallest version (1 to 40) that holds
+* it and the mask with the lowest penalty, as ISO/IEC 18004 specifies.
+*/
+/** Level M: error correction codewords in each block, by version (index 0 unused). */
+var eccPerBlock = [
+	0,
+	10,
+	16,
+	26,
+	18,
+	24,
+	16,
+	18,
+	22,
+	22,
+	26,
+	30,
+	22,
+	22,
+	24,
+	24,
+	28,
+	28,
+	26,
+	26,
+	26,
+	26,
+	28,
+	28,
+	28,
+	28,
+	28,
+	28,
+	28,
+	28,
+	28,
+	28,
+	28,
+	28,
+	28,
+	28,
+	28,
+	28,
+	28,
+	28,
+	28
+];
+/** Level M: the number of blocks, by version. */
+var blockCount = [
+	0,
+	1,
+	1,
+	1,
+	2,
+	2,
+	4,
+	4,
+	4,
+	5,
+	5,
+	5,
+	8,
+	9,
+	9,
+	10,
+	10,
+	11,
+	13,
+	14,
+	16,
+	17,
+	17,
+	18,
+	20,
+	21,
+	23,
+	25,
+	26,
+	28,
+	29,
+	31,
+	33,
+	35,
+	37,
+	38,
+	40,
+	43,
+	45,
+	47,
+	49
+];
+var dataCodewords = (version) => Math.floor(dataModules(version) / 8) - eccPerBlock[version] * blockCount[version];
+/** Multiplication in GF(256) modulo x⁸ + x⁴ + x³ + x² + 1. */
+function multiply(x, y) {
+	let product = 0;
+	for (let bit = 7; bit >= 0; bit--) {
+		product = product << 1 ^ (product >>> 7) * 285;
+		product ^= (y >>> bit & 1) * x;
+	}
+	return product;
+}
+/** The Reed–Solomon generator polynomial of `degree`, without its leading 1. */
+function generator(degree) {
+	const coefficients = Array.from({ length: degree }, (_, i) => i === degree - 1 ? 1 : 0);
+	let root = 1;
+	for (let round = 0; round < degree; round++) {
+		for (let i = 0; i < degree; i++) coefficients[i] = multiply(coefficients[i], root) ^ (coefficients[i + 1] ?? 0);
+		root = multiply(root, 2);
+	}
+	return coefficients;
+}
+/** The error correction codewords for one block. */
+function correction(block, divisor) {
+	const remainder = divisor.map(() => 0);
+	for (const codeword of block) {
+		const factor = codeword ^ remainder.shift();
+		remainder.push(0);
+		divisor.forEach((coefficient, i) => {
+			remainder[i] = remainder[i] ^ multiply(coefficient, factor);
+		});
+	}
+	return remainder;
+}
+/** Split the data into blocks, add each block's correction, and interleave them. */
+function codewords(version, data) {
+	const blocks = blockCount[version];
+	const ecc = eccPerBlock[version];
+	const total = Math.floor(dataModules(version) / 8);
+	const shortBlocks = blocks - total % blocks;
+	const shortLength = Math.floor(total / blocks) - ecc;
+	const divisor = generator(ecc);
+	const dataBlocks = [];
+	for (let i = 0, start = 0; i < blocks; i++) {
+		const length = shortLength + (i < shortBlocks ? 0 : 1);
+		dataBlocks.push(data.slice(start, start + length));
+		start += length;
+	}
+	const eccBlocks = dataBlocks.map((block) => correction(block, divisor));
+	const result = [];
+	for (let i = 0; i <= shortLength; i++) for (const block of dataBlocks) if (i < block.length) result.push(block[i]);
+	for (let i = 0; i < ecc; i++) for (const block of eccBlocks) result.push(block[i]);
+	return result;
+}
+/** The standard penalty for runs, 2×2 squares, finder-like patterns and imbalance. */
+function penalty(modules) {
+	const size = modules.length;
+	const columns = modules.map((_, x) => modules.map((row) => row[x]));
+	let score = 0;
+	for (const line of [...modules, ...columns]) {
+		let run = 1;
+		for (let i = 1; i <= size; i++) if (i < size && line[i] === line[i - 1]) run++;
+		else {
+			if (run >= 5) score += run - 2;
+			run = 1;
+		}
+		const bits = line.map((on) => on ? "1" : "0").join("");
+		for (const finder of ["10111010000", "00001011101"]) for (let at = bits.indexOf(finder); at >= 0; at = bits.indexOf(finder, at + 1)) score += 40;
+	}
+	for (let y = 0; y + 1 < size; y++) for (let x = 0; x + 1 < size; x++) {
+		const on = modules[y][x];
+		if (on === modules[y][x + 1] && on === modules[y + 1][x] && on === modules[y + 1][x + 1]) score += 3;
+	}
+	const dark = modules.flat().filter(Boolean).length;
+	return score + Math.floor(Math.abs(dark * 20 - size * size * 10) / (size * size)) * 10;
+}
+/** Whether each module is dark, row by row, without the quiet zone. */
+function qrModules(text) {
+	const bytes = new TextEncoder().encode(text);
+	let version = 1;
+	while (4 + (version < 10 ? 8 : 16) + bytes.length * 8 > dataCodewords(version) * 8) if (++version > 40) throw new RangeError("The text is too long for a QR code.");
+	const capacity = dataCodewords(version) * 8;
+	const bits = [];
+	const append = (value, length) => {
+		for (let i = length - 1; i >= 0; i--) bits.push(value >>> i & 1);
+	};
+	append(4, 4);
+	append(bytes.length, version < 10 ? 8 : 16);
+	for (const byte of bytes) append(byte, 8);
+	append(0, Math.min(4, capacity - bits.length));
+	append(0, (8 - bits.length % 8) % 8);
+	const data = [];
+	for (let i = 0; i < bits.length; i += 8) data.push(bits.slice(i, i + 8).reduce((byte, bit) => byte << 1 | bit, 0));
+	for (let pad = 236; data.length < capacity / 8; pad ^= 253) data.push(pad);
+	const size = version * 4 + 17;
+	const modules = Array.from({ length: size }, () => Array(size).fill(false));
+	const reserved = Array.from({ length: size }, () => Array(size).fill(false));
+	const set = (x, y, on) => {
+		modules[y][x] = on;
+		reserved[y][x] = true;
+	};
+	for (let i = 0; i < size; i++) {
+		set(6, i, i % 2 === 0);
+		set(i, 6, i % 2 === 0);
+	}
+	for (const [cx, cy] of [
+		[3, 3],
+		[size - 4, 3],
+		[3, size - 4]
+	]) for (let dy = -4; dy <= 4; dy++) for (let dx = -4; dx <= 4; dx++) {
+		const distance = Math.max(Math.abs(dx), Math.abs(dy));
+		const [x, y] = [cx + dx, cy + dy];
+		if (x >= 0 && x < size && y >= 0 && y < size) set(x, y, distance !== 2 && distance !== 4);
+	}
+	const centres = alignmentCentres(version);
+	const end = centres.length - 1;
+	centres.forEach((cy, i) => centres.forEach((cx, j) => {
+		if (i === 0 && j === 0 || i === 0 && j === end || i === end && j === 0) return;
+		for (let dy = -2; dy <= 2; dy++) for (let dx = -2; dx <= 2; dx++) set(cx + dx, cy + dy, Math.max(Math.abs(dx), Math.abs(dy)) !== 1);
+	}));
+	const drawFormat = (mask) => {
+		let remainder = mask;
+		for (let i = 0; i < 10; i++) remainder = remainder << 1 ^ (remainder >>> 9) * 1335;
+		const format = (mask << 10 | remainder) ^ 21522;
+		const bit = (i) => (format >>> i & 1) === 1;
+		for (let i = 0; i <= 5; i++) set(8, i, bit(i));
+		set(8, 7, bit(6));
+		set(8, 8, bit(7));
+		set(7, 8, bit(8));
+		for (let i = 9; i < 15; i++) set(14 - i, 8, bit(i));
+		for (let i = 0; i < 8; i++) set(size - 1 - i, 8, bit(i));
+		for (let i = 8; i < 15; i++) set(8, size - 15 + i, bit(i));
+		set(8, size - 8, true);
+	};
+	drawFormat(0);
+	if (version >= 7) {
+		let remainder = version;
+		for (let i = 0; i < 12; i++) remainder = remainder << 1 ^ (remainder >>> 11) * 7973;
+		const info = version << 12 | remainder;
+		for (let i = 0; i < 18; i++) {
+			const on = (info >>> i & 1) === 1;
+			set(size - 11 + i % 3, Math.floor(i / 3), on);
+			set(Math.floor(i / 3), size - 11 + i % 3, on);
+		}
+	}
+	const stream = codewords(version, data);
+	let next = 0;
+	for (let right = size - 1; right >= 1; right -= 2) {
+		if (right === 6) right = 5;
+		const upward = (right + 1 & 2) === 0;
+		for (let step = 0; step < size; step++) {
+			const y = upward ? size - 1 - step : step;
+			for (const x of [right, right - 1]) {
+				if (reserved[y][x] || next >= stream.length * 8) continue;
+				modules[y][x] = (stream[next >>> 3] >>> 7 - (next & 7) & 1) === 1;
+				next++;
+			}
+		}
+	}
+	const flip = (mask) => {
+		for (let y = 0; y < size; y++) for (let x = 0; x < size; x++) if (!reserved[y][x] && masks[mask](x, y)) modules[y][x] = !modules[y][x];
+	};
+	let best = 0;
+	let lowest = Infinity;
+	for (let mask = 0; mask < 8; mask++) {
+		flip(mask);
+		drawFormat(mask);
+		const score = penalty(modules);
+		if (score < lowest) [best, lowest] = [mask, score];
+		flip(mask);
+	}
+	flip(best);
+	drawFormat(best);
+	return modules;
+}
+/**
+* The QR code for `text` as an SVG `data:` URL, with `scale`-pixel modules and
+* a quiet zone `border` modules wide. Throws if the text doesn't fit.
+*/
+function qrImage(text, scale = 6, border = 2) {
+	const modules = qrModules(text);
+	const size = modules.length + border * 2;
+	let path = "";
+	modules.forEach((row, y) => {
+		for (let x = 0; x < row.length; x++) {
+			if (!row[x]) continue;
+			let run = 1;
+			while (row[x + run]) run++;
+			path += `M${x + border} ${y + border}h${run}v1h-${run}z`;
+			x += run;
+		}
+	});
+	const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${size * scale}" height="${size * scale}" viewBox="0 0 ${size} ${size}" shape-rendering="crispEdges"><rect width="${size}" height="${size}" fill="#fff"/><path d="${path}"/></svg>`;
+	return `data:image/svg+xml,${encodeURIComponent(svg)}`;
+}
+</script>
+<script data-app="unduo" data-part="steps" data-source="packages/me/unduo/lib/dom/dom.ts packages/me/unduo/components/result/authenticator-result.ts packages/me/unduo/components/setup/shortcuts/shortcut-keys.ts packages/me/unduo/components/setup/portal/portal-instructions.ts packages/me/unduo/components/setup/portal/portal-step.ts packages/me/unduo/components/setup/link/link-step.ts packages/me/unduo/components/stepper/stepper.ts packages/me/unduo/components/setup/help/terminal-commands.ts packages/me/unduo/components/setup/help/setup-help.ts packages/me/unduo/components/setup/limits/plugin-limits.ts packages/me/unduo/components/setup/setup-layout.ts" data-requests="none" data-comment="The element functions from the vanjs element's global, and the elements of each setup step but the Duo form. Their links open only when you click them, and the one form here, for pasted text, has no action: the page handles it.">"use strict";
+/**
+* The HTML elements the pages build, each a function of its properties and
+* children. A function or `State` as a value keeps that property or child up
+* to date. Text becomes text nodes, so nothing here writes HTML.
+*/
+var { a, aside, button, code, details, dialog, div, em, fieldset, footer, form, h1, h2, h3, header, iframe, img, input, kbd, label, legend, li, main, nav, ol, p, pre, section, span, strong, summary, textarea, ul } = van.tags;
+/**
+* The SVG elements, for icons and the home page's illustrations, which need
+* their namespace. `svgText` is SVG's `text`.
+*/
+var { g, path, rect, svg, text: svgText } = van.tags("http://www.w3.org/2000/svg");
+/** The last step: the `otpauth://` QR code, code type, setup key and how to test it. */
+function authenticatorResult({ view, qr, send }) {
+	const codeType = (type, name) => label({ class: () => `code-type ${view.val.codeType === type ? "code-type-on" : "code-type-off"}` }, input({
+		class: "uk-radio no-shrink",
+		type: "radio",
+		name: "code-type",
+		value: type,
+		checked: () => view.val.codeType === type,
+		onchange: () => send({
+			type: "changeType",
+			codeType: type
+		})
+	}), name);
+	const advice = "advice";
+	return div({ class: "stack-5" }, div({ class: "result-layout" }, div({ class: "qr-column" }, div({ class: "qr-box" }, () => qr.val ? img({
+		class: "qr-image",
+		src: qr.val,
+		alt: () => view.val.account?.qrAlt ?? "",
+		width: 220,
+		height: 220
+	}) : "", span({
+		role: "status",
+		hidden: () => !!qr.val
+	}, van.derive(() => qr.val === false ? "Use the setup key instead." : "Creating QR code…"))), fieldset({ class: "code-types" }, legend({ class: "sr-only" }, "Code type"), codeType("hotp", "Counter-based"), codeType("totp", "Time-based"))), div({ class: "result-details" }, p({ class: "result-summary" }, "Duo account for ", strong(van.derive(() => view.val.account?.customer ?? ""))), h3({ class: "subheading" }, "Scan this with your authenticator app"), p({
+		class: advice,
+		hidden: () => view.val.codeType !== "hotp"
+	}, "Use an app that supports ", strong("counter-based codes"), ", such as Google Authenticator, 2FAS, Aegis or FreeOTP. Tap refresh in the app whenever you need a new code."), p({
+		class: advice,
+		hidden: () => view.val.codeType !== "totp"
+	}, "Time-based codes work in any authenticator app, but ", strong("only"), " if your organization switched Duo to time-based passcodes. Use them if counter-based codes are rejected."), a({
+		class: "uk-button uk-button-default btn touch-only",
+		href: () => view.val.account?.uri ?? ""
+	}, "Open in authenticator app"), div({
+		class: "stack-1",
+		role: "group",
+		"aria-label": () => view.val.account?.revealed ? "Setup key" : "Setup key hidden"
+	}, div({ class: "key-header" }, span({ class: "uk-form-label" }, "Setup key"), button({
+		type: "button",
+		class: "uk-button uk-button-text btn",
+		onclick: () => send({ type: "reveal" })
+	}, van.derive(() => view.val.account?.revealed ? "Hide" : "Show"))), code({ class: "setup-key" }, van.derive(() => view.val.account?.key ?? "")), p({ class: "hint" }, van.derive(() => view.val.codeType === "hotp" ? "Counter-based (HOTP) · counter 0 · 6 digits · SHA-1" : "Time-based (TOTP) · 30 seconds · 6 digits · SHA-1"))))), div({ class: "next-test" }, h3({ class: "subheading" }, "Then test it"), p({ class: "body-note" }, "Sign in somewhere that uses Duo, choose ", em("Other options"), " → ", em("Duo Mobile passcode"), " (or ", em("Enter a passcode"), "), and type the code your app shows.")), aside({
+		class: "uk-alert-warning warning",
+		role: "note"
+	}, h3({ class: "warning-title" }, "Add it now — unduo forgets the key when you close this tab"), p({ class: "warning-text" }, "Keep your current Duo sign-in method until a code from your authenticator works.")));
+}
+/** A keyboard shortcut: this device's modifier key, then `letter`. */
+function shortcutKeys({ view }, letter) {
+	return kbd({ class: "key" }, span(van.derive(() => view.val.shortcut)), letter);
+}
+var instruction = "instruction";
+/** The example screenshots, copied from the page's `<template>`, which holds their URLs and pins. */
+function screenshotFigures({ screenshot }) {
+	const figures = document.getElementById("portal-screenshot-figures").content.cloneNode(true);
+	figures.querySelectorAll("img").forEach(screenshot);
+	return figures;
+}
+/** How to add a device in the Duo portal and copy its QR code, with example screenshots. */
+function portalInstructions(page) {
+	return div(ol({ class: "instructions" }, li({ class: instruction }, strong("Add a device:"), " choose ", em("Tablet"), " → ", em("Android"), " → ", em("I have Duo Mobile installed"), ".", span({ class: "instruction-note" }, "Labels vary; any option that shows a Duo Mobile QR code works.")), li({ class: instruction }, strong("Copy the QR code:"), " right-click it and choose ", em("Copy Image"), ".", span({ class: "instruction-note" }, "Copy Image Address works too, as does a screenshot or an emailed activation link."))), details({
+		class: "screenshots",
+		id: "portal-screenshots"
+	}, summary({ class: "summary-label" }, "Show example screenshots"), div({
+		class: "screenshot-list",
+		role: "group",
+		"aria-label": "Duo portal example screenshots"
+	}, screenshotFigures(page))));
+}
+/** The institution's portal link, with a field and button to copy it. */
+function schoolPortal({ view, copy, popup }, name, portalUrl) {
+	return [
+		a({
+			class: "uk-button uk-button-primary btn",
+			href: portalUrl,
+			target: "_blank",
+			rel: "noopener noreferrer",
+			onclick: popup
+		}, `Open ${name}'s Duo portal`),
+		p({ class: "school-note" }, "It opens in a small window beside this one, so you can keep these steps in view."),
+		label({
+			for: "portal-url",
+			class: "portal-label"
+		}, "Or paste this link into a new window"),
+		div({ class: "portal-row" }, input({
+			class: "uk-input field grow mono",
+			id: "portal-url",
+			readOnly: true,
+			value: portalUrl,
+			onfocus: (event) => event.target.select(),
+			autocomplete: "off",
+			spellcheck: false
+		}), button({
+			type: "button",
+			class: "uk-button uk-button-default btn",
+			onclick: () => copy("portal")
+		}, van.derive(() => view.val.copied === "portal" ? "Copied" : "Copy"))),
+		p({
+			class: "copied-note",
+			role: "alert",
+			hidden: () => !view.val.copyError
+		}, "Clipboard access isn't available. Select the link above to copy it."),
+		span({
+			class: "sr-only",
+			role: "status"
+		}, van.derive(() => view.val.copied === "portal" ? "Portal link copied." : ""))
+	];
+}
+/** Example screenshots, copied from the page's `<template>` with this `id`, which holds their URLs and pins. */
+function examples(id, { screenshot }) {
+	const copy = document.getElementById(id).content.cloneNode(true);
+	copy.querySelectorAll("img").forEach(screenshot);
+	return copy;
+}
+/**
+* The step that opens the Duo device portal, with the institution's link if it
+* has one, and what the portal shows once the student is signed in. A file for
+* no particular institution has no name, link or source.
+*/
+function portalStep(school, page) {
+	return div(p({ class: "intro" }, "Sign in to your organization's Duo device portal, where you manage the phones and tablets on your account. You'll add unduo there as a new device."), div({ class: "school-card" }, school.portalUrl ? schoolPortal(page, school.name, school.portalUrl) : p({ class: "note" }, school.name ? "We don't have a verified Duo portal link for this institution. It may use another MFA provider. Ask your IT help desk where to manage your Duo devices." : "Open it in a new window, so you can keep these steps in view. If you don't know its address, ask your IT help desk where to manage your Duo devices."), school.note && p({ class: "school-note" }, school.note), school.sourceUrl && a({
+		class: "uk-link school-link",
+		href: school.sourceUrl,
+		target: "_blank",
+		rel: "noreferrer"
+	}, "Source")), p({ class: "signed-in-text" }, "Press ", strong("Continue"), " when you see a page like this:"), div({ class: "signed-in-example" }, examples("portal-signed-in", page)));
+}
+/** The step where the student authenticates with Duo as usual, until it shows My Settings & Devices. */
+function authenticateStep(page) {
+	return div(p({ class: "intro" }, "Authenticate with Duo as you normally would, with either a passcode or a push."), p({ class: "signed-in-text" }, "Press ", strong("Continue"), " once you land on the ", strong("My Settings & Devices"), " page:"), div({ class: "signed-in-example" }, examples("portal-settings", page)));
+}
+var secondary = "uk-button uk-button-default btn";
+/** The step that takes the activation QR code: pasted, dropped, uploaded or scanned. */
+function linkStep(page) {
+	const { view, text, dragging, send } = page;
+	const upload = input({
+		type: "file",
+		accept: "image/*",
+		hidden: true,
+		onchange: page.upload
+	});
+	return div(portalInstructions(page), div({
+		class: "drop-zone",
+		"data-dragging": () => String(dragging.val),
+		ondragover: (event) => {
+			event.preventDefault();
+			dragging.val = true;
+		},
+		ondragleave: (event) => {
+			dragging.val = event.currentTarget.contains(event.relatedTarget);
+		},
+		ondrop: (event) => {
+			event.preventDefault();
+			page.input(event.dataTransfer);
+		}
+	}, form({ onsubmit: (event) => {
+		event.preventDefault();
+		send({
+			type: "input",
+			text: text.val
+		});
+	} }, div({ class: "stack-2" }, label({
+		for: "activation-input",
+		class: "subheading"
+	}, "Paste the QR code here"), div({ class: "link-row" }, input({
+		class: () => `uk-input field grow ${view.val.linkError ? "uk-form-danger" : ""}`,
+		value: text,
+		oninput: (event) => {
+			text.val = event.target.value;
+			send({ type: "editLink" });
+		},
+		disabled: () => view.val.linkBusy === "scan",
+		"aria-invalid": () => String(!!view.val.linkError),
+		"aria-describedby": () => view.val.linkError ? "activation-description activation-error" : "activation-description",
+		id: "activation-input",
+		placeholder: "Paste the copied QR code, its address, or an activation link",
+		autocomplete: "off",
+		autocapitalize: "off",
+		spellcheck: false
+	}), button({
+		class: "uk-button uk-button-primary btn-accent link-submit",
+		type: "submit",
+		disabled: () => !text.val.trim() || !!view.val.linkBusy
+	}, "Continue")), p({
+		id: "activation-description",
+		class: "hint"
+	}, "Press ", shortcutKeys(page, "V"), " anywhere on this page, or drop a screenshot here."), p({
+		id: "activation-error",
+		class: "uk-text-danger small",
+		role: "alert",
+		hidden: () => !view.val.linkError
+	}, van.derive(() => view.val.linkError)))), div({ class: "link-actions" }, button({
+		type: "button",
+		class: secondary,
+		disabled: () => !!view.val.linkBusy,
+		onclick: () => upload.click()
+	}, "Upload a screenshot"), button({
+		type: "button",
+		class: secondary,
+		hidden: () => !(view.val.canScan && view.val.linkBusy !== "scan"),
+		disabled: () => !!view.val.linkBusy,
+		onclick: page.scan
+	}, "Scan my screen"), button({
+		type: "button",
+		class: secondary,
+		hidden: () => !(view.val.canScan && view.val.linkBusy === "scan"),
+		onclick: page.stopScan
+	}, "Stop sharing"), upload), p({
+		class: "scan-note",
+		role: "status",
+		hidden: () => !(view.val.linkBusy === "image" || view.val.linkBusy === "prepare" || view.val.scanNote)
+	}, van.derive(() => view.val.linkBusy === "image" ? "Reading the QR code…" : view.val.linkBusy === "prepare" ? "Preparing your request…" : view.val.scanNote))));
+}
+var targetClass = "step-target";
+/** One numbered step, which links to its step once it can be reached and isn't open. */
+function stepItem({ steps, select }, position) {
+	const step = () => steps.val[position];
+	const linked = van.derive(() => !!step()?.reachable && step()?.state !== "active");
+	const label = () => [
+		span({
+			class: "step-number",
+			"aria-hidden": "true"
+		}, van.derive(() => step()?.state === "complete" ? "✓" : step()?.number ?? "")),
+		span({ class: "step-label" }, van.derive(() => step()?.label ?? "")),
+		span({ class: "sr-only" }, van.derive(() => step()?.description ?? ""))
+	];
+	return li({
+		class: "step-item",
+		"data-state": () => step()?.state ?? "",
+		"data-finished": () => String(!!step()?.finished),
+		"aria-current": () => step()?.state === "active" ? "step" : "false"
+	}, () => linked.val ? button({
+		type: "button",
+		class: `${targetClass} step-link`,
+		onclick: () => select(step().index)
+	}, label()) : span({ class: targetClass }, label()));
+}
+/** The numbered row of steps above a page's step card. */
+function stepper(props) {
+	return nav({
+		class: "step-progress",
+		id: props.id,
+		"aria-label": props.label
+	}, ol({ class: "step-list" }, props.steps.rawVal.map((_, position) => stepItem(props, position))));
+}
+/**
+* Shell commands that do what the setup page does, with curl, openssl and
+* python3 and none of unduo's code. The root README shows the same blocks, and
+* `__tests__` runs them against a local stand-in for Duo.
+*
+* The blocks have no `#` comments: zsh, macOS's default shell, runs a pasted
+* `# …` line as a command unless `interactivecomments` is set.
+*/
+var terminalCommands = {
+	/** Example values, which the user replaces with their QR code's. */
+	values: String.raw`host=api-XXXXXXXX.duosecurity.com
+code=ABCDE12345`,
+	/**
+	* One POST with a new public key and Duo Mobile's device details: the same
+	* fields as the page's Duo form. openssl's private key is never saved.
+	*/
+	activate: String.raw`pubkey=$(openssl genrsa 2048 | openssl rsa -pubout)
+reply=$(curl -sS "https://$host/push/v2/activation/$code?customer_protocol=1" -A okhttp/2.7.5 \
+  --data-urlencode "pubkey=$pubkey" -d pkpush=rsa-sha512 \
+  -d platform=Android -d version=13 -d manufacturer=Google -d model=Cheetah \
+  -d app_id=com.duosecurity.duomobile -d app_version=4.33.0 -d app_build_number=433000 \
+  -d architecture=arm64 -d jailbroken=false -d full_disk_encryption=true -d passcode_status=true \
+  -d security_patch_level=2024-01-01 -d region=US -d language=en)`,
+	/** Reads Duo's reply locally and prints the base32 key and its otpauth link. */
+	account: String.raw`printf %s "$reply" | python3 -c '
+import base64, json, sys, urllib.parse
+reply = json.load(sys.stdin)
+if reply.get("stat") != "OK": sys.exit("Duo said: %s" % reply.get("message"))
+key = base64.b32encode(reply["response"]["hotp_secret"].encode()).decode().rstrip("=")
+name = urllib.parse.quote(reply["response"]["customer_name"], safe="")
+print("Key:", key)
+print(f"otpauth://hotp/Duo:{name}?secret={key}&issuer=Duo&algorithm=SHA1&digits=6&counter=0")'`
+};
+/** How unduo works: the steps, the code type and its limits. */
+function guide() {
+	return div({ class: "dialog-body" }, p("Duo Mobile is an ordinary one-time-passcode app inside. When you add a device, Duo hands the new device a secret key. unduo registers itself as that device and gives the key to the authenticator app you prefer."), ol({ class: "dialog-list" }, li(strong("Get a QR code."), " In your Duo device portal, add a tablet running Android and choose “I have Duo Mobile installed”. Copy the QR code and paste it here."), li(strong("Activate."), " unduo sends the activation to Duo. Copy Duo's reply from the box and paste it under it. Each QR code works only once."), li(strong("Add it to your app."), " Scan the new QR code, then test a passcode on any Duo sign-in.")), h3({ class: "dialog-heading" }, "Counter-based or time-based?"), p("Duo checks this device's passcodes with a counter (HOTP), so use an app that supports counter-based codes: Google Authenticator, 2FAS, Aegis and FreeOTP all do. Some organizations have switched Duo to time-based codes (TOTP); if counter-based codes are rejected, switch the result to time-based and add it again."), h3({ class: "dialog-heading" }, "What it can't do"), p("Duo Push approvals aren't supported, only passcodes. Your organization must allow adding devices and passcode sign-ins. Keep an existing sign-in method until a code from your new app works."));
+}
+/** What the page sends, keeps and loads. */
+function privacy() {
+	return div({ class: "dialog-body" }, p("unduo is a static web page. There is no unduo server that sees your activation code, Duo's reply, or your key."), p("Your browser sends the activation directly to Duo, and Duo's reply shows in a box on this page. You copy it across, and this page turns it into a QR code. Pasted images and shared screens are decoded locally and never uploaded or recorded."), p("Your activation code, Duo's reply and your key stay in this tab's memory. This page never puts them in its address or in browser storage, so refreshing or closing the tab clears them, and your browser asks before you leave. Its address doesn't change while you set up. Duo's reply opens in a box rather than a new tab, so the activation code stays out of your browser history. On a computer you share, use a private window."), p(`There are no accounts, analytics or cookies. All of this page's code is in the page itself, apart from its setup plugin. Your browser downloads the plugin, styles and images from jsDelivr, which receives ordinary request details such as your IP address but none of your codes or keys. Your authenticator app decides how your key is stored after that.`), p(`This page runs from the file you downloaded. It loads its setup plugin, styles and images from hash-pinned jsDelivr files. To skip unduo's code entirely, use the commands under `, strong("Terminal"), ", at the bottom of the page."));
+}
+/** The commands that do the same setup without this page. */
+function terminal() {
+	return div({ class: "dialog-body-single" }, p("These macOS or Linux commands do what this page does with curl, openssl and python3 instead of unduo's code. Duo's reply stays in your terminal."), p(strong("1."), " Copy the QR code's image address. Set ", code("host"), " to its ", code("api-…"), " host and ", code("code"), " to the letters and digits after the last ", code("value="), ", ", code("duo%3A%2F%2F"), " or ", code("activate%2F"), ", up to any ", code("-"), " or ", code("&"), "."), pre({ class: "command" }, terminalCommands.values), p(strong("2."), " Register a device. openssl keeps only the public key. Each code works once."), pre({ class: "command" }, terminalCommands.activate), p(strong("3."), " Print your key and ", code("otpauth://"), " link. Add the key to your app as counter-based, or show the link as a QR code with ", code("qrencode -t ansiutf8 '…'"), ". For time-based codes, change ", code("hotp"), " to ", code("totp"), " and ", code("counter=0"), " to ", code("period=30"), ". Close the terminal when you're done."), pre({ class: "command" }, terminalCommands.account));
+}
+var dialogs = {
+	guide: {
+		label: "How it works",
+		title: "How unduo works",
+		content: guide
+	},
+	privacy: {
+		label: "Privacy",
+		title: "Privacy, plainly",
+		content: privacy
+	},
+	terminal: {
+		label: "Terminal",
+		title: "Set it up in a terminal",
+		content: terminal
+	}
+};
+/** A button that opens a help dialog, a native popover the browser opens and closes. */
+function setupHelpButton(mode) {
+	const id = `setup-${mode}`;
+	const { label, title, content } = dialogs[mode];
+	return [button({
+		type: "button",
+		class: "uk-button uk-button-text btn small",
+		popovertarget: id
+	}, label), div({
+		id,
+		popover: "auto",
+		role: "dialog",
+		"aria-labelledby": `${id}-title`,
+		class: "dialog"
+	}, button({
+		type: "button",
+		class: "uk-modal-close-default uk-close",
+		popovertarget: id,
+		popovertargetaction: "hide",
+		"aria-label": "Close",
+		autofocus: true
+	}, svg({
+		width: "14",
+		height: "14",
+		viewBox: "0 0 14 14",
+		"aria-hidden": "true"
+	}, path({
+		d: "M1 1l12 12M13 1L1 13",
+		stroke: "currentColor",
+		"stroke-width": "1.4"
+	}))), div({ class: "dialog-header" }, h2({
+		id: `${id}-title`,
+		class: "uk-modal-title dialog-title"
+	}, title)), div(content()), div({ class: "dialog-actions" }, button({
+		type: "button",
+		class: "uk-button uk-button-default btn",
+		popovertarget: id,
+		popovertargetaction: "hide"
+	}, "Got it")))];
+}
+var { maxPages, timeoutMs } = defaultPluginLimits;
+/** The Advanced panel: limits for the setup code, which apply when setup restarts. */
+function pluginLimits({ limits, restart }) {
+	const fields = [{
+		key: "maxPages",
+		value: limits.maxPages,
+		name: "Memory pages",
+		hint: `64 KiB each. Default ${maxPages} (${maxPages * 64 / 1024} MiB).`
+	}, {
+		key: "timeoutMs",
+		value: limits.timeoutMs,
+		name: "Time per call (ms)",
+		hint: `Default ${timeoutMs} (${timeoutMs / 1e3} seconds).`
+	}];
+	return details({
+		class: "wide",
+		id: "plugin-limits"
+	}, summary({ class: "summary-label" }, "Advanced"), div({
+		class: "limits-panel",
+		role: "group",
+		"aria-labelledby": "plugin-limits-note"
+	}, p({
+		class: "limits-note",
+		id: "plugin-limits-note"
+	}, "Limits for unduo's setup code. Each call that goes over one stops setup. Applying new limits restarts setup and clears anything in progress."), div({ class: "limits-grid" }, fields.map(({ key, value, name, hint }) => div({ class: "limit" }, label({
+		class: "medium",
+		for: `limit-${key}`
+	}, name), input({
+		class: "uk-input field",
+		id: `limit-${key}`,
+		type: "number",
+		min: "1",
+		step: "1",
+		required: true,
+		value,
+		oninput: (event) => {
+			value.val = event.target.value;
+		},
+		"aria-describedby": `limit-${key}-hint`
+	}), p({
+		class: "hint",
+		id: `limit-${key}-hint`
+	}, hint)))), div(button({
+		type: "button",
+		class: "uk-button uk-button-default btn",
+		onclick: restart,
+		disabled: () => !(Number(limits.maxPages.val) > 0 && Number(limits.timeoutMs.val) > 0)
+	}, "Apply and restart"))));
+}
+/**
+* The page around `host`, the `#setup` element: header, introduction, help and
+* footer. A file for no particular institution has an empty `schoolName`.
+*/
+function setupLayout(page, schoolName, home, host) {
+	return div({ class: "page" }, a({
+		id: "skip-to-setup",
+		class: "skip-link",
+		href: "#setup-card",
+		onclick: (event) => {
+			event.preventDefault();
+			page.focusStep();
+		}
+	}, "Skip to setup"), header({ class: "site-header" }, a({
+		class: "logo",
+		href: home,
+		"aria-label": "unduo home"
+	}, "unduo", span({
+		class: "logo-dot",
+		"aria-hidden": "true"
+	}, ".")), nav({
+		class: "site-nav",
+		"aria-label": "Help and source"
+	}, setupHelpButton("guide"), a({
+		class: "nav-link",
+		href: "https://github.com/UnDuoMe/unduo.me",
+		target: "_blank",
+		rel: "noreferrer",
+		"aria-label": "Source code on GitHub"
+	}, "Source"))), main(div({ class: "hero" }, schoolName && p({ class: "eyebrow" }, schoolName), h1({ class: "headline" }, "Use any authenticator app with Duo"), p({ class: "tagline" }, "Turn the QR code from your Duo portal into a standard passcode for Google Authenticator, 2FAS, Aegis and other apps. It all happens in your browser."), p({ class: "disclaimer" }, `unduo is an independent open-source tool. It isn't affiliated with ${schoolName || "your organization"}, Duo Security or Cisco.`)), host), footer({
+		id: "setup-footer",
+		class: "site-footer"
+	}, span({ class: "footer-item" }, "Runs in your browser. Your key is never sent to unduo."), span({ class: "footer-links" }, setupHelpButton("privacy"), setupHelpButton("terminal")), pluginLimits(page)));
+}
+</script>
+<script data-app="unduo" data-part="duo-form" data-source="packages/me/unduo/components/setup/activate/activate-step.ts" data-requests="the Duo form's POST" data-comment="The Duo form, whose action check() approves, and the sandboxed frame that shows Duo's reply.">"use strict";
+/** The longest reply crates/setup accepts (MAX_RESPONSE_LENGTH in response.rs). */
+var maxResponseLength = 2e6;
+var primary$1 = "uk-button uk-button-primary btn-accent";
+var textButton = "uk-button uk-button-text btn btn-inline";
+/**
+* The step that posts the activation to Duo, then takes Duo's reply. Duo's reply
+* shows in a frame in the page, never a new tab, because browsers write a new
+* tab's address, which holds the code, to history. The frame is another origin's,
+* so the page can't read it: the student copies the reply across. (Browsers
+* refuse a drag from another origin's frame into the page.) Removing the frame
+* discards the reply, so `setupCard` keeps this step in the page through
+* earlier steps.
+*/
+function activateStep(page) {
+	const { view, text, send } = page;
+	return div(form({
+		action: () => view.val.request?.url ?? "",
+		method: "post",
+		enctype: "application/x-www-form-urlencoded",
+		target: "duo-reply",
+		rel: "noopener noreferrer",
+		onsubmit: page.submit,
+		hidden: () => view.val.submitted
+	}, () => div(view.val.request?.fields.map(({ name, value }) => input({
+		type: "hidden",
+		name,
+		value
+	})) ?? []), p({ class: "intro" }, "This registers unduo as a new Duo Mobile device on your account. Duo's reply appears in a box here, which you'll copy into the field under it."), button({
+		class: `${primary$1} wide`,
+		type: "submit",
+		disabled: () => !view.val.request
+	}, van.derive(() => view.val.request ? "Activate with Duo" : "Preparing…")), p({ class: "sent-note" }, "Sent straight from your browser to ", span(van.derive(() => view.val.request?.host ?? "")), ". Each QR code works once.")), form({
+		class: "stack-4",
+		hidden: () => !view.val.submitted,
+		onsubmit: (event) => {
+			event.preventDefault();
+			send({
+				type: "input",
+				text: text.val
+			});
+		}
+	}, ol({ class: "reply-steps" }, li(span("Click in the box, then select everything with "), shortcutKeys(page, "A")), li("Copy it with ", shortcutKeys(page, "C")), li(span("Click the field under the box and paste with "), shortcutKeys(page, "V"))), p({ class: "hint" }, "Duo's reply holds your new key. If your clipboard syncs to your other devices or keeps a history, as Windows can, clear it after pasting."), iframe({
+		name: "duo-reply",
+		sandbox: "",
+		title: "Duo's reply",
+		class: "reply-frame"
+	}), div({ class: "stack-2" }, label({
+		for: "duo-reply",
+		class: "uk-form-label"
+	}, "Paste Duo's reply here"), textarea({
+		class: () => `uk-textarea field ${view.val.problem ? "uk-form-danger" : ""}`,
+		value: text,
+		oninput: (event) => {
+			text.val = event.target.value;
+		},
+		"aria-invalid": () => String(!!view.val.problem),
+		"aria-describedby": () => view.val.problem ? "reply-description reply-error" : "reply-description",
+		id: "duo-reply",
+		placeholder: "{\"response\": {…}, \"stat\": \"OK\"}",
+		rows: 4,
+		autocomplete: "off",
+		autocapitalize: "off",
+		spellcheck: false,
+		maxLength: maxResponseLength
+	}), p({
+		id: "reply-description",
+		class: "hint"
+	}, "It contains your key, so it's read only in this page. The box empties when you go on to the next step."), p({
+		id: "reply-error",
+		class: "uk-text-danger small",
+		role: "alert",
+		hidden: () => !view.val.problem
+	}, van.derive(() => view.val.problem?.message ?? ""))), div({ class: "row-2" }, button({
+		type: "button",
+		class: primary$1,
+		hidden: () => !view.val.problem?.needsNewCode,
+		onclick: () => send({
+			type: "startOver",
+			step: 2
+		})
+	}, "Use a new QR code"), button({
+		class: primary$1,
+		type: "submit",
+		disabled: () => !text.val.trim()
+	}, "Create my authenticator")), p({
+		class: "retry-note",
+		hidden: () => !!view.val.problem
+	}, span("Box still empty?"), button({
+		type: "button",
+		class: textButton,
+		onclick: page.retry
+	}, "Activate again"))));
+}
+</script>
+<script data-app="unduo" data-part="page" data-source="packages/me/unduo/components/setup/setup-page.ts packages/me/unduo/components/setup/setup-app.ts apps/unduo-web/src/main.ts" data-requests="fetch() of the screenshots, and of a data: URL the CSP must refuse; window.open() of the portal link" data-comment="The page's browser I/O, which sends each event to the setup logic and performs what check() approved. It starts setup.">"use strict";
+/** The view until setup starts and once it stops, which holds nothing. */
+var noView = {
+	current: 0,
+	furthest: 0,
+	title: "",
+	progress: [],
+	value: "",
+	request: null,
+	submitted: false,
+	codeType: "hotp",
+	account: null,
+	linkError: "",
+	linkBusy: "",
+	scanNote: "",
+	canScan: false,
+	problem: null,
+	copied: "",
+	copyError: false,
+	shortcut: "Ctrl+"
+};
+/**
+* Browser I/O for the setup plugin, which holds the state and decides every
+* step, message and Duo URL. This holds the plugin's view for the steps to show and
+* performs the effects the plugin asks for. `load` starts the plugin within the
+* given limits, and every output is checked first; see `guard` in
+* `plugin/setup-plugin.ts`.
+*/
+function createSetupPage(load) {
+	let plugin = load(defaultPluginLimits);
+	/** The image from the last input, until the plugin asks to read it. */
+	let image;
+	/** The shared screen while scanning. */
+	let video;
+	let drawn = "";
+	/** The Duo host that a second CSP limits forms to, once the guard has accepted a form. */
+	let formHost = "";
+	/** Activation values posted from this page, so a double click posts once. */
+	const sent = new Set();
+	/** Each screenshot's blob: URL, by its `data-image-src`. */
+	const images = new Map();
+	const view = van.state(noView);
+	const started = van.derive(() => view.val !== noView);
+	const failed = van.state(false);
+	const activated = van.state(false);
+	const unenforced = van.state(false);
+	const text = van.state("");
+	const dragging = van.state(false);
+	const qr = van.state("");
+	const limits = {
+		maxPages: van.state(String(defaultPluginLimits.maxPages)),
+		timeoutMs: van.state(String(defaultPluginLimits.timeoutMs))
+	};
+	function begin() {
+		document.querySelectorAll("#portal-signed-in, #portal-settings, #portal-screenshot-figures").forEach((template) => template.content.querySelectorAll("img").forEach(screenshot));
+		fetch("data:,").then(() => unenforced.val = true, () => {
+			const { hash, search } = location;
+			if (hash || search) history.replaceState(null, "", location.pathname);
+			send({
+				type: "load",
+				hash,
+				legacy: search,
+				platform: navigator.platform,
+				scan: !!navigator.mediaDevices?.getDisplayMedia
+			});
+		});
+	}
+	/** Results apply in call order: each is attached before the next call is queued. */
+	function send(event) {
+		if (event.type === "startOver") activated.val = false;
+		const current = plugin;
+		current.then((update) => update(event).then(({ view: next, effects }) => {
+			if (current !== plugin) return;
+			view.val = next;
+			if (next.request) limitForms(next.request.host);
+			for (const effect of effects) run(effect);
+			draw();
+		})).catch(() => fail(current));
+	}
+	/** Unsafe output, a broken limit or a failed plugin: stop everything. */
+	function fail(current) {
+		if (current !== plugin) return;
+		failed.val = true;
+		view.val = noView;
+		run({ type: "stopScan" });
+	}
+	/**
+	* Add a second Content-Security-Policy that lets forms and frames reach only
+	* `host`, the one Duo host the guard allows for this page load. Browsers
+	* enforce every policy, so they then reach no other host, whatever the first
+	* policy's `https://*.duosecurity.com` allows.
+	*/
+	function limitForms(host) {
+		if (formHost) return;
+		formHost = host;
+		const policy = document.createElement("meta");
+		policy.httpEquiv = "Content-Security-Policy";
+		policy.content = `form-action https://${host}; frame-src https://${host}`;
+		document.head.append(policy);
+	}
+	/** Load a fresh plugin with the Advanced limits and start setup over. */
+	function restart() {
+		run({ type: "stopScan" });
+		sent.clear();
+		activated.val = false;
+		failed.val = false;
+		view.val = noView;
+		plugin = load({
+			maxPages: Number(limits.maxPages.val),
+			timeoutMs: Number(limits.timeoutMs.val)
+		});
+		begin();
+	}
+	function run(effect) {
+		switch (effect.type) {
+			case "prepare":
+				newPublicKey().then(() => true, () => false).then((ok) => send({
+					type: "prepared",
+					value: effect.value,
+					ok
+				}));
+				break;
+			case "readImage":
+				createImageBitmap(image).then((bitmap) => {
+					decode(bitmap, bitmap.width, bitmap.height, effect.ticket);
+					bitmap.close();
+				}, () => send({
+					type: "unreadable",
+					ticket: effect.ticket
+				}));
+				image = void 0;
+				break;
+			case "scanFrame":
+				setTimeout(() => {
+					if (video) decode(video, video.videoWidth, video.videoHeight, effect.ticket);
+				}, 500);
+				break;
+			case "stopScan":
+				(video?.srcObject)?.getTracks().forEach((track) => track.stop());
+				video = void 0;
+				break;
+			case "setText":
+				text.val = effect.text;
+				dragging.val = false;
+				break;
+			case "focus":
+				setTimeout(() => {
+					document.getElementById(effect.scroll)?.scrollIntoView({ block: "nearest" });
+					document.getElementById(effect.id)?.focus({ preventScroll: true });
+				});
+				break;
+			case "later": setTimeout(() => send(effect.event), effect.ms);
+		}
+	}
+	/** Draw the authenticator QR code whenever its link changes. */
+	function draw() {
+		const uri = view.val.account?.uri ?? "";
+		if (uri === drawn) return;
+		drawn = uri;
+		qr.val = "";
+		if (!uri) return;
+		try {
+			qr.val = qrImage(uri);
+		} catch {
+			qr.val = false;
+		}
+	}
+	/**
+	* Read the QR codes in an image or video frame, at most 1920 across, with
+	* this page's own reader, and send the plugin their text. The plugin never
+	* receives the pixels, which are wiped once read.
+	*/
+	function decode(source, width, height, ticket) {
+		const scale = Math.min(1, 1920 / Math.max(width, height));
+		const canvas = document.createElement("canvas");
+		canvas.width = Math.max(1, Math.round(width * scale));
+		canvas.height = Math.max(1, Math.round(height * scale));
+		const context = canvas.getContext("2d", { willReadFrequently: true });
+		context.fillStyle = "#fff";
+		context.fillRect(0, 0, canvas.width, canvas.height);
+		context.drawImage(source, 0, 0, canvas.width, canvas.height);
+		const { data } = context.getImageData(0, 0, canvas.width, canvas.height);
+		const gray = new Uint8Array(canvas.width * canvas.height);
+		for (let i = 0; i < gray.length; i++) gray[i] = (data[i * 4] * 299 + data[i * 4 + 1] * 587 + data[i * 4 + 2] * 114) / 1e3;
+		data.fill(0);
+		const texts = readQrCodes(gray, canvas.width, canvas.height);
+		gray.fill(0);
+		canvas.width = 0;
+		send({
+			type: "decoded",
+			ticket,
+			texts
+		});
+	}
+	/** A paste anywhere on the page, or a drop. The plugin decides what it holds. */
+	function input(data, event) {
+		dragging.val = false;
+		image = [...data?.files ?? [], ...[...data?.items ?? []].map((item) => item.getAsFile())].find((file) => file?.type.startsWith("image/")) ?? void 0;
+		const html = data?.getData("text/html");
+		const pasted = data?.getData("text/plain") || data?.getData("text/uri-list");
+		if (!image && !html && !pasted) return;
+		event?.preventDefault();
+		send({
+			type: "input",
+			text: pasted,
+			html,
+			image: !!image
+		});
+	}
+	function upload(event) {
+		const field = event.target;
+		image = field.files?.[0];
+		field.value = "";
+		if (image) send({
+			type: "input",
+			image: true
+		});
+	}
+	/** Call from the click: screen capture needs the user's gesture. */
+	function scan() {
+		if (video) return;
+		const shared = video = document.createElement("video");
+		shared.muted = true;
+		send({ type: "scanStarted" });
+		navigator.mediaDevices.getDisplayMedia({
+			video: { displaySurface: "window" },
+			audio: false
+		}).then(async (stream) => {
+			shared.srcObject = stream;
+			if (shared !== video) return stream.getTracks().forEach((track) => track.stop());
+			stream.getVideoTracks()[0]?.addEventListener("ended", () => send({
+				type: "scanEnded",
+				error: "AbortError"
+			}));
+			await shared.play();
+			send({ type: "scanSharing" });
+		}).catch((error) => send({
+			type: "scanEnded",
+			error: error?.name
+		}));
+	}
+	/** Stop sharing now, whatever the plugin answers. */
+	function stopScan() {
+		run({ type: "stopScan" });
+		send({
+			type: "scanEnded",
+			error: "AbortError"
+		});
+	}
+	/** The native POST to Duo, once per activation value. */
+	function submit(event) {
+		const { value, request, submitted } = view.val;
+		if (!request || submitted || sent.has(value)) return event.preventDefault();
+		sent.add(value);
+		activated.val = true;
+		setTimeout(() => send({
+			type: "submitted",
+			value
+		}));
+	}
+	function retry() {
+		sent.delete(view.val.value);
+		send({ type: "retry" });
+	}
+	/**
+	* Copy the portal link in `#portal-url`. The page never copies the setup key
+	* or its link: some systems sync the clipboard to the cloud.
+	*/
+	function copy(kind) {
+		const link = document.getElementById("portal-url").value;
+		navigator.clipboard.writeText(link).then(() => send({
+			type: "copied",
+			kind
+		}), () => send({ type: "copyFailed" }));
+	}
+	/**
+	* Open a link in a small window beside this page, so the steps stay in
+	* view; browsers keep it on screen. The window gets no handle back to this
+	* page. Modified clicks, and browsers that block the window, follow the
+	* link as usual.
+	*/
+	function popup(event) {
+		if (event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
+		const link = event.currentTarget;
+		const place = `width=480,height=${outerHeight},left=${screenX + outerWidth},top=${screenY}`;
+		const opened = window.open(link.href, "duo-portal", `popup,${place}`);
+		if (!opened) return;
+		opened.opener = null;
+		event.preventDefault();
+	}
+	/**
+	* Show a screenshot: a blob: URL of the file at the image's `data-image-src`,
+	* which `fetch` returns only if its SHA-256 matches `data-image-integrity`.
+	* An image with no `data-image-src` already holds its picture.
+	*/
+	function screenshot(picture) {
+		const { imageSrc: url, imageIntegrity: integrity = "" } = picture.dataset;
+		if (!url) return;
+		if (!images.has(url)) images.set(url, fetch(url, {
+			integrity,
+			credentials: "omit"
+		}).then((response) => response.ok ? response.blob() : Promise.reject(new Error(url))).then((blob) => URL.createObjectURL(blob)));
+		images.get(url).then((source) => picture.src = source, () => {});
+	}
+	/** Move to the current step's title, for the skip link. */
+	function focusStep() {
+		run({
+			type: "focus",
+			id: "step-title",
+			scroll: "step-title"
+		});
+	}
+	document.addEventListener("paste", (event) => input(event.clipboardData, event));
+	window.addEventListener("beforeunload", (event) => {
+		if (view.val.furthest > 2) event.preventDefault();
+	});
+	begin();
+	return {
+		view,
+		started,
+		failed,
+		unenforced,
+		text,
+		dragging,
+		qr,
+		limits,
+		send,
+		restart,
+		input,
+		upload,
+		scan,
+		stopScan,
+		activated,
+		submit,
+		retry,
+		copy,
+		popup,
+		screenshot,
+		focusStep
+	};
+}
+var primary = "uk-button uk-button-primary btn-accent at-end";
+/** Where the page's links go home: it runs only as a file, so never a relative address. */
+var home = "https://unduo.me/";
+/** The stepper and the card for the current step, with Back, Next and Start over. */
+function setupCard(page, school) {
+	const { view, send } = page;
+	const current = van.derive(() => view.val.current);
+	const steps = [
+		() => portalStep(school, page),
+		() => authenticateStep(page),
+		() => linkStep(page),
+		() => "",
+		() => authenticatorResult(page)
+	];
+	const activation = van.derive(() => view.val.current === 3 || page.activated.val && view.val.current < 3);
+	return div(stepper({
+		id: "setup-progress",
+		label: "Setup progress",
+		steps: van.derive(() => view.val.progress),
+		select: (step) => send({
+			type: "goTo",
+			step
+		})
+	}), div({
+		class: "uk-card uk-card-default step-card",
+		id: "setup-card"
+	}, section({ "aria-labelledby": "step-title" }, h2({
+		class: "step-title",
+		id: "step-title",
+		tabindex: "-1"
+	}, van.derive(() => view.val.title)), () => steps[current.val]?.() ?? "", () => activation.val ? div({ hidden: () => view.val.current !== 3 }, activateStep(page)) : "", div({ class: "step-nav" }, button({
+		type: "button",
+		class: "uk-button uk-button-text btn",
+		hidden: () => view.val.current === 0,
+		onclick: () => send({
+			type: "goTo",
+			step: view.val.current - 1
+		})
+	}, "Back"), button({
+		type: "button",
+		class: "uk-button uk-button-text btn at-end",
+		hidden: () => view.val.current !== 4,
+		onclick: () => send({
+			type: "startOver",
+			step: 0
+		})
+	}, "Start over"), button({
+		type: "button",
+		class: primary,
+		hidden: () => !(view.val.current < 4 && view.val.furthest > view.val.current),
+		onclick: () => send({
+			type: "goTo",
+			step: view.val.current + 1
+		})
+	}, van.derive(() => view.val.current < 2 ? "Continue" : "Next"))))));
+}
+/**
+* Start setup on a page the build wrote with `setupMount`. Its `#setup` element
+* holds the institution's details as data attributes and gets the alerts,
+* stepper and step card, and the rest of the page is built around it.
+*/
+function startSetupPage(load) {
+	const host = document.getElementById("setup");
+	const { schoolName = "", portalUrl, schoolNote: note, sourceUrl = "" } = host.dataset;
+	const school = {
+		name: schoolName,
+		portalUrl,
+		note,
+		sourceUrl
+	};
+	const page = createSetupPage(load);
+	const alert = "uk-alert-danger page-alert";
+	van.add(host, p({
+		class: alert,
+		role: "alert",
+		hidden: () => !page.unenforced.val
+	}, "This browser doesn't enforce the page's security policy, so unduo won't start in it. Use a current version of Chrome, Edge, Firefox or Safari."), p({
+		class: alert,
+		role: "alert",
+		hidden: () => !page.failed.val
+	}, "unduo couldn't load its setup code, or it went over its limits. Check your connection, then reload the page, or change the limits under Advanced."), () => page.started.val ? setupCard(page, school) : "");
+	van.add(document.getElementById("root"), setupLayout(page, schoolName, home, host));
+}
+var { pluginUrl, pluginIntegrity } = document.getElementById("root").dataset;
+startSetupPage((limits) => loadSetupPlugin(pluginUrl, pluginIntegrity, limits));
+</script>
+  </body>
+</html>

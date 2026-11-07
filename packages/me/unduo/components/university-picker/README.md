@@ -6,4 +6,4 @@ The home page's searchable university dropdown. It searches the published subset
 export { universityPicker } from "#university-picker";
 ```
 
-`universityPicker(choose)` returns the dropdown, whose field has the id `university`, and calls `choose` with the institution chosen. The web adapter defaults to UofT only and can publish the full directory with `UNDUO_UNIVERSITIES=all`. No activation codes or secrets enter the picker. A directory record does not establish that the institution uses Duo.
+`universityPicker(choose)` returns the dropdown, whose field has the id `university`, and calls `choose` with the institution chosen. **Other** (`otherInstitution`, "Any other school or company") is always the last option, even when nothing matches, and leads to the file that names no institution. The web adapter defaults to UofT only and can publish the full directory with `UNDUO_UNIVERSITIES=all`. No activation codes or secrets enter the picker. A directory record does not establish that the institution uses Duo.

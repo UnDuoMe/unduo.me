@@ -245,9 +245,11 @@ function expectPinned(document: string) {
 }
 
 describe.runIf(enabled)("static output", () => {
-  test("files are WHED IDs without the IAU- prefix", () => {
+  test("files are WHED IDs without the IAU- prefix, and other", () => {
     expect(outputFiles.some((name) => name.startsWith("IAU-"))).toBe(false);
-    expect(new Set(schoolFiles)).toEqual(new Set(universities.map((school) => school.id.slice(4))));
+    expect(new Set(schoolFiles)).toEqual(
+      new Set([...universities.map((school) => school.id.slice(4)), "other"]),
+    );
   });
 
   test("the site has no setup page: its one document is the home page", () => {
@@ -494,7 +496,7 @@ describe.runIf(enabled)("static output", () => {
         'href: "https://gemini.google.com/"',
         'href: "https://github.com/UnDuoMe/unduo.me"',
         'href: "mailto:contact@unduo.me"',
-        "href: `./files/${school.id.slice(4)}`",
+        "href: `./files/${fileId(school)}`",
         "href: choice.href",
       ]);
     }
@@ -1028,7 +1030,6 @@ describe.runIf(enabled)("browser", { timeout: 180_000 }, () => {
     const inDialog = (button: string) =>
       `[...document.querySelectorAll('#home-dialog .step-nav button')].find((b) => b.textContent === ${JSON.stringify(button)})`;
     const visible = (button: string) => evaluate(`!!${inDialog(button)}?.checkVisibility()`);
-    const dialogText = () => evaluate("document.querySelector('#home-dialog').textContent");
     const dialogOpen = () => evaluate("document.querySelector('#home-dialog').open");
     /**
      * The dialog at `heading`, settled: each step change ends a task later by
@@ -1207,10 +1208,16 @@ describe.runIf(enabled)("browser", { timeout: 180_000 }, () => {
     expect(evaluate("document.querySelector('#university-description').textContent")).toMatch(
       new RegExp(`${universities.length.toLocaleString("en-US")} institution`),
     );
+    // Other, whose file names no institution, is always last.
+    expect(
+      evaluate(
+        "document.querySelector('#university-choices [role=option]:last-child').textContent",
+      ),
+    ).toBe("OtherAny other school or company");
     if (universities.length === 1) {
       expect(
         evaluate("document.querySelectorAll('#university-choices [role=option]').length"),
-      ).toBe(1);
+      ).toBe(2);
       expect(evaluate("document.querySelector('#university-description').textContent")).toMatch(
         /^1 institution\./,
       );
@@ -1218,10 +1225,15 @@ describe.runIf(enabled)("browser", { timeout: 180_000 }, () => {
     browser("press", "Escape");
     expect(dropdownOpen()).toBe(false);
     expect(focused()).toBe("university");
-    // Typing searches, and Enter chooses the highlighted match.
+    // Typing searches, and Enter chooses the highlighted match. With no match, Other is still offered.
     browser("fill", "#university", "zzzz-no-such-school");
     browser("wait", "--text", "No matching university");
     expect(dropdownOpen()).toBe(true);
+    expect(
+      evaluate(
+        "[...document.querySelectorAll('#university-choices [role=option]')].map((option) => option.querySelector('.picker-name').textContent)",
+      ),
+    ).toEqual(["Other"]);
     browser("fill", "#university", "utoronto.ca");
     browser("wait", "#university-choices [role=option]");
     expect(
@@ -1427,11 +1439,16 @@ describe.runIf(enabled)("browser", { timeout: 180_000 }, () => {
     );
     click("button", "Continue");
 
-    // 4: open it after the green light, then the closing advice, and Done.
+    // 4: open it from the Downloads, set up the 2FA app, then the closing advice, and Done.
     waitForStep("Continue");
-    expect(dialogText()).toMatch(
-      /Once your AI has given the green light, double click UnDuo - University of Toronto\.html to open UnDuo's secure webpage and follow its instructions\./,
-    );
+    expect(
+      evaluate(
+        "[...document.querySelectorAll('.dialog-copy .home-step-text:not(.stay-safe)')].map((line) => line.textContent)",
+      ),
+    ).toEqual([
+      "Open your Downloads and double click the UnDuo - University of Toronto.html file to open UnDuo's secure webpage.",
+      "Follow the webpage's instructions to set up a new 2FA app for University of Toronto.",
+    ]);
     expect(
       evaluate(
         "[document.querySelector('.dialog-art').getAttribute('aria-hidden'), !!document.querySelector('.dialog-art .open-window'), document.querySelectorAll('.dialog-art .click-ring').length]",
@@ -1501,6 +1518,25 @@ describe.runIf(enabled)("browser", { timeout: 180_000 }, () => {
       waitForStep(heading!);
       expect(dialogOpen()).toBe(true);
     }
+
+    // Other, chosen when nothing matches, downloads the file that names no institution.
+    browser("open", `${hosted}/`);
+    browser("wait", "#university");
+    browser("fill", "#university", "zzzz-no-such-school");
+    browser("wait", "--text", "No matching university");
+    browser("press", "Enter");
+    waitForStep("Download");
+    expect(address()).toBe("/?university=other#step=download");
+    expect(evaluate("document.title")).toBe("Download UnDuo");
+    expect(evaluate("document.querySelector('.dialog-school').textContent")).toBe("Other");
+    expect(
+      evaluate("(({ href, download }) => [href, download])(document.querySelector('a[download]'))"),
+    ).toEqual([`${hosted}/files/other`, "UnDuo - Other.html"]);
+    const otherFile = await fetch(`${hosted}/files/other`);
+    expect(otherFile.headers.get("content-type")).toBe("application/octet-stream");
+    if (published) expect(await otherFile.text()).toBe(await read("files/other"));
+    click("button", "Close");
+    waitForClosed();
     if (universities.some(({ id }) => id === "IAU-020599-020519")) {
       const branch = join(isolated, "branch.html");
       await writeFile(branch, localCopy(await read("files/020599-020519")));
@@ -1558,6 +1594,55 @@ describe.runIf(enabled)("browser", { timeout: 180_000 }, () => {
     click("button", "Continue");
     waitForHeading("Copy the activation QR code");
     expect(evaluate("location.hash")).toBe("");
+    expect(browser("errors")).toBe("");
+  });
+
+  test("Other's file names no institution, links to no portal and shows no logo", async () => {
+    const other = await read("files/other");
+    expect(other).not.toMatch(/Toronto/i);
+    expect(other, "The #setup element holds no institution's details").toContain(
+      '<div id="setup"></div>',
+    );
+    // Its signed-in and settings screenshots are the copies with the logo painted out.
+    if (!selfContained)
+      expect(
+        [
+          ...new Set(
+            [...other.matchAll(/(setup-0-[\w-]+?)\.[\w-]+\.webp/g)].map(([, name]) => name),
+          ),
+        ].sort(),
+      ).toEqual([
+        "setup-0-settings-devices-generic",
+        "setup-0-signed-in-narrow-generic",
+        "setup-0-signed-in-wide-generic",
+      ]);
+    const folder = join(temporary, "other");
+    await mkdir(folder);
+    const file = join(folder, "UnDuo - Other.html");
+    await writeFile(file, localCopy(other));
+    browser("open", pathToFileURL(file).href);
+    waitForHeading("Open your Duo device portal");
+    expect(evaluate("document.title")).toBe("Duo setup — unduo");
+    expect(evaluate("!!document.querySelector('.eyebrow')"), "No institution's name").toBe(false);
+    expect(evaluate("document.querySelector('.disclaimer').textContent")).toBe(
+      "unduo is an independent open-source tool. It isn't affiliated with your organization, Duo Security or Cisco.",
+    );
+    expect(evaluate("document.querySelector('.school-card').textContent")).toBe(
+      "Open it in a new window, so you can keep these steps in view. If you don't know its address, ask your IT help desk where to manage your Duo devices.",
+    );
+    expect(
+      evaluate("[...document.querySelectorAll('#setup-card a')].length"),
+      "No portal or source link",
+    ).toBe(0);
+    browser(
+      "wait",
+      "--fn",
+      "[...document.querySelectorAll('.signed-in-example img')].every((image) => image.naturalWidth > 0)",
+    );
+    click("button", "Continue");
+    waitForHeading("Authenticate with Duo");
+    click("button", "Continue");
+    waitForHeading("Copy the activation QR code");
     expect(browser("errors")).toBe("");
   });
 

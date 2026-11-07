@@ -1,7 +1,9 @@
 import { describe, expect, test } from "vite-plus/test";
 import { universities } from "@-/me.unduo.data.universities";
 import {
+  fileId,
   findUniversity,
+  otherInstitution,
   searchUniversities,
   universityMatches,
 } from "@-/me.unduo.lib.universities";
@@ -13,6 +15,15 @@ function matching(query: string) {
 }
 
 describe("university selection", () => {
+  test("other resolves to the choice whose file names no institution, and no search returns it", () => {
+    expect(findUniversity("other")).toBe(otherInstitution);
+    expect(findUniversity(" Other ")).toBe(otherInstitution);
+    expect(fileId(otherInstitution)).toBe("other");
+    expect(fileId(findUniversity("UofT")!)).toBe("020599");
+    for (const query of ["", "other", "Other"])
+      expect(searchUniversities(query, 100)).not.toContain(otherInstitution);
+  });
+
   test("Toronto deep links resolve by stable ID, name, nickname and domain", () => {
     for (const query of [
       "utoronto",

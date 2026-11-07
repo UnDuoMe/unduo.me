@@ -1,11 +1,14 @@
 {
-  "commit": "05e4e806352aa26de564bf079954a0624903f68c",
-  "base": "https://cdn.jsdelivr.net/gh/UnDuoMe/unduo.me@05e4e806352aa26de564bf079954a0624903f68c/",
+  "commit": "99295788d39ac1dbb9cff4e5e53f653a7b1f697d",
+  "base": "https://cdn.jsdelivr.net/gh/UnDuoMe/unduo.me@99295788d39ac1dbb9cff4e5e53f653a7b1f697d/",
   "files": {
     "setup-styles.Jm6_LVqp.css": "sha256-Jm6/LVqp08akIpBrHVpcHmH5GnbulR5rSqT44FfHASs=",
     "setup.7wz-vxOz.wasm": "sha256-7wz+vxOzfqx4LEs5QVsqwM2TMAJHkXAJisveKoD7omE=",
+    "setup-0-settings-devices-generic.PpPFYaDw.webp": "sha256-PpPFYaDwrYSdXYs/mF8UhVqURY0yEzLW03lLiS/1gpY=",
     "setup-0-settings-devices.qgN7K5Ui.webp": "sha256-qgN7K5Uizbxe8Cky6MMhcHqwM1u8VWos+0w8JKSpZtA=",
+    "setup-0-signed-in-narrow-generic.musqUsbi.webp": "sha256-musqUsbi6LKG07Q0Sc09Hj2aQCTtk6/2gAvVQB6Oa3k=",
     "setup-0-signed-in-narrow.Tx-K1wwF.webp": "sha256-Tx+K1wwFRuq06y26Et+AdJixVzXv9u4e4gPMTF6DYpc=",
+    "setup-0-signed-in-wide-generic.K4qf61UV.webp": "sha256-K4qf61UVoJCm4XmvFK8wcRSP6TtWv5PmtC3OrTHa5nM=",
     "setup-0-signed-in-wide.3X9rw65Q.webp": "sha256-3X9rw65QaTGzVh5xHdY6fmXBczyVInVxBtQAl7q4XuM=",
     "setup-1-add-device.HfrEhtPk.webp": "sha256-HfrEhtPk9c4GMWguU9TCXl43w9zp9bDwUoagxQZrOsI=",
     "setup-2-tablet.qSlLoa3c.webp": "sha256-qSlLoa3cOOu5hxK7FpPOf92oip/58zxaag4MKJt22dY=",

@@ -276,8 +276,9 @@
   .picker-place {
     @apply text-xs! text-muted!;
   }
+  /* Above the list, where Other is still offered. */
   .picker-empty {
-    @apply px-5! py-4! text-sm! text-muted!;
+    @apply px-5! pt-4! pb-1! text-sm! text-muted!;
   }
   .picker-hint {
     @apply border-t! border-separator! bg-surface-secondary! px-5! py-2.5! text-xs! text-muted!;

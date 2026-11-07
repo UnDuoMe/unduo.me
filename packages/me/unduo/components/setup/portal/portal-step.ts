@@ -65,7 +65,8 @@ function examples(id: string, { screenshot }: SetupPage) {
 
 /**
  * The step that opens the Duo device portal, with the institution's link if it
- * has one, and what the portal shows once the student is signed in.
+ * has one, and what the portal shows once the student is signed in. A file for
+ * no particular institution has no name, link or source.
  */
 export function portalStep(school: SetupSchool, page: SetupPage) {
   return div(
@@ -79,18 +80,21 @@ export function portalStep(school: SetupSchool, page: SetupPage) {
         ? schoolPortal(page, school.name, school.portalUrl)
         : p(
             { class: "note" },
-            "We don't have a verified Duo portal link for this institution. It may use another MFA provider. Ask your IT help desk where to manage your Duo devices.",
+            school.name
+              ? "We don't have a verified Duo portal link for this institution. It may use another MFA provider. Ask your IT help desk where to manage your Duo devices."
+              : "Open it in a new window, so you can keep these steps in view. If you don't know its address, ask your IT help desk where to manage your Duo devices.",
           ),
       school.note && p({ class: "school-note" }, school.note),
-      a(
-        {
-          class: "uk-link school-link",
-          href: school.sourceUrl,
-          target: "_blank",
-          rel: "noreferrer",
-        },
-        "Source",
-      ),
+      school.sourceUrl &&
+        a(
+          {
+            class: "uk-link school-link",
+            href: school.sourceUrl,
+            target: "_blank",
+            rel: "noreferrer",
+          },
+          "Source",
+        ),
     ),
     p({ class: "signed-in-text" }, "Press ", strong("Continue"), " when you see a page like this:"),
     div({ class: "signed-in-example" }, examples("portal-signed-in", page)),

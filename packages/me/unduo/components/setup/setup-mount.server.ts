@@ -3,7 +3,8 @@ import type { University } from "@-/me.unduo.data.universities.entities";
 import { attributes } from "@-/me.unduo.lib.dom/server";
 
 interface SetupMount {
-  university: University;
+  /** The institution the file is for. Without one, the file names none and links to no portal. */
+  university?: University | undefined;
   /** The attributes that load a screenshot. */
   image: (file: string) => Record<string, string>;
 }
@@ -15,11 +16,11 @@ interface SetupMount {
 export function setupMount({ university, image }: SetupMount) {
   const setup = attributes({
     id: "setup",
-    "data-school-name": university.name,
-    "data-portal-url": university.portalUrl,
-    "data-school-note": university.note,
-    "data-source-url": university.sourceUrl,
+    "data-school-name": university?.name,
+    "data-portal-url": university?.portalUrl,
+    "data-school-note": university?.note,
+    "data-source-url": university?.sourceUrl,
   });
   return `<div${setup}></div>
-      ${portalScreenshots(image)}`;
+      ${portalScreenshots(image, !university)}`;
 }

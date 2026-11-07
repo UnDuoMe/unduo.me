@@ -43,7 +43,8 @@ has no page that runs it.
    organization uses time-based Duo passcodes.
 
 The current site publishes [University of Toronto](https://unduo.me/?university=IAU-020599),
-the institution confirmed supported so far. The home picker and generated files
+the institution confirmed supported so far, and [Other](https://unduo.me/?university=other), a file
+for any other school or company that names no institution and links to no portal. The home picker and generated files
 use the same UofT-only scope. Full-directory builds remain available through
 `UNDUO_UNIVERSITIES=all`.
 The canonical directory comes from the complete [WHED catalog snapshot](https://mix-n-match.toolforge.org/#/catalog/7299), enriched with domain aliases and 31 documented Duo portal URLs. Directory inclusion does not confirm Duo use.
@@ -244,8 +245,8 @@ vp test                # run the unit tests (Duo calls are mocked)
 
 ### Deploy the website
 
-The default build publishes only the home page and the confirmed University of
-Toronto file at `/files/020599`. `UNDUO_UNIVERSITIES=uoft` is
+The default build publishes only the home page, the confirmed University of
+Toronto file at `/files/020599` and the generic file at `/files/other`. `UNDUO_UNIVERSITIES=uoft` is
 the default; use `UNDUO_UNIVERSITIES=all vp run build:web` to generate the full
 directory. The flag also controls development routes and the picker, so it never
 links to omitted institutions. Unknown flag values fail the build.
@@ -265,8 +266,8 @@ In **Settings → Pages**, select **GitHub Actions** as the source. The build co
 [GitHub's custom-domain instructions](https://docs.github.com/en/pages/configuring-a-custom-domain-for-your-github-pages-site/managing-a-custom-domain-for-your-github-pages-site).
 
 Commit source changes and push to `main` to publish. Generated HTML is kept in `www/` for inspection and downloads. The home page contains the university picker; each selected institution
-has its own file, `www/files/<WHED-number>`, with no extension so that GitHub Pages serves it as a download
-and never runs it. Each document embeds its application script inline;
+has its own file, `www/files/<WHED-number>`, and **Other** has `www/files/other`, with no extension so that
+GitHub Pages serves it as a download and never runs it. Each document embeds its application script inline;
 `www/cdn/` holds only the setup files' Tailwind stylesheet, help images and setup plugin, and `www/cdn-home/`
 the home page's stylesheet and images, never JavaScript. They are separate commits, so a change to the home page never
 changes a setup file or its SHA-256.

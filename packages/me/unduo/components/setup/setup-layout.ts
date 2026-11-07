@@ -3,7 +3,10 @@ import { pluginLimits } from "@-/me.unduo.components.setup.limits";
 import { a, div, footer, h1, header, main, nav, p, span } from "@-/me.unduo.lib.dom";
 import type { SetupPage } from "#entities";
 
-/** The page around `host`, the `#setup` element: header, introduction, help and footer. */
+/**
+ * The page around `host`, the `#setup` element: header, introduction, help and
+ * footer. A file for no particular institution has an empty `schoolName`.
+ */
 export function setupLayout(page: SetupPage, schoolName: string, home: string, host: HTMLElement) {
   return div(
     { class: "page" },
@@ -48,7 +51,7 @@ export function setupLayout(page: SetupPage, schoolName: string, home: string, h
     main(
       div(
         { class: "hero" },
-        p({ class: "eyebrow" }, schoolName),
+        schoolName && p({ class: "eyebrow" }, schoolName),
         h1({ class: "headline" }, "Use any authenticator app with Duo"),
         p(
           { class: "tagline" },
@@ -56,7 +59,7 @@ export function setupLayout(page: SetupPage, schoolName: string, home: string, h
         ),
         p(
           { class: "disclaimer" },
-          `unduo is an independent open-source tool. It isn't affiliated with ${schoolName}, Duo Security or Cisco.`,
+          `unduo is an independent open-source tool. It isn't affiliated with ${schoolName || "your organization"}, Duo Security or Cisco.`,
         ),
       ),
       host,

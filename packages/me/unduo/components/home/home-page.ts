@@ -1,7 +1,7 @@
 import { universityPicker } from "@-/me.unduo.components.university-picker";
 import type { University } from "@-/me.unduo.data.universities.entities";
 import { button, dialog, div, h2, main, p, path, section, svg } from "@-/me.unduo.lib.dom";
-import { findUniversity } from "@-/me.unduo.lib.universities";
+import { findUniversity, otherInstitution } from "@-/me.unduo.lib.universities";
 import { homeFooter, homeHeader, homeStart } from "#home-intro";
 import { aiTestimonials, getStarted, howItWorks } from "#home-landing";
 import { continueStep, downloadStep, promptStep, verifyStep } from "#home-steps";
@@ -69,7 +69,11 @@ export function startHomePage() {
     const { school, current: step } = fromUrl();
     selected.val = school;
     current.val = step;
-    document.title = school ? `Download UnDuo for ${school.name}` : homeTitle;
+    document.title = !school
+      ? homeTitle
+      : school === otherInstitution
+        ? "Download UnDuo"
+        : `Download UnDuo for ${school.name}`;
     if (school && !homeDialog.open) {
       homeDialog.showModal();
       focusStep();

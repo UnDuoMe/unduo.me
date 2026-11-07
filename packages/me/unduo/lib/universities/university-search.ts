@@ -39,10 +39,29 @@ function matches(entry: (typeof entries)[number], tokens: string[]): boolean {
   );
 }
 
+/**
+ * The choice for a school or company the list doesn't have. Its file names no
+ * institution and links to no portal, so it suits any organization that uses
+ * Duo. `findUniversity("other")` returns it; searches never do.
+ */
+export const otherInstitution: University = {
+  id: "other",
+  name: "Other",
+  country: "",
+  aliases: [],
+  sourceUrl: "",
+  sourceKind: "directory",
+};
+
+/** A choice's file under `files/`: the WHED number without `IAU-`, or `other`. */
+export const fileId = (school: University) =>
+  school.id === otherInstitution.id ? otherInstitution.id : school.id.slice(4);
+
 /** Resolve exact identifiers only. Ambiguous aliases never preselect a school. */
 export function findUniversity(value: string | undefined): University | undefined {
   if (!value || value.length > 160) return undefined;
   const query = normalize(value);
+  if (query === otherInstitution.id) return otherInstitution;
   return query ? (byId.get(query) ?? byAlias.get(query)) : undefined;
 }
 

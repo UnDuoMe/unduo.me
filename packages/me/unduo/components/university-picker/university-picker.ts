@@ -1,23 +1,27 @@
 import { universities } from "@-/me.unduo.data.universities";
 import type { University } from "@-/me.unduo.data.universities.entities";
 import { div, input, label, li, p, path, span, svg, ul } from "@-/me.unduo.lib.dom";
-import { searchUniversities } from "@-/me.unduo.lib.universities";
+import { otherInstitution, searchUniversities } from "@-/me.unduo.lib.universities";
 
 const optionId = (index: number) => `university-option-${index}`;
 const place = (school: University) =>
-  [school.stateProvince, school.country].filter(Boolean).join(", ") +
-  (school.portalUrl ? " · Portal link available" : "");
+  school === otherInstitution
+    ? "Any other school or company"
+    : [school.stateProvince, school.country].filter(Boolean).join(", ") +
+      (school.portalUrl ? " · Portal link available" : "");
 
 /**
  * A searchable dropdown of the published institutions. Typing in the field
  * filters the list under it, the arrow keys move through the list, and Enter
- * or a click chooses one. Escape, Tab or a click elsewhere closes it.
+ * or a click chooses one. Escape, Tab or a click elsewhere closes it. Other,
+ * whose file names no institution, is always last.
  */
 export function universityPicker(choose: (school: University) => void) {
   const query = van.state("");
   const open = van.state(false);
   const active = van.state(0);
-  const choices = van.derive(() => searchUniversities(query.val));
+  const matches = van.derive(() => searchUniversities(query.val));
+  const choices = van.derive(() => [...matches.val, otherInstitution]);
   const count = universities.length.toLocaleString("en-US");
 
   const pick = (school: University | undefined) => {
@@ -123,6 +127,10 @@ export function universityPicker(choose: (school: University) => void) {
     ),
     div(
       { id: "university-dropdown", class: "picker-panel", hidden: () => !open.val },
+      p(
+        { class: "picker-empty", role: "status", hidden: () => matches.val.length > 0 },
+        "No matching university. Try another name or acronym, or choose Other.",
+      ),
       // The options rebuild only when the matches change; the highlight follows `active`.
       () =>
         ul(
@@ -151,10 +159,6 @@ export function universityPicker(choose: (school: University) => void) {
             ),
           ),
         ),
-      p(
-        { class: "picker-empty", role: "status", hidden: () => choices.val.length > 0 },
-        "No matching university. Try another name or acronym.",
-      ),
       p(
         { id: "university-description", class: "picker-hint" },
         `${count}${count === "1" ? " institution. " : " institutions. "}Directory inclusion does not confirm Duo use.`,

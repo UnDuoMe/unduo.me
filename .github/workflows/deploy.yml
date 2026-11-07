@@ -67,11 +67,13 @@ jobs:
 
       # Setup runs only from a file on the student's computer, so the site must serve
       # that file as a download, never as a page that would run.
-      - name: Check the site serves the setup file as a download
+      - name: Check the site serves the setup files as downloads
         env:
           PAGE_URL: ${{ steps.deployment.outputs.page_url }}
         shell: bash
         run: |
           set -euo pipefail
-          curl -fsSI --retry 5 --retry-all-errors --retry-delay 10 "${PAGE_URL}files/020599" |
-            grep -qi '^content-type: application/octet-stream'
+          for file in 020599 other; do
+            curl -fsSI --retry 5 --retry-all-errors --retry-delay 10 "${PAGE_URL}files/${file}" |
+              grep -qi '^content-type: application/octet-stream'
+          done

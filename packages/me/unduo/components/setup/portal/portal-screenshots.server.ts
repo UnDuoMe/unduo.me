@@ -38,13 +38,20 @@ const screenshots = [
  * examples, which `portalStep` copies, the settings page, which
  * `authenticateStep` copies, and the enrollment steps, which
  * `portalInstructions` copies. `image` gives the attributes that load each file.
+ * The signed-in examples and the settings page show UofT's logo; a `generic`
+ * file shows copies with the logo painted out (`-generic`). The enrollment
+ * steps show no logo.
  */
-export function portalScreenshots(image: (file: string) => Record<string, string>) {
+export function portalScreenshots(
+  image: (file: string) => Record<string, string>,
+  generic = false,
+) {
+  const logo = (file: string) => `setup-${file}${generic ? "-generic" : ""}`;
   const examples = signedIn.map(
     ({ file, caption, label, size }) => `
     <figure class="signed-in-${size}">
       <figcaption class="figure-caption">${escapeText(caption)}</figcaption>
-      <img class="screenshot"${attributes({ ...image(`setup-${file}`), alt: label })}>
+      <img class="screenshot"${attributes({ ...image(logo(file)), alt: label })}>
     </figure>`,
   );
   const figures = screenshots.map(
@@ -54,7 +61,7 @@ export function portalScreenshots(image: (file: string) => Record<string, string
       <img class="screenshot"${attributes({ ...image(`setup-${file}`), alt: label })}>
     </figure>`,
   );
-  const settingsPage = `<img class="screenshot"${attributes({ ...image(`setup-${settings.file}`), alt: settings.label })}>`;
+  const settingsPage = `<img class="screenshot"${attributes({ ...image(logo(settings.file)), alt: settings.label })}>`;
   return `<template id="portal-signed-in">${examples.join("")}
   </template>
       <template id="portal-settings">${settingsPage}</template>

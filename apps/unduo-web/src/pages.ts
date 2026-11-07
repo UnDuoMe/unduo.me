@@ -5,10 +5,11 @@ import { getBuildUniversities } from "@-/me.unduo.configs.web/universities";
 import { pageLayout } from "./page-layout";
 
 /**
- * Every document the site publishes: the home page, and each institution's setup
- * file, named by its WHED number without `IAU-`. A file has no extension, so the
- * site serves it as a download and never runs it: setup happens only from a file
- * on the student's computer, not on a website.
+ * Every document the site publishes: the home page, each institution's setup
+ * file, named by its WHED number without `IAU-`, and `files/other`, which names
+ * no institution. A file has no extension, so the site serves it as a download
+ * and never runs it: setup happens only from a file on the student's computer,
+ * not on a website.
  */
 export function sitePages(): SitePage[] {
   return [
@@ -38,5 +39,14 @@ export function sitePages(): SitePage[] {
           ),
       } satisfies SitePage;
     }),
+    {
+      path: "files/other",
+      entry: "setup",
+      render: (resources) =>
+        pageLayout(
+          { title: "Duo setup — unduo", entry: "setup", resources },
+          setupMount({ image: resources.image }),
+        ),
+    },
   ];
 }

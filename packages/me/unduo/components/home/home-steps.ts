@@ -13,6 +13,7 @@ import {
   svg,
   textarea,
 } from "@-/me.unduo.lib.dom";
+import { fileId } from "@-/me.unduo.lib.universities";
 import { aiPrompt } from "#ai-prompt";
 import { type AiChoice, copyArt, downloadArt, dragArt, openArt } from "#how-art";
 
@@ -80,7 +81,7 @@ const fileBadge = (name: string) =>
     name,
   );
 
-/** The name a browser saves an institution's file under: `UnDuo - <name>.html`. */
+/** The name a browser saves an institution's file under: `UnDuo - <name>.html`, or `UnDuo - Other.html`. */
 const fileName = (school: University) =>
   `UnDuo - ${school.name.replace(/[\\/:*?"<>|]+/g, "-")}.html`;
 
@@ -108,7 +109,7 @@ export function downloadStep(school: University) {
         a(
           {
             class: "home-download",
-            href: `./files/${school.id.slice(4)}`,
+            href: `./files/${fileId(school)}`,
             download: fileName(school),
           },
           fileName(school),
@@ -319,9 +320,13 @@ export function continueStep(school: University) {
       { class: "dialog-copy" },
       p(
         { class: "home-step-text" },
-        "Once your AI has given the green light, double click ",
+        "Open your Downloads and double click the ",
         fileBadge(fileName(school)),
-        " to open UnDuo's secure webpage and follow its instructions.",
+        " file to open UnDuo's secure webpage.",
+      ),
+      p(
+        { class: "home-step-text" },
+        `Follow the webpage's instructions to set up a new 2FA app for ${school.name}.`,
       ),
       p(
         { class: "home-step-text stay-safe" },

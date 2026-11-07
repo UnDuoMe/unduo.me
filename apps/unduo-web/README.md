@@ -25,6 +25,9 @@ The build emits:
 - `www/files/<WHED-number>`: each selected institution's setup UI, which the home page
   downloads as `UnDuo - <institution name>.html`. It has no extension, so GitHub Pages serves it
   as a download: setup never runs on the website.
+- `www/files/other`: the same setup UI for any other school or company, which the home page
+  downloads as `UnDuo - Other.html` when **Other** is chosen. It names no institution, links to
+  no portal, and its signed-in screenshots are `setup-0-*-generic.webp`, with the logo painted out.
 - `www/cdn/` and `www/cdn.json`: the Tailwind CSS, WebP help images and setup
   plugin that setup files load from a content-addressed jsDelivr commit.
 - `www/cdn-home/` and `www/cdn-home.json`: the home page's Tailwind CSS (the setup
@@ -68,8 +71,8 @@ they are published. It checks that SRI rejects changed styles, CSP
 rejects changed application code, and `fetch` rejects a changed plugin. No real
 activation request is submitted.
 
-The default build publishes only the home page and the confirmed University of
-Toronto file at `/files/020599`. `UNDUO_UNIVERSITIES=uoft` is
+The default build publishes only the home page, the confirmed University of
+Toronto file at `/files/020599` and the generic file at `/files/other`. `UNDUO_UNIVERSITIES=uoft` is
 the default; use `UNDUO_UNIVERSITIES=all vp run build:web` to generate the full
 directory. The flag also controls development routes and the picker, so it never
 links to omitted institutions. Unknown flag values fail the build.

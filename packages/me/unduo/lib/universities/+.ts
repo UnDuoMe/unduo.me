@@ -1,1 +1,7 @@
-export { findUniversity, universityMatches, searchUniversities } from "#university-search";
+export {
+  fileId,
+  findUniversity,
+  otherInstitution,
+  searchUniversities,
+  universityMatches,
+} from "#university-search";
