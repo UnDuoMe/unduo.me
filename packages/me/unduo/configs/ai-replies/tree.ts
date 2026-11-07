@@ -200,6 +200,22 @@ export function promptUnfolder(tree: string, prompt: string) {
     ?.index;
 }
 
+/**
+ * The prompt's own text in the conversation: the last text line before the
+ * reply that holds the prompt's opening words. Clicking it does nothing on
+ * the sites, which makes it a safe place to click.
+ */
+export function promptText(tree: string, prompt: string) {
+  const lines = treeLines(tree);
+  const opening = words(prompt).slice(0, 60);
+  const end = lines.findIndex(
+    ({ text }) => verdictLine.test(text) && !text.includes("Start your reply"),
+  );
+  return lines
+    .slice(0, end === -1 ? undefined : end)
+    .findLast(({ text }) => text.startsWith("text ") && words(text).includes(opening))?.index;
+}
+
 /** A list of past chats, as a site's sidebar shows one when it's open. */
 const chatList = /^(?:heading|text) (?:Recents?|Chats|Your chats|Chat history)$/;
 

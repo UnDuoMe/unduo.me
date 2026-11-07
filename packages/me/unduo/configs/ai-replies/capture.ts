@@ -18,6 +18,7 @@ import {
   copyButton,
   finishedReply,
   holdsOnly,
+  promptText,
   promptUnfolder,
   type Reply,
   replyMarkdown,
@@ -135,6 +136,17 @@ async function screenshotWhole(window: ChromeWindow, site: Site, raw: string) {
     if (promptUnfolder(window.tree(), aiPrompt))
       throw new Error(`${site.name}'s prompt didn't unfold.`);
   }
+  /**
+   * Click the prompt's text, which does nothing on the sites. Once, ChatGPT
+   * re-drew its prompt under a click that unfolded it and took the pointer's next
+   * move as a drag: it selected text and wouldn't scroll. A click clears that.
+   */
+  const settle = async () => {
+    const text = promptText(window.tree(), aiPrompt);
+    if (text) window.click(text);
+    await sleep(1000);
+  };
+  await settle();
   const shoot = (name: string) => {
     const shot = window.screenshot();
     const path = join(raw, `${site.id}-${name}.png`);
@@ -143,6 +155,7 @@ async function screenshotWhole(window: ChromeWindow, site: Site, raw: string) {
   };
   // A scroll that brings in nothing proves the page fits only if scrolling works at all.
   let moved = false;
+  let settled = false;
   try {
     for (;;) {
       const zoom = window.zoom();
@@ -154,6 +167,11 @@ async function screenshotWhole(window: ChromeWindow, site: Site, raw: string) {
       await sleep(2000);
       const end = shoot(`${zoom}-end`);
       if (showsWholePage(top.path, end.path, top.scale)) {
+        if (!moved && !settled) {
+          settled = true;
+          await settle();
+          continue;
+        }
         if (!moved)
           throw new Error(
             `Scrolling didn't move ${site.name}'s page, so the screenshot may not hold the whole conversation.`,

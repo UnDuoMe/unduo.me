@@ -5,6 +5,7 @@ import {
   finishedReply,
   holdsOnly,
   joinPieces,
+  promptText,
   promptUnfolder,
   replyMarkdown,
   showsChatList,
@@ -163,6 +164,8 @@ test("finds the button that unfolds the prompt, not one in the reply", () => {
       "41 button Show more",
     ]);
   expect(promptUnfolder(page("Show more"), asked)).toBe("12");
+  // The prompt's own text, a safe place to click.
+  expect(promptText(page("Show less"), asked)).toBe("11");
   expect(promptUnfolder(page("Expand"), asked)).toBe("12");
   // Unfolded, it offers to fold again; the reply's own button doesn't count.
   expect(promptUnfolder(page("Show less"), asked)).toBeUndefined();
