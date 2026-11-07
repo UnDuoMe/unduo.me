@@ -20,8 +20,8 @@ function setupCard(page: SetupPage, school: SetupSchool) {
   const current = van.derive(() => view.val.current);
   const steps = [
     () => portalStep(school, page),
-    () => authenticateStep(page),
-    () => linkStep(page),
+    () => authenticateStep(school, page),
+    () => linkStep(page, school),
     () => "",
     () => authenticatorResult(page),
   ];
@@ -93,8 +93,8 @@ function setupCard(page: SetupPage, school: SetupSchool) {
  */
 export function startSetupPage(load: (limits: PluginLimits) => Promise<SetupPlugin>) {
   const host = document.getElementById("setup")!;
-  const { schoolName = "", portalUrl, schoolNote: note, sourceUrl = "" } = host.dataset;
-  const school = { name: schoolName, portalUrl, note, sourceUrl };
+  const { schoolName = "", portalUrl, duoPrompt, schoolNote: note, sourceUrl = "" } = host.dataset;
+  const school = { name: schoolName, portalUrl, duoPrompt, note, sourceUrl };
   const page = createSetupPage(load);
   const alert = "uk-alert-danger page-alert";
   van.add(

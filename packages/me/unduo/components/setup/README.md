@@ -13,11 +13,14 @@ five steps:
    portal when known, then an example of what Duo shows once you're signed in
    in a narrow and a wide window (`setup-0-signed-in-narrow.webp` and
    `setup-0-signed-in-wide.webp`, with only the device's name and number
-   blurred): press **Continue** when you see a page like it.
+   blurred): press **Continue** when you see a page like it. A file for a
+   portal on Duo's Universal Prompt (`data-duo-prompt="universal"`, Waterloo's)
+   shows Waterloo's prompt instead (`setup-0-signed-in-universal.webp`).
 2. **Authenticate with Duo** (`authenticateStep`). Authenticate as usual, with a
    passcode or a push, and press **Continue** on Duo's My Settings & Devices page,
    shown in `setup-0-settings-devices.webp` (with only the devices'
-   names and numbers blurred).
+   names and numbers blurred), or on the Universal Prompt, the page with
+   **Add a device** (`setup-0-settings-devices-universal.webp`).
 3. **Copy the activation QR code** (`linkStep`). How to add a device, an
    example screenshot of each click, and one input. Anything pasted anywhere on the page
    (from the portal step too) is routed by the

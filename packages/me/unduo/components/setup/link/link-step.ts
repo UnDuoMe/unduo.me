@@ -1,4 +1,4 @@
-import type { SetupPage } from "@-/me.unduo.components.setup.entities";
+import type { SetupPage, SetupSchool } from "@-/me.unduo.components.setup.entities";
 import { portalInstructions } from "@-/me.unduo.components.setup.portal";
 import { shortcutKeys } from "@-/me.unduo.components.setup.shortcuts";
 import { button, div, form, input, label, p } from "@-/me.unduo.lib.dom";
@@ -6,7 +6,7 @@ import { button, div, form, input, label, p } from "@-/me.unduo.lib.dom";
 const secondary = "uk-button uk-button-default btn";
 
 /** The step that takes the activation QR code: pasted, dropped, uploaded or scanned. */
-export function linkStep(page: SetupPage) {
+export function linkStep(page: SetupPage, school: SetupSchool) {
   const { view, text, dragging, send } = page;
   const upload = input({
     type: "file",
@@ -15,7 +15,7 @@ export function linkStep(page: SetupPage) {
     onchange: page.upload,
   });
   return div(
-    portalInstructions(page),
+    portalInstructions(school, page),
     div(
       {
         class: "drop-zone",

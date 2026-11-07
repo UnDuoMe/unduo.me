@@ -28,7 +28,7 @@ Paths resolve from the package location so these commands work from any working
 directory.
 
 `build-universities.ts` selects the published institutions. The default
-`UNDUO_UNIVERSITIES=uoft` includes only the confirmed UofT record; `all` enables the
+`UNDUO_UNIVERSITIES=published` includes only the main UofT and Waterloo records; `all` enables the
 full directory. Use the same scope for building and running `test:web`.
 
 `university-catalog.ts` supplies the scoped browser catalog. `cdn-libraries.ts`

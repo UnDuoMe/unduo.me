@@ -924,10 +924,12 @@ export const mfaOverrides: readonly (University & { readonly whedIds?: readonly 
     country: "Canada",
     aliases: ["Waterloo", "UW", "UWaterloo", "uwaterloo.ca"],
     sourceUrl:
-      "https://uwaterloo.ca/science-computing/how-tos/networking/campus-vpn-virtual-private-network",
+      "https://uwaterloo.ca/mechanical-mechatronics-engineering-information-technology/two-factor-authentication-2fa#enroll",
     sourceKind: "university",
-    checkedAt: "2026-10-31",
-    portalUrl: "https://2fa.uwaterloo.ca/duo/enroll",
+    checkedAt: "2026-11-07",
+    // 2fa.uwaterloo.ca/duo/enroll now says enrolment and device management have moved here.
+    portalUrl: "https://uwaterloo.login.duosecurity.com/devices",
+    duoPrompt: "universal",
   },
   {
     id: "uw-madison",

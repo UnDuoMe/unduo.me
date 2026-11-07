@@ -5,6 +5,8 @@ import type { State } from "@-/me.unduo.lib.dom";
 export interface SetupSchool {
   name: string;
   portalUrl?: string | undefined;
+  /** `universal` when the portal uses Duo's Universal Prompt; see `University.duoPrompt`. */
+  duoPrompt?: string | undefined;
   note?: string | undefined;
   sourceUrl: string;
 }

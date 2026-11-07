@@ -101,21 +101,34 @@ export function portalStep(school: SetupSchool, page: SetupPage) {
   );
 }
 
-/** The step where the student authenticates with Duo as usual, until it shows My Settings & Devices. */
-export function authenticateStep(page: SetupPage) {
+/**
+ * The step where the student authenticates with Duo as usual, until it lists
+ * their devices: My Settings & Devices, or with the Universal Prompt, a page
+ * with Add a device.
+ */
+export function authenticateStep(school: SetupSchool, page: SetupPage) {
   return div(
     p(
       { class: "intro" },
       "Authenticate with Duo as you normally would, with either a passcode or a push.",
     ),
-    p(
-      { class: "signed-in-text" },
-      "Press ",
-      strong("Continue"),
-      " once you land on the ",
-      strong("My Settings & Devices"),
-      " page:",
-    ),
+    school.duoPrompt === "universal"
+      ? p(
+          { class: "signed-in-text" },
+          "Press ",
+          strong("Continue"),
+          " once you land on the page with ",
+          strong("Add a device"),
+          ":",
+        )
+      : p(
+          { class: "signed-in-text" },
+          "Press ",
+          strong("Continue"),
+          " once you land on the ",
+          strong("My Settings & Devices"),
+          " page:",
+        ),
     div({ class: "signed-in-example" }, examples("portal-settings", page)),
   );
 }

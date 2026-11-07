@@ -18,9 +18,10 @@ export function setupMount({ university, image }: SetupMount) {
     id: "setup",
     "data-school-name": university?.name,
     "data-portal-url": university?.portalUrl,
+    "data-duo-prompt": university?.duoPrompt,
     "data-school-note": university?.note,
     "data-source-url": university?.sourceUrl,
   });
   return `<div${setup}></div>
-      ${portalScreenshots(image, !university)}`;
+      ${portalScreenshots(image, !university ? "generic" : university.duoPrompt === "universal" ? "universal" : "traditional")}`;
 }

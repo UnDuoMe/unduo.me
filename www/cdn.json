@@ -1,19 +1,26 @@
 {
-  "commit": "e5b3868b00db91f41163556540281e6c1746576f",
-  "base": "https://cdn.jsdelivr.net/gh/UnDuoMe/unduo.me@e5b3868b00db91f41163556540281e6c1746576f/",
+  "commit": "5b7ee282f27c7ad14ad4a4259edacbc6bdf44d1a",
+  "base": "https://cdn.jsdelivr.net/gh/UnDuoMe/unduo.me@5b7ee282f27c7ad14ad4a4259edacbc6bdf44d1a/",
   "files": {
     "setup-styles.HT301DD-.css": "sha256-HT301DD+YqAB9IqBxyrujpfNdRqWR2TxIi9qbFjlOjU=",
     "setup.7wz-vxOz.wasm": "sha256-7wz+vxOzfqx4LEs5QVsqwM2TMAJHkXAJisveKoD7omE=",
     "setup-0-settings-devices-generic.PpPFYaDw.webp": "sha256-PpPFYaDwrYSdXYs/mF8UhVqURY0yEzLW03lLiS/1gpY=",
+    "setup-0-settings-devices-universal.e3zhu5Hc.webp": "sha256-e3zhu5HcrVIuvF+c06magsRjdCuA/u5vuwUzFKUadKc=",
     "setup-0-settings-devices.qgN7K5Ui.webp": "sha256-qgN7K5Uizbxe8Cky6MMhcHqwM1u8VWos+0w8JKSpZtA=",
     "setup-0-signed-in-narrow-generic.musqUsbi.webp": "sha256-musqUsbi6LKG07Q0Sc09Hj2aQCTtk6/2gAvVQB6Oa3k=",
     "setup-0-signed-in-narrow.Tx-K1wwF.webp": "sha256-Tx+K1wwFRuq06y26Et+AdJixVzXv9u4e4gPMTF6DYpc=",
+    "setup-0-signed-in-universal.qAJwZMF-.webp": "sha256-qAJwZMF+4sB5r+jjkNYrxokZchW7FhNn8M+pdPIWtoI=",
     "setup-0-signed-in-wide-generic.K4qf61UV.webp": "sha256-K4qf61UVoJCm4XmvFK8wcRSP6TtWv5PmtC3OrTHa5nM=",
     "setup-0-signed-in-wide.3X9rw65Q.webp": "sha256-3X9rw65QaTGzVh5xHdY6fmXBczyVInVxBtQAl7q4XuM=",
+    "setup-1-add-device-universal.fEN57-rP.webp": "sha256-fEN57+rPELTQ8mnhm+DGFpyb3VsVIOm68II83INCIdY=",
     "setup-1-add-device.HfrEhtPk.webp": "sha256-HfrEhtPk9c4GMWguU9TCXl43w9zp9bDwUoagxQZrOsI=",
+    "setup-2-duo-mobile-universal.0TGgFPmO.webp": "sha256-0TGgFPmO3t/Wdh+f5AdsyMrAJxX/r0QuUXgPTu96cq4=",
     "setup-2-tablet.qSlLoa3c.webp": "sha256-qSlLoa3cOOu5hxK7FpPOf92oip/58zxaag4MKJt22dY=",
     "setup-3-android.F5QoYAql.webp": "sha256-F5QoYAqlJigm9qem3M78P0y4KQdLJXbQE8lvDthL3fQ=",
+    "setup-3-tablet-universal.nd_yCl6f.webp": "sha256-nd/yCl6fb2ONiDPEstPtbgfZpAV/ja+fIoqmPo8LoeM=",
     "setup-4-duo-installed.gRuBBlLy.webp": "sha256-gRuBBlLyFDf/O7hDA1We6UGoBR7myv82TygyQ2KxTAA=",
+    "setup-4-next-universal.TOLAyRxJ.webp": "sha256-TOLAyRxJpSvX37/8O8Snd0KPgvIx4AkxT2YVm3gSlbQ=",
+    "setup-5-copy-qr-universal.ObpRx0Z1.webp": "sha256-ObpRx0Z1V8UPup+5aUDymzl35437ISNaQVhS6OGItpY=",
     "setup-5-copy-qr-url.0e4hdp7M.webp": "sha256-0e4hdp7MHqfVJkbXPdJH4AdllvOb2bysxLxdJxaHLR8="
   }
 }

@@ -1,13 +1,22 @@
 import { universities } from "@-/me.unduo.data.universities";
 
+/**
+ * The institutions the site publishes files for: the main records of the
+ * University of Toronto and the University of Waterloo. Their branches and
+ * affiliated colleges stay out.
+ */
+const published = ["IAU-020599", "IAU-020623"];
+
 /** Keep generated routes and the browser picker on the same publication scope. */
-export function getBuildUniversities(scope = process.env.UNDUO_UNIVERSITIES ?? "uoft") {
+export function getBuildUniversities(scope = process.env.UNDUO_UNIVERSITIES ?? "published") {
   if (scope === "all") return universities;
-  if (scope !== "uoft") {
-    throw new Error(`Invalid UNDUO_UNIVERSITIES=${JSON.stringify(scope)}. Use "uoft" or "all".`);
+  if (scope !== "published") {
+    throw new Error(
+      `Invalid UNDUO_UNIVERSITIES=${JSON.stringify(scope)}. Use "published" or "all".`,
+    );
   }
-  // Only the main UofT record has been confirmed supported; branches stay out.
-  const selected = universities.filter((university) => university.id === "IAU-020599");
-  if (selected.length !== 1) throw new Error("UofT is missing from the university directory.");
+  const selected = universities.filter((university) => published.includes(university.id));
+  if (selected.length !== published.length)
+    throw new Error("A published institution is missing from the university directory.");
   return selected;
 }

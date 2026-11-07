@@ -72,6 +72,14 @@ const pinsOf = (document: string) =>
 /** The setup page's program runs as this many script elements; see `setupParts`. */
 const setupPartCount = jsPlugin ? 7 : 6;
 
+/**
+ * A setup file's portal screenshots: two signed-in examples, the settings page
+ * and five enrollment steps for the Traditional Prompt; one signed-in example
+ * for the Universal Prompt, whose prompt looks the same in any window.
+ */
+const portalScreenshotCount = (document: string) =>
+  document.includes('data-duo-prompt="universal"') ? 7 : 8;
+
 /** Every document carries all the code it runs; no script loads by URL. */
 function expectSelfContained(document: string, name: string) {
   const sources = [...document.matchAll(/<script\b([^>]*)>/gi)].flatMap(([, attributes]) => {
@@ -147,7 +155,7 @@ function expectPinned(document: string) {
     const screenshots = [
       ...document.matchAll(/\bdata-image-src="([^"]+)" data-image-integrity="([^"]+)"/g),
     ];
-    expect(screenshots, "The eight portal screenshots").toHaveLength(8);
+    expect(screenshots, "The portal screenshots").toHaveLength(portalScreenshotCount(document));
     for (const [, url, integrity] of screenshots)
       expect(integrity, url).toBe(assets.files[url!.slice(assets.base.length)]);
     expect(
@@ -172,7 +180,7 @@ function expectPinned(document: string) {
     const screenshots = [
       ...document.matchAll(/\bdata-image-src="([^"]+)" data-image-integrity="([^"]+)"/g),
     ];
-    expect(screenshots, "The eight portal screenshots").toHaveLength(8);
+    expect(screenshots, "The portal screenshots").toHaveLength(portalScreenshotCount(document));
     for (const [, url, integrity] of screenshots)
       expect(integrity, url).toBe(assets.files[url!.slice(assets.base.length)]);
     const fetched = [pluginUrl, ...screenshots.map(([, url]) => url!).sort()];
@@ -502,7 +510,7 @@ describe.runIf(enabled)("static output", () => {
     }
   });
 
-  test.each(["index.html", "files/020599"])(
+  test.each(["index.html", "files/020599", "files/020623"])(
     "%s pins its plugin, scripts, styles and CSP",
     async (name) => expectPinned(await read(name)),
   );
@@ -1648,6 +1656,74 @@ describe.runIf(enabled)("browser", { timeout: 180_000 }, () => {
     waitForHeading("Authenticate with Duo");
     click("button", "Continue");
     waitForHeading("Copy the activation QR code");
+    expect(browser("errors")).toBe("");
+  });
+
+  test("Waterloo's file describes Duo's Universal Prompt, with Waterloo's screenshots", async () => {
+    const waterloo = await read("files/020623");
+    expect(waterloo).not.toMatch(/Toronto/i);
+    expect(waterloo).toContain('data-portal-url="https://uwaterloo.login.duosecurity.com/devices"');
+    expect(waterloo).toContain('data-duo-prompt="universal"');
+    expect(html, "UofT's file keeps the Traditional Prompt").not.toMatch(
+      /data-duo-prompt|-universal\./,
+    );
+    if (!selfContained)
+      expect(
+        [
+          ...new Set(
+            [...waterloo.matchAll(/(setup-\d-[\w-]+?)\.[\w-]+\.webp/g)].map(([, name]) => name),
+          ),
+        ].sort(),
+      ).toEqual([
+        "setup-0-settings-devices-universal",
+        "setup-0-signed-in-universal",
+        "setup-1-add-device-universal",
+        "setup-2-duo-mobile-universal",
+        "setup-3-tablet-universal",
+        "setup-4-next-universal",
+        "setup-5-copy-qr-universal",
+      ]);
+    const folder = join(temporary, "waterloo");
+    await mkdir(folder);
+    const file = join(folder, "UnDuo - University of Waterloo.html");
+    await writeFile(file, localCopy(waterloo));
+    browser("open", pathToFileURL(file).href);
+    waitForHeading("Open your Duo device portal");
+    expect(evaluate("document.title")).toMatch(/University of Waterloo/);
+    expect(evaluate("document.querySelector('#portal-url').value")).toBe(
+      "https://uwaterloo.login.duosecurity.com/devices",
+    );
+    browser(
+      "wait",
+      "--fn",
+      "[...document.querySelectorAll('.signed-in-example img')].every((image) => image.naturalWidth > 0)",
+    );
+    expect(
+      evaluate(
+        "[...document.querySelectorAll('.signed-in-example figure')].map((figure) => [figure.querySelector('figcaption'), figure.querySelector('img').alt])",
+      ),
+    ).toEqual([[null, "Duo's prompt for a verification code, with the device's name blurred"]]);
+    click("button", "Continue");
+    waitForHeading("Authenticate with Duo");
+    expect(evaluate("document.querySelector('.signed-in-text').textContent")).toBe(
+      "Press Continue once you land on the page with Add a device:",
+    );
+    click("button", "Continue");
+    waitForHeading("Copy the activation QR code");
+    expect(evaluate("document.querySelector('.instructions li').textContent")).toBe(
+      "Add a device: choose Add a device → Duo Mobile → I have a tablet → Next.Labels vary; any option that shows a Duo Mobile QR code works.",
+    );
+    expect(
+      evaluate(
+        "[...document.querySelectorAll('[aria-label=\"Duo portal example screenshots\"] figcaption')].map((caption) => caption.textContent)",
+      ),
+    ).toEqual([
+      "1. Choose “Add a device”",
+      "2. Choose Duo Mobile",
+      "3. Choose “I have a tablet”",
+      "4. Choose Next",
+      "5. Right-click the QR code and copy it",
+    ]);
     expect(browser("errors")).toBe("");
   });
 

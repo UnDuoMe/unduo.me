@@ -15,7 +15,7 @@ function guide() {
       { class: "dialog-list" },
       li(
         strong("Get a QR code."),
-        " In your Duo device portal, add a tablet running Android and choose “I have Duo Mobile installed”. Copy the QR code and paste it here.",
+        " In your Duo device portal, add a tablet with Duo Mobile. Copy the QR code it shows and paste it here.",
       ),
       li(
         strong("Activate."),

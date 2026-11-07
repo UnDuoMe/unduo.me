@@ -1,4 +1,4 @@
-import type { SetupPage } from "@-/me.unduo.components.setup.entities";
+import type { SetupPage, SetupSchool } from "@-/me.unduo.components.setup.entities";
 import { div, em, li, ol, span, strong } from "@-/me.unduo.lib.dom";
 
 const instruction = "instruction";
@@ -12,8 +12,15 @@ function screenshotFigures({ screenshot }: SetupPage) {
   return figures;
 }
 
+/** What to choose in the portal until it shows a Duo Mobile QR code, in each design of Duo's pages. */
+const choices = {
+  traditional: ["Tablet", "Android", "I have Duo Mobile installed"],
+  universal: ["Add a device", "Duo Mobile", "I have a tablet", "Next"],
+};
+
 /** How to add a device in the Duo portal and copy its QR code, with example screenshots. */
-export function portalInstructions(page: SetupPage) {
+export function portalInstructions(school: SetupSchool, page: SetupPage) {
+  const universal = school.duoPrompt === "universal";
   return div(
     ol(
       {
@@ -23,11 +30,9 @@ export function portalInstructions(page: SetupPage) {
         { class: instruction },
         strong("Add a device:"),
         " choose ",
-        em("Tablet"),
-        " → ",
-        em("Android"),
-        " → ",
-        em("I have Duo Mobile installed"),
+        ...(universal ? choices.universal : choices.traditional).flatMap((choice, index) =>
+          index ? [" → ", em(choice)] : [em(choice)],
+        ),
         ".",
         span(
           { class: "instruction-note" },
@@ -42,7 +47,9 @@ export function portalInstructions(page: SetupPage) {
         ".",
         span(
           { class: "instruction-note" },
-          "Copy Image Address works too, as does a screenshot or an emailed activation link.",
+          universal
+            ? "A screenshot works too, as does an activation link from “Get an activation link instead”."
+            : "Copy Image Address works too, as does a screenshot or an emailed activation link.",
         ),
       ),
     ),
