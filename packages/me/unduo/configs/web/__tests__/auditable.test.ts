@@ -1537,6 +1537,13 @@ describe.runIf(enabled)("browser", { timeout: 180_000 }, () => {
     if (published) expect(await otherFile.text()).toBe(await read("files/other"));
     click("button", "Close");
     waitForClosed();
+    browser("open", `${hosted}/?university=other#step=continue`);
+    waitForStep("Continue");
+    expect(
+      evaluate("[...document.querySelectorAll('#home-dialog .home-step-text')][1].textContent"),
+    ).toBe("Follow the webpage's instructions to set up a new 2FA app for your organization.");
+    click("button", "Done");
+    waitForClosed();
     if (universities.some(({ id }) => id === "IAU-020599-020519")) {
       const branch = join(isolated, "branch.html");
       await writeFile(branch, localCopy(await read("files/020599-020519")));

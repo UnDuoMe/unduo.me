@@ -285,7 +285,7 @@ test("from a blank browser to a passcode that signs in", async ({
     await home.bringToFront();
     await home.getByRole("button", { name: "Continue" }).click();
     await expect(stepTitle(home)).toHaveText("Continue");
-    await expect(home.getByText(`double click ${fileName}`)).toBeVisible();
+    await expect(home.getByText(`double click the ${fileName} file`)).toBeVisible();
     await expect(home.getByText("to open UnDuo's secure webpage")).toBeVisible();
     await expect(
       home.getByText("Never trust any website with your sensitive school login credentials"),

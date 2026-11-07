@@ -13,7 +13,7 @@ import {
   svg,
   textarea,
 } from "@-/me.unduo.lib.dom";
-import { fileId } from "@-/me.unduo.lib.universities";
+import { fileId, otherInstitution } from "@-/me.unduo.lib.universities";
 import { aiPrompt } from "#ai-prompt";
 import { type AiChoice, copyArt, downloadArt, dragArt, openArt } from "#how-art";
 
@@ -326,7 +326,7 @@ export function continueStep(school: University) {
       ),
       p(
         { class: "home-step-text" },
-        `Follow the webpage's instructions to set up a new 2FA app for ${school.name}.`,
+        `Follow the webpage's instructions to set up a new 2FA app for ${school === otherInstitution ? "your organization" : school.name}.`,
       ),
       p(
         { class: "home-step-text stay-safe" },
