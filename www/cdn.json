@@ -1,12 +1,12 @@
 {
-  "commit": "2c2a6026d8fe4e10acdfeb30599f6ad5e0cb72f9",
-  "base": "https://cdn.jsdelivr.net/gh/UnDuoMe/unduo.me@2c2a6026d8fe4e10acdfeb30599f6ad5e0cb72f9/",
+  "commit": "05e4e806352aa26de564bf079954a0624903f68c",
+  "base": "https://cdn.jsdelivr.net/gh/UnDuoMe/unduo.me@05e4e806352aa26de564bf079954a0624903f68c/",
   "files": {
     "setup-styles.Jm6_LVqp.css": "sha256-Jm6/LVqp08akIpBrHVpcHmH5GnbulR5rSqT44FfHASs=",
     "setup.7wz-vxOz.wasm": "sha256-7wz+vxOzfqx4LEs5QVsqwM2TMAJHkXAJisveKoD7omE=",
-    "setup-0-settings-devices.4D4E2Wph.webp": "sha256-4D4E2Wph7w8a7GLxJubPIOC7+TM6pXqPPrg+QMut7jw=",
-    "setup-0-signed-in-narrow.Z7rieJFK.webp": "sha256-Z7rieJFK5DIaauv5F2HgGra1tatSENlkPERs5h3VBmk=",
-    "setup-0-signed-in-wide.5Y06En7R.webp": "sha256-5Y06En7RF8dnKsK1y1N0VXG58FYbmG2Pz5IcmL3WTz8=",
+    "setup-0-settings-devices.qgN7K5Ui.webp": "sha256-qgN7K5Uizbxe8Cky6MMhcHqwM1u8VWos+0w8JKSpZtA=",
+    "setup-0-signed-in-narrow.Tx-K1wwF.webp": "sha256-Tx+K1wwFRuq06y26Et+AdJixVzXv9u4e4gPMTF6DYpc=",
+    "setup-0-signed-in-wide.3X9rw65Q.webp": "sha256-3X9rw65QaTGzVh5xHdY6fmXBczyVInVxBtQAl7q4XuM=",
     "setup-1-add-device.HfrEhtPk.webp": "sha256-HfrEhtPk9c4GMWguU9TCXl43w9zp9bDwUoagxQZrOsI=",
     "setup-2-tablet.qSlLoa3c.webp": "sha256-qSlLoa3cOOu5hxK7FpPOf92oip/58zxaag4MKJt22dY=",
     "setup-3-android.F5QoYAql.webp": "sha256-F5QoYAqlJigm9qem3M78P0y4KQdLJXbQE8lvDthL3fQ=",

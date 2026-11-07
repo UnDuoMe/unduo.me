@@ -2,29 +2,27 @@ import { attributes, escapeText } from "@-/me.unduo.lib.dom/server";
 
 /**
  * What Duo shows once the student is signed in, in a narrow window and a wide
- * one: blurred, but for the school's logo and, where it has one, the Settings button.
+ * one, with only the device's name and number blurred.
  */
 const signedIn = [
   {
     file: "0-signed-in-narrow",
     caption: "In a narrow window",
-    label:
-      "Duo's sign-in prompt in a narrow window, blurred except for the school's logo and its Settings button",
+    label: "Duo's sign-in prompt in a narrow window, with the device's name and number blurred",
     size: "narrow",
   },
   {
     file: "0-signed-in-wide",
     caption: "In a wide window",
-    label: "Duo's sign-in prompt in a wide window, blurred except for the school's logo",
+    label: "Duo's sign-in prompt in a wide window, with the device's name and number blurred",
     size: "wide",
   },
 ];
 
-/** Duo's My Settings & Devices page, where signing in lands: blurred, but for the school's logo and the page's heading. */
+/** Duo's My Settings & Devices page, where signing in lands, with only the devices' names and numbers blurred. */
 const settings = {
   file: "0-settings-devices",
-  label:
-    "Duo's My Settings & Devices page, blurred except for the school's logo and the page's heading",
+  label: "Duo's My Settings & Devices page, with the devices' names and numbers blurred",
 };
 
 const screenshots = [

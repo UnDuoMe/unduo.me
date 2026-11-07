@@ -736,7 +736,7 @@ describe.runIf(enabled)("browser", { timeout: 180_000 }, () => {
       opener: null,
     });
     expect(openPortal("null")).toMatchObject({ followed: true, popup: true });
-    // Instead of guidance, an example of Duo once signed in, blurred but for the logo and Settings.
+    // Instead of guidance, an example of Duo once signed in, with only the device blurred.
     expect(evaluate("document.querySelector('.signed-in-text').textContent")).toBe(
       "Press Continue when you see a page like this:",
     );
@@ -753,11 +753,11 @@ describe.runIf(enabled)("browser", { timeout: 180_000 }, () => {
       [
         [
           "In a narrow window",
-          "Duo's sign-in prompt in a narrow window, blurred except for the school's logo and its Settings button",
+          "Duo's sign-in prompt in a narrow window, with the device's name and number blurred",
         ],
         [
           "In a wide window",
-          "Duo's sign-in prompt in a wide window, blurred except for the school's logo",
+          "Duo's sign-in prompt in a wide window, with the device's name and number blurred",
         ],
       ].map((figure) => [...figure, selfContained ? "data:" : "blob:"]),
     );
@@ -790,7 +790,7 @@ describe.runIf(enabled)("browser", { timeout: 180_000 }, () => {
         "(({ alt, src }) => [alt, src.slice(0, 5)])(document.querySelector('.signed-in-example img'))",
       ),
     ).toEqual([
-      "Duo's My Settings & Devices page, blurred except for the school's logo and the page's heading",
+      "Duo's My Settings & Devices page, with the devices' names and numbers blurred",
       selfContained ? "data:" : "blob:",
     ]);
     browser("wait", "--fn", "document.activeElement.id === 'step-title'");
