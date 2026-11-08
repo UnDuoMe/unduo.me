@@ -25,17 +25,17 @@
       "name": "Gemini",
       "model": "3.1 Pro",
       "verdict": "yes",
-      "reply": "Safe: yes\n\nThe file \"UnDuo - University of Toronto.html\" uses a strict set of browser rules called a Content Security Policy (CSP) that actively blocks the page from sending your information anywhere except directly to Duo's official servers. The internal code that reads your QR codes and generates your keys runs entirely locally inside your browser in a locked-down sandbox, meaning it does not have the permissions required to connect to the internet or sneak data out in the background. Because of these hardcoded restrictions, your activation code and secret key never leave your device and remain strictly between your browser, your authenticator app, and Duo.\n\nP.S. I do not have the code-execution capabilities in this environment to securely compute the SHA256 hash of the provided text. However, a SHA256 hash acts as a highly sensitive digital fingerprint for data. If the hash of your file matches the hash of a verified safe version, it provides a mathematical guarantee that the files are completely identical down to the exact byte—meaning not a single letter, space, or hidden piece of malicious code has been altered or added.",
+      "reply": "Safe: yes.\n\nThe file contains a strict Content Security Policy that forces your web browser to only send data directly to Duo's official servers (https://*.duosecurity.com). The script that scans the QR code and manages your secret key runs entirely on your local device, and the page is explicitly blocked from sending your information to any other external website. Additionally, the external logic files it loads are locked using cryptographic hashes, which guarantees your browser will reject them if they are ever altered.\n\nWhile I cannot compute the SHA256 hash of the file because I lack a code execution tool in this environment, a SHA256 hash serves as a unique mathematical fingerprint for a file's exact contents. If the hash of your file matches the known hash of the official file, it guarantees that the files are identical byte-for-byte and have not been tampered with.",
       "whole": true,
       "screenshot": "ai-reply-gemini.webp",
       "zoom": 50,
       "hash": {
         "matches": false
       },
-      "capturedAt": "2026-11-07T17:14:15.413Z",
+      "capturedAt": "2026-11-08T02:10:22.450Z",
       "file": {
         "name": "UnDuo - University of Toronto.html",
-        "sha256": "d10e7d26a34b026958a07e2d65e2be3f99dec4485c0f4179ec29079b5a301d4d"
+        "sha256": "62029f7a0d6d8d47e32a7e06f88c9a17b482d79a3e82a1c15c52614eb0d9dacd"
       }
     },
     {
@@ -43,17 +43,17 @@
       "name": "Claude",
       "model": "Fable 5.1 High",
       "verdict": "yes",
-      "reply": "Safe: yes.\n\nHere’s why, judging only what this file’s own code allows. The page is written so that the two sensitive things, your activation code and your secret key, have only one path out: the activation code goes in a form that can only be submitted to a Duo address (api-….duosecurity.com), with a fixed set of fields and a public key the page makes locally, and once a Duo address is chosen the page locks every form to that one address. Duo’s reply (which holds your key) lands in a sealed box the page itself can’t read, and you copy it across by hand. After that the key is only ever turned into text on screen, a QR picture drawn by the page’s own code, and an otpauth://link for your authenticator app. Nothing copies the key to the clipboard (the only “copy” button copies the portal link), nothing writes it into the page’s address or browser storage, and the page’s security policy blocks every other kind of outside request, including from its stylesheets.\n\nThe one piece of code I can’t read directly is the downloaded WebAssembly “plugin” that runs the steps. But the page treats it as untrusted: it can’t make network requests at all, it only receives and returns text, and every result it returns is checked against a strict list before use. The Duo address it names must match something you pasted, the key it reports must match the reply you pasted, and every message it shows is from a fixed list. So even a hostile version of that plugin could break setup, but couldn’t send your code or key anywhere.\n\nThings outside the file (a syncing clipboard, a browser extension, whichever app... otpauth:// links, Duo itself) aren’t covered by this, as you asked.\n\nP.S. I can’t attach a SHA-256 for this file: this conversation has no code execution, so I have no way to compute it rather than guess, and a guessed hash would be worthless. If you compute it yourself (shasum -a 256 \"filename.html\" on macOS/Linux, or Get-FileHash in PowerShell) and it matches the hash shown in UnDuo’s screenshots, the files are byte-for-byte identical: SHA-256 turns a file into a fixed-length fingerprint, and changing even one character anywhere produces a completely different fingerprint, with no practical way to make two different files share one. A matching hash is what would let you tie a verdict like this one to the exact file on your computer.",
+      "reply": "Safe: yes.\n\nI read the whole file: its security policy, the five inline scripts, and the rules it applies to the three things it downloads (a stylesheet, a WebAssembly “setup plugin” and some screenshots). Nothing in it gives your activation code or your key a path to anyone but Duo and your authenticator app.\n\nHere is why, in plain terms. The page’s browser security policy is a strict allow-list: the only place it may send anything is a Duo address of the form api-xxxxxxxx.duosecurity.com, and the only place it may download from is one fixed, hash-pinned folder on jsDelivr. The one request that carries your activation code is the form that posts it straight to the Duo host taken from your own QR code; the page checks that the code and host actually appeared in what you pasted, locks that host for the rest of the session, and the form’s other fields are fixed text with no room for anything else. Duo’s reply, which contains your key, lands in a sealed box (a sandboxed frame) that the page’s own code cannot read; you copy it out by hand. From then on the key only turns into a QR image built locally as a data: URL, an otpauth://link for your authenticator app, and the key text shown on screen. The page never writes it to the address bar, browser storage, cookies, or the clipboard (the only “Copy” button copies the portal link). The downloaded plugin is treated as untrusted: it can only read the text the page hands it and return a result, and every result is checked against a fixed schema before use, so even a malicious plugin could at worst break the setup, not leak it. Pasted images and screen-share frames are decoded locally and only the QR text is kept. Nothing in the page uses innerHTML, eval, or inline event handlers.\n\nWhat I could not inspect: the actual bytes of the plugin, stylesheet and screenshots, since they are not in the file. But the file pins each to a SHA-256 and constrains what they can do, so that doesn’t change the verdict. The usual residual risks are outside UnDuo’s control: the Duo host name is visible to your network (as with any Duo login), and your clipboard or authenticator app handle the key after that.\n\nOn the hash: this conversation has no shell or code execution, so I can’t compute the file’s SHA-256, and I won’t guess one. If you compute it yourself (e.g. shasum -a 256 \"UnDuo - University of Toronto.html\" on a Mac, certutil -hashfile <file> SHA256 on Windows) and it matches the hash shown in UnDuo’s screenshots, the files are byte-for-byte identical: SHA-256 turns a file into a 64-character fingerprint, and changing even one character of the file produces a completely different fingerprint, so a match means the file those AIs reviewed is the same one you have.",
       "whole": true,
       "screenshot": "ai-reply-claude.webp",
-      "zoom": 67,
+      "zoom": 50,
       "hash": {
         "matches": false
       },
-      "capturedAt": "2026-11-07T17:16:32.149Z",
+      "capturedAt": "2026-11-08T02:13:15.706Z",
       "file": {
         "name": "UnDuo - University of Toronto.html",
-        "sha256": "d10e7d26a34b026958a07e2d65e2be3f99dec4485c0f4179ec29079b5a301d4d"
+        "sha256": "62029f7a0d6d8d47e32a7e06f88c9a17b482d79a3e82a1c15c52614eb0d9dacd"
       }
     }
   ]

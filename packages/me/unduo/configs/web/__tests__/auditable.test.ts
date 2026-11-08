@@ -458,10 +458,17 @@ describe.runIf(enabled)("static output", () => {
         expect(code, `the script defines ${fn}`).toMatch(
           new RegExp(`function ${fn}\\(|^\\s+${fn}\\(`, "m"),
         );
-    const count = (pattern: RegExp) => code!.match(pattern)?.length ?? 0;
+    const count = (pattern: RegExp, text = code!) => text.match(pattern)?.length ?? 0;
+    // The home page's AI replies are prose that may name these APIs ("Nothing in the
+    // page uses innerHTML, eval…"), so a reply string that starts with its verdict doesn't count.
+    const withoutReplies = code!.replace(
+      /\breply: "(?:\*\*)?Safe: (?:yes|no)\b(?:\\.|[^"\\\n])*"/g,
+      'reply: ""',
+    );
     expect(
       count(
         /\b(?:XMLHttpRequest|WebSocket|WebTransport|EventSource|sendBeacon|RTCPeerConnection|Worker|importScripts|eval|Function|innerHTML|outerHTML|insertAdjacentHTML|requestSubmit)\b|document\.write|\.submit\(/g,
+        withoutReplies,
       ),
       "No other request, code or HTML APIs",
     ).toBe(0);
