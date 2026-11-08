@@ -6,18 +6,18 @@
       "name": "ChatGPT",
       "model": "the model chosen last (not checked)",
       "verdict": "yes",
-      "reply": "Safe: yes. I found no route in this file that sends your activation code or secret key to an outside party: activation requests go directly to Duo, and the authenticator QR code is generated locally.\n\nThe downloaded setup program has no direct internet access, and the page checks its outputs before using them—including restricting destinations to Duo and authenticator links.\n\nI could not retrieve every external asset\n\n, so this conclusion rests on the restrictions the file enforces, not a claim that I inspected every downloaded byte.\n\nSHA256, computed from your uploaded file:\n\nPlain text",
-      "whole": true,
+      "reply": "Safe: yes — I found no path in this file that sends your activation code or secret key to a third party. Activation is restricted to Duo, and your authenticator QR code is created locally in your browser.\n\nThe downloaded setup code has no direct internet access and its outputs are checked; requests for styles and example images do not include your secrets.\n\nI couldn’t retrieve every external file\n\n, so my assessment of those parts relies on the restrictions this HTML enforces, not a complete inspection of their contents.\n\nSHA-256, computed from your attachment: Matching hashes are extremely strong evidence that the files are byte-for-byte i...\n\nPlain text",
+      "whole": false,
       "screenshot": "ai-reply-chatgpt.webp",
       "zoom": 50,
       "hash": {
-        "found": "d10e7d26a34b026958a07e2d65e2be3f99dec4485c0f4179ec29079b5a301d4d",
+        "found": "62029f7a0d6d8d47e32a7e06f88c9a17b482d79a3e82a1c15c52614eb0d9dacd",
         "matches": true
       },
-      "capturedAt": "2026-11-07T17:12:18.883Z",
+      "capturedAt": "2026-11-08T01:47:02.152Z",
       "file": {
         "name": "UnDuo - University of Toronto.html",
-        "sha256": "d10e7d26a34b026958a07e2d65e2be3f99dec4485c0f4179ec29079b5a301d4d"
+        "sha256": "62029f7a0d6d8d47e32a7e06f88c9a17b482d79a3e82a1c15c52614eb0d9dacd"
       }
     },
     {
