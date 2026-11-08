@@ -26,3 +26,4 @@ dist
 # Rust build output; the setup plugin is committed as packages/me/unduo/components/setup/plugin/setup.wasm
 /target/
 .vitest/
+.claude/settings.local.json
