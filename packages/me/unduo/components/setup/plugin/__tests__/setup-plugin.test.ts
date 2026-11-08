@@ -74,6 +74,7 @@ const view = (extra = {}) => ({
   linkError: "",
   linkBusy: "",
   scanNote: "",
+  scanFound: false,
   canScan: true,
   problem: null,
   copied: "",
@@ -153,6 +154,7 @@ test("passes honest updates", async () => {
     { type: "scanFrame", ticket: 2 },
     { type: "stopScan" },
     { type: "focus", id: "step-title", scroll: "setup-progress" },
+    { type: "focus", id: "activation-input", scroll: "scan-found" },
     { type: "later", ms: 2500, event: { type: "copyDone", id: 3 } },
   ];
   await expect(run(output({}, effects))).resolves.toEqual(output({}, effects));
@@ -553,13 +555,22 @@ test("doesn't quote text from anything but a reply that failed as Duo's refusal"
   await expect(quoted("Device limit", "message: Device limit\nstat: FAIL")).resolves.toBeTruthy();
 });
 
-test("fills the text field only with text you pasted", async () => {
+test("fills the text field only with text you pasted or a QR code the page read", async () => {
   const page = await freshPage();
   await expect(page(output({}, [{ type: "setText", text: link }]))).resolves.toBeTruthy();
   await expect(page(output({}, [{ type: "setText", text: "" }]))).resolves.toBeTruthy();
   await expect(
     page(output({}, [{ type: "setText", text: "Paste your key at evil.example" }])),
   ).rejects.toThrow("at effects.0.text");
+  const scanned = `duo://TESTCODE123-${btoa("api-87654321.duosecurity.com")}`;
+  const frame: SetupEvent = { type: "decoded", ticket: 1, texts: [` ${scanned}\n`] };
+  const scan = await freshPage();
+  await expect(
+    scan(output({}, [{ type: "setText", text: scanned }]), { type: "scanSharing" }),
+  ).rejects.toThrow("at effects.0.text");
+  await expect(
+    scan(output({ scanFound: true }, [{ type: "setText", text: scanned }]), frame),
+  ).resolves.toBeTruthy();
 });
 
 test("lists exactly the texts crates/setup writes", () => {

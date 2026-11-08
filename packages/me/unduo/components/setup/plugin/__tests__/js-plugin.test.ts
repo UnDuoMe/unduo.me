@@ -336,6 +336,26 @@ describe("the scenarios of crates/setup's tests", () => {
     send({ type: "scanEnded" });
   });
 
+  test("keeps a scanned code until Continue", async () => {
+    const { send, effect } = await trackedPage();
+    send(load("#step=qr"));
+    for (const step of [2, 1]) {
+      send({ type: "scanStarted" });
+      send({ type: "scanSharing" });
+      const ticket = (effect("scanFrame") as { ticket: number }).ticket;
+      send({ type: "goTo", step });
+      const found = send({ type: "decoded", ticket, texts: ["FIDO:/1234567890", ` ${LINK}\n`] });
+      expect(found?.view).toMatchObject({ current: 2, scanFound: true, furthest: 2 });
+      expect(effect("setText")).toEqual({ type: "setText", text: LINK });
+    }
+    send({ type: "decoded", ticket: 0, texts: [LINK] });
+    send({ type: "editLink" });
+    send({ type: "goTo", step: 1 });
+    send({ type: "goTo", step: 2 });
+    send({ type: "input", text: LINK });
+    send({ type: "prepared", value: VALUE, ok: true });
+  });
+
   test("copies the portal link, and starts over after a reload", async () => {
     const { send } = await trackedPage();
     send(load());

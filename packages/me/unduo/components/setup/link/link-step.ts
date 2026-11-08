@@ -1,7 +1,7 @@
 import type { SetupPage, SetupSchool } from "@-/me.unduo.components.setup.entities";
 import { portalInstructions } from "@-/me.unduo.components.setup.portal";
 import { shortcutKeys } from "@-/me.unduo.components.setup.shortcuts";
-import { button, div, form, input, label, p } from "@-/me.unduo.lib.dom";
+import { button, div, form, input, label, p, strong } from "@-/me.unduo.lib.dom";
 
 const secondary = "uk-button uk-button-default btn";
 
@@ -58,7 +58,9 @@ export function linkStep(page: SetupPage, school: SetupSchool) {
               "aria-describedby": () =>
                 view.val.linkError
                   ? "activation-description activation-error"
-                  : "activation-description",
+                  : view.val.scanFound
+                    ? "scan-found activation-description"
+                    : "activation-description",
               id: "activation-input",
               placeholder: "Paste the copied QR code, its address, or an activation link",
               autocomplete: "off",
@@ -73,6 +75,19 @@ export function linkStep(page: SetupPage, school: SetupSchool) {
               },
               "Continue",
             ),
+          ),
+          // A scan that finds Duo's QR code stops and leaves its text in the field above.
+          p(
+            {
+              id: "scan-found",
+              class: "scan-found",
+              role: "status",
+              hidden: () => !view.val.scanFound,
+            },
+            strong("Found the Duo QR code."),
+            " Screen sharing has stopped. Press ",
+            strong("Continue"),
+            " to go on.",
           ),
           p(
             { id: "activation-description", class: "hint" },

@@ -104,6 +104,8 @@ export interface SetupView {
   linkError: string;
   linkBusy: LinkBusy;
   scanNote: string;
+  /** A scan put the Duo QR code's text in the field; Continue goes on. */
+  scanFound: boolean;
   canScan: boolean;
   problem: ResponseProblem | null;
   copied: "" | "key" | "uri" | "portal";

@@ -210,6 +210,9 @@ summary {
   .scan-note {
     @apply mt-3! flex! items-center! gap-2! text-sm! text-muted!;
   }
+  .scan-found {
+    @apply rounded-lg! border! border-success/30! bg-success-soft! px-3! py-2.5! text-sm! text-success!;
+  }
   .copied-note {
     @apply mt-1.5! text-xs! text-muted!;
   }
@@ -329,6 +332,15 @@ summary {
   }
   .warning-text {
     @apply mt-1! text-sm!;
+  }
+  .ready-note {
+    @apply mb-4! rounded-xl! bg-accent-soft! p-4!;
+  }
+  .ready-title {
+    @apply text-sm! font-semibold!;
+  }
+  .ready-text {
+    @apply mt-1! text-sm! leading-[1.55]!;
   }
   .dialog {
     @apply m-auto! max-h-[calc(100dvh-2rem)]! w-[calc(100%-2rem)]! max-w-150! overflow-y-auto! rounded-2xl! border-0! bg-white! p-7! text-foreground! shadow-xl! backdrop:bg-black/60!;

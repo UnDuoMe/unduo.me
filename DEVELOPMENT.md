@@ -230,9 +230,11 @@ Duo code, an error or 600 frames (at least five minutes). Each image or frame
 carries a ticket, so results of cancelled work are dropped.
 The scan click requests `getDisplayMedia` before any `await` to retain user
 activation, and **Stop sharing** stops the capture in the host before telling
-the plugin. Capture stays in the browser. A validated Duo value only prepares
-the request; all capture tracks stop first, and submission requires a separate
-click.
+the plugin. Capture stays in the browser. A Duo code found on screen stops
+every capture track and goes into the link field, with a success note under it
+(`scanFound`); **Continue** then prepares the request as for a pasted link, and
+submission requires a separate click. `setText` may fill the field with the text
+of a QR code the page read, as well as with pasted text.
 
 ## Setup plugin
 

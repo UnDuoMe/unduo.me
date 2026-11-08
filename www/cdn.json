@@ -1,9 +1,9 @@
 {
-  "commit": "e888dcbd0143eda1527caaa1d4dac1b74e302d67",
-  "base": "https://cdn.jsdelivr.net/gh/UnDuoMe/unduo.me@e888dcbd0143eda1527caaa1d4dac1b74e302d67/",
+  "commit": "8f560618387206123dde02aef5b7598ef5f0640c",
+  "base": "https://cdn.jsdelivr.net/gh/UnDuoMe/unduo.me@8f560618387206123dde02aef5b7598ef5f0640c/",
   "files": {
-    "setup-styles.w1-CA8Mw.css": "sha256-w1+CA8MwmJQMeEUjabvoaUCqa8OE3kyDcW934+NfhZw=",
-    "setup.7wz-vxOz.wasm": "sha256-7wz+vxOzfqx4LEs5QVsqwM2TMAJHkXAJisveKoD7omE=",
+    "setup-styles.gaJBamsO.css": "sha256-gaJBamsOUD0BTwJ9LtObPkmwg7gZFGfYFj4rtpYN3u4=",
+    "setup.yNHDGc_C.wasm": "sha256-yNHDGc/CiMm/73Kt2fhsk/H5BIM3VROMsl46QZcgna4=",
     "setup-0-settings-devices-generic.PpPFYaDw.webp": "sha256-PpPFYaDwrYSdXYs/mF8UhVqURY0yEzLW03lLiS/1gpY=",
     "setup-0-settings-devices-universal.e3zhu5Hc.webp": "sha256-e3zhu5HcrVIuvF+c06magsRjdCuA/u5vuwUzFKUadKc=",
     "setup-0-settings-devices-western.RHe4NVOu.webp": "sha256-RHe4NVOumptDHmybg/6fcV5d2IE1QWPbn5YdjwK5KUQ=",

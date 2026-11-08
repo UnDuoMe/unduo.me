@@ -26,9 +26,12 @@ five steps:
    (from the portal step too) is routed by the
    setup plugin: a copied QR image (its `<img src>` is preferred when present),
    an image address, a `duo://` or activation link, or even Duo's reply. Dropped
-   and uploaded screenshots and **Scan my screen** use the same path. Problems
-   with the input are shown on this step.
-4. **Activate with Duo.** A native form submits directly to Duo, into a sandboxed
+   and uploaded screenshots and **Scan my screen** use the same path, except that
+   a scan that finds Duo's code stops sharing, puts the code's text in the field
+   with a success note under it, and waits for **Continue**. Problems with the
+   input are shown on this step.
+4. **Activate with Duo.** A note at the top tells the user to get their 2FA app
+   ready to scan a QR code next. A native form submits directly to Duo, into a sandboxed
    frame on the page, so the address that holds the code stays out of browser
    history; nothing opens it in a new tab. The reply is pasted across; browsers
    refuse a drag from another origin's frame into the page. A note says Duo's reply

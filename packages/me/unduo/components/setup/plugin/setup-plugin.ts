@@ -47,8 +47,9 @@ export const defaultPluginLimits: PluginLimits = {
  * the organization name, its QR code description and the setup key come from
  * the link and its secret, Duo's refusal quotes a pasted failure reply, which
  * holds no key, and `setText`
- * fills the field only with pasted text. The other effects set the text field, move focus, stop the
- * screen share or make the page call the plugin again.
+ * fills the field only with text you pasted or the text of a QR code this page
+ * read. The other effects move focus, stop the screen share or make the page
+ * call the plugin again.
  */
 const duoUrl =
   /^https:\/\/(api-[a-z0-9]{8}\.duosecurity\.com)\/push\/v2\/activation\/[A-Za-z0-9]{5,128}\?customer_protocol=1$/;
@@ -194,8 +195,8 @@ const effects: Record<string, Check> = {
   setText: shape({ type: oneOf("setText"), text: text() }),
   focus: shape({
     type: oneOf("focus"),
-    id: oneOf("step-title", "duo-reply"),
-    scroll: oneOf("setup-progress", "duo-reply"),
+    id: oneOf("step-title", "duo-reply", "activation-input"),
+    scroll: oneOf("setup-progress", "duo-reply", "scan-found"),
   }),
   later: shape({
     type: oneOf("later"),
@@ -249,6 +250,7 @@ const View = shape({
   linkError: oneOf("", ...pageTexts.messages),
   linkBusy: oneOf("", "prepare", "image", "scan"),
   scanNote: oneOf("", ...pageTexts.messages),
+  scanFound: boolean,
   canScan: boolean,
   problem: nullable(shape({ message: text(), needsNewCode: boolean })),
   copied: oneOf("", "key", "uri", "portal"),
@@ -420,11 +422,11 @@ function check(output: unknown): SetupResult {
       unsafe("view.problem.message");
   }
   effects.forEach((effect, index) => {
-    // The text field shows only what you pasted.
+    // The text field shows only what you pasted, or a QR code this page read.
     if (
       effect.type === "setText" &&
       effect.text &&
-      ![...pasted].some((part) => part.trim() === effect.text)
+      ![...typed].some((part) => part.trim() === effect.text)
     )
       unsafe(`effects.${index}.text`);
   });

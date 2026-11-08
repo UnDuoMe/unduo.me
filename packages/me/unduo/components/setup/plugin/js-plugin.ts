@@ -773,6 +773,8 @@ interface Model {
   linkError: string;
   linkBusy: Busy;
   scanNote: string;
+  /** A scan found Duo's QR code and put its text in the field, which waits for Continue. */
+  scanFound: boolean;
   problem: ReplyError | null;
   revealed: boolean;
   copied: "" | "key" | "uri" | "portal";
@@ -794,6 +796,7 @@ const newModel = (): Model => ({
   linkError: "",
   linkBusy: "",
   scanNote: "",
+  scanFound: false,
   problem: null,
   revealed: false,
   copied: "",
@@ -1024,8 +1027,8 @@ function stepParam(step: number): Step | null {
 
 /** What the page found in one image or screen frame. */
 interface QrResult {
-  /** The first Duo activation among its QR codes, already normalized. */
-  value: string | undefined;
+  /** The first Duo activation among its QR codes: the code's text and its normalized value. */
+  activation: { text: string; value: string } | undefined;
   foundQr: boolean;
 }
 
@@ -1066,6 +1069,7 @@ class Transition {
     this.model.preparing = null;
     this.model.linkBusy = "";
     this.model.scanNote = "";
+    this.model.scanFound = false;
   }
 
   showLinkError(message: string) {
@@ -1122,7 +1126,7 @@ class Transition {
 
   readImage(result: QrResult) {
     this.model.linkBusy = "";
-    if (result.value !== undefined) this.startActivation(result.value);
+    if (result.activation !== undefined) this.startActivation(result.activation.value);
     else if (result.foundQr)
       this.showLinkError(
         "That QR code isn't a Duo activation code. Copy the one shown after choosing “I have Duo Mobile installed”.",
@@ -1133,8 +1137,22 @@ class Transition {
       );
   }
 
+  /**
+   * Stop sharing and show the code's text in the field, where Continue
+   * starts the activation as for a pasted link.
+   */
+  scanFound(text: string) {
+    this.cancel();
+    this.model.linkError = "";
+    this.setText(text);
+    this.model.scanFound = true;
+    if (this.current() === QR)
+      this.effects.push({ type: "focus", id: "activation-input", scroll: "scan-found" });
+    else this.setStep(QR);
+  }
+
   scanFrame(result: QrResult) {
-    if (result.value !== undefined) return this.startActivation(result.value);
+    if (result.activation !== undefined) return this.scanFound(result.activation.text);
     if (result.foundQr)
       this.model.scanNote =
         "Found a QR code, but not Duo's. Keep the Duo activation QR code visible.";
@@ -1173,6 +1191,7 @@ class Transition {
         return this.setStep(event.step);
       case "input": {
         if (this.current() === ADD) return;
+        model.scanFound = false;
         const text = event.text === null ? null : trim(event.text) || null;
         if (this.submitted()) {
           if (text !== null) {
@@ -1201,6 +1220,7 @@ class Transition {
       }
       case "editLink":
         model.linkError = "";
+        model.scanFound = false;
         return;
       case "unreadable":
         if (event.ticket === model.ticket && model.linkBusy === "image") {
@@ -1211,10 +1231,15 @@ class Transition {
       case "decoded": {
         if (event.ticket !== model.ticket) return;
         // Unrelated QR codes are skipped; decoded URLs are never fetched.
-        const result: QrResult = {
-          value: event.texts.map(tryParseActivation).find((value) => value !== undefined),
-          foundQr: event.texts.length > 0,
-        };
+        let activation: QrResult["activation"];
+        for (const text of event.texts) {
+          const value = tryParseActivation(text);
+          if (value !== undefined) {
+            activation = { text: trim(text), value };
+            break;
+          }
+        }
+        const result: QrResult = { activation, foundQr: event.texts.length > 0 };
         if (model.linkBusy === "image") this.readImage(result);
         else if (model.linkBusy === "scan") this.scanFrame(result);
         return;
@@ -1306,7 +1331,10 @@ class Transition {
     model.search.step = stepParam(current);
     if (model.previous !== current) {
       model.problem = null;
-      if (!this.textSet) this.setText("");
+      if (!this.textSet) {
+        this.setText("");
+        model.scanFound = false;
+      }
       if (model.linkError === this.linkError) model.linkError = "";
       model.revealed = false;
       model.copied = "";
@@ -1396,6 +1424,7 @@ function view(model: Model) {
     linkError: model.linkError,
     linkBusy: model.linkBusy,
     scanNote: model.scanNote,
+    scanFound: model.scanFound,
     canScan: model.canScan,
     problem: model.problem && {
       message: model.problem.message,

@@ -24,6 +24,7 @@ const noView: SetupView = {
   linkError: "",
   linkBusy: "",
   scanNote: "",
+  scanFound: false,
   canScan: false,
   problem: null,
   copied: "",

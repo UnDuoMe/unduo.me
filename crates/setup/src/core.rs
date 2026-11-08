@@ -75,6 +75,8 @@ pub struct Model {
     link_error: String,
     link_busy: Busy,
     scan_note: String,
+    /// A scan found Duo's QR code and put its text in the field, which waits for Continue.
+    scan_found: bool,
     problem: Option<Problem>,
     revealed: bool,
     copied: &'static str,
@@ -190,8 +192,8 @@ pub enum Effect {
 
 /// What the page found in one image or screen frame.
 struct QrResult {
-    /// The first Duo activation among its QR codes, already normalized.
-    value: Option<String>,
+    /// The first Duo activation among its QR codes: the code's text and its normalized value.
+    activation: Option<(String, String)>,
     found_qr: bool,
 }
 
@@ -242,6 +244,8 @@ pub struct View {
     link_error: String,
     link_busy: Busy,
     scan_note: String,
+    /// A scan put the Duo QR code's text in the field; Continue goes on.
+    scan_found: bool,
     can_scan: bool,
     problem: Option<Problem>,
     copied: &'static str,
@@ -331,6 +335,7 @@ impl<'a> Transition<'a> {
         self.model.preparing = None;
         self.model.link_busy = Busy::Idle;
         self.model.scan_note.clear();
+        self.model.scan_found = false;
     }
 
     fn show_link_error(&mut self, message: &str) {
@@ -397,7 +402,7 @@ impl<'a> Transition<'a> {
 
     fn read_image(&mut self, result: QrResult) {
         self.model.link_busy = Busy::Idle;
-        if let Some(value) = result.value {
+        if let Some((_, value)) = result.activation {
             self.start_activation(value);
         } else if result.found_qr {
             self.show_link_error("That QR code isn't a Duo activation code. Copy the one shown after choosing “I have Duo Mobile installed”.");
@@ -406,9 +411,26 @@ impl<'a> Transition<'a> {
         }
     }
 
+    /// Stop sharing and show the code's text in the field, where Continue
+    /// starts the activation as for a pasted link.
+    fn scan_found(&mut self, text: String) {
+        self.cancel();
+        self.model.link_error.clear();
+        self.set_text(text);
+        self.model.scan_found = true;
+        if self.current() == QR {
+            self.effects.push(Effect::Focus {
+                id: "activation-input",
+                scroll: "scan-found",
+            });
+        } else {
+            self.set_step(QR);
+        }
+    }
+
     fn scan_frame(&mut self, result: QrResult) {
-        if let Some(value) = result.value {
-            return self.start_activation(value);
+        if let Some((text, _)) = result.activation {
+            return self.scan_found(text);
         }
         if result.found_qr {
             self.model.scan_note =
@@ -458,6 +480,7 @@ impl<'a> Transition<'a> {
                 if self.current() == ADD {
                     return;
                 }
+                self.model.scan_found = false;
                 let text = text
                     .map(|text| text.trim().to_string())
                     .filter(|text| !text.is_empty());
@@ -490,7 +513,10 @@ impl<'a> Transition<'a> {
                     }
                 }
             }
-            Event::EditLink => self.model.link_error.clear(),
+            Event::EditLink => {
+                self.model.link_error.clear();
+                self.model.scan_found = false;
+            }
             Event::Unreadable { ticket } => {
                 if ticket == self.model.ticket && self.model.link_busy == Busy::Image {
                     self.model.link_busy = Busy::Idle;
@@ -503,7 +529,10 @@ impl<'a> Transition<'a> {
                 }
                 // Unrelated QR codes are skipped; decoded URLs are never fetched.
                 let result = QrResult {
-                    value: texts.iter().find_map(|text| parse_activation_input(text).ok()),
+                    activation: texts.iter().find_map(|text| {
+                        let value = parse_activation_input(text).ok()?;
+                        Some((text.trim().to_string(), value))
+                    }),
                     found_qr: !texts.is_empty(),
                 };
                 match self.model.link_busy {
@@ -618,6 +647,7 @@ impl<'a> Transition<'a> {
             self.model.problem = None;
             if !self.text_set {
                 self.set_text(String::new());
+                self.model.scan_found = false;
             }
             if self.model.link_error == self.link_error {
                 self.model.link_error.clear();
@@ -753,6 +783,7 @@ fn view(model: &Model) -> View {
         link_error: model.link_error.clone(),
         link_busy: model.link_busy,
         scan_note: model.scan_note.clone(),
+        scan_found: model.scan_found,
         can_scan: model.can_scan,
         problem: model.problem.clone(),
         copied: model.copied,
@@ -1089,17 +1120,43 @@ mod tests {
         assert_eq!(unrelated.effects, vec![Effect::ScanFrame { ticket }]);
         let found = send(
             &mut model,
-            json!({ "type": "decoded", "ticket": ticket, "texts": [format!("duo://{VALUE}")] }),
+            json!({ "type": "decoded", "ticket": ticket, "texts": ["FIDO:/1234567890", format!(" duo://{VALUE}\n")] }),
         );
-        assert_eq!(found.effects[0], Effect::StopScan);
-        assert!(found.effects.contains(&Effect::Prepare { value: VALUE.into() }));
-        assert_eq!(found.view.link_busy, Busy::Prepare);
+        // Sharing stops, and the code's text waits in the field for Continue.
+        assert_eq!(
+            found.effects,
+            vec![
+                Effect::StopScan,
+                Effect::SetText {
+                    text: format!("duo://{VALUE}")
+                },
+                Effect::Focus {
+                    id: "activation-input",
+                    scroll: "scan-found",
+                },
+            ]
+        );
+        assert!(found.view.scan_found);
+        assert_eq!(found.view.current, QR);
+        assert_eq!(found.view.link_busy, Busy::Idle);
+        assert!(found.view.scan_note.is_empty());
+        assert!(found.view.request.is_none());
         // A frame that was already being decoded is dropped.
         let late = send(
             &mut model,
             json!({ "type": "decoded", "ticket": ticket, "texts": [LINK] }),
         );
         assert!(late.effects.is_empty());
+        assert!(late.view.scan_found);
+        let edited = send(&mut model, json!({ "type": "editLink" }));
+        assert!(!edited.view.scan_found);
+        // Continue sends the field's text, as for a pasted link.
+        let next = send(
+            &mut model,
+            json!({ "type": "input", "text": format!("duo://{VALUE}") }),
+        );
+        assert!(next.effects.contains(&Effect::Prepare { value: VALUE.into() }));
+        assert_eq!(next.view.link_busy, Busy::Prepare);
 
         let failed = send(
             &mut model,
@@ -1138,6 +1195,51 @@ mod tests {
         let last = last.unwrap();
         assert_eq!(last.effects, vec![Effect::StopScan]);
         assert!(last.view.link_error.contains("five minutes"));
+    }
+
+    #[test]
+    fn keeps_a_scanned_code_until_continue() {
+        let (mut model, _) = load("#step=qr", "");
+        send(&mut model, json!({ "type": "scanStarted" }));
+        send(&mut model, json!({ "type": "scanSharing" }));
+        let ticket = model.ticket;
+        // The scan keeps going on an earlier step, and brings the code back to this one.
+        send(&mut model, json!({ "type": "goTo", "step": AUTHENTICATE }));
+        let found = send(
+            &mut model,
+            json!({ "type": "decoded", "ticket": ticket, "texts": [LINK] }),
+        );
+        assert_eq!(found.view.current, QR);
+        assert!(found.view.scan_found);
+        assert_eq!(found.effects[0], Effect::StopScan);
+        assert!(found.effects.contains(&Effect::SetText { text: LINK.into() }));
+        assert!(
+            !found
+                .effects
+                .iter()
+                .any(|effect| matches!(effect, Effect::Prepare { .. }))
+        );
+        // Going to another step empties the field, and the note goes with it.
+        let away = send(&mut model, json!({ "type": "goTo", "step": AUTHENTICATE }));
+        assert!(!away.view.scan_found);
+        let back = send(&mut model, json!({ "type": "goTo", "step": QR }));
+        assert!(!back.view.scan_found);
+        assert_eq!(back.view.furthest, QR);
+        // So does starting another scan or pasting something else.
+        for event in [
+            json!({ "type": "scanStarted" }),
+            json!({ "type": "input", "text": "not a link" }),
+        ] {
+            send(&mut model, json!({ "type": "scanStarted" }));
+            send(&mut model, json!({ "type": "scanSharing" }));
+            let ticket = model.ticket;
+            send(
+                &mut model,
+                json!({ "type": "decoded", "ticket": ticket, "texts": [LINK] }),
+            );
+            assert!(model.scan_found);
+            assert!(!send(&mut model, event).view.scan_found);
+        }
     }
 
     #[test]

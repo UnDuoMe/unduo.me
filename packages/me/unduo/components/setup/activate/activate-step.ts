@@ -1,9 +1,11 @@
 import type { SetupPage } from "@-/me.unduo.components.setup.entities";
 import { shortcutKeys } from "@-/me.unduo.components.setup.shortcuts";
 import {
+  aside,
   button,
   div,
   form,
+  h3,
   iframe,
   input,
   label,
@@ -33,6 +35,14 @@ const textButton = "uk-button uk-button-text btn btn-inline";
 export function activateStep(page: SetupPage) {
   const { view, text, send } = page;
   return div(
+    aside(
+      { class: "ready-note", role: "note" },
+      h3({ class: "ready-title" }, "Get your 2FA app ready"),
+      p(
+        { class: "ready-text" },
+        "After this step, you'll scan a QR code with your authenticator app. Use one that supports counter-based codes, such as Google Authenticator, 2FAS, Aegis or FreeOTP.",
+      ),
+    ),
     // The native form stays connected while the browser starts its POST.
     form(
       {

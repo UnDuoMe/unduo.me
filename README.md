@@ -31,8 +31,10 @@ has no page that runs it.
    (Tablet → Android → _I have Duo Mobile installed_), right-click the QR code,
    choose **Copy Image**, and press <kbd>⌘V</kbd>/<kbd>Ctrl+V</kbd> anywhere on
    the page. A copied image address, an emailed activation link, a dropped or
-   uploaded screenshot, or **Scan my screen** work too.
-4. **Activate with Duo.** Your browser submits the activation directly to Duo,
+   uploaded screenshot, or **Scan my screen** work too. A scan that finds the
+   code puts it in the field and waits for you to press **Continue**.
+4. **Activate with Duo.** Get your 2FA app ready: the next step shows a QR code
+   to scan with it. Your browser submits the activation directly to Duo,
    and its reply shows in a box on the page. Select all, copy, and paste it into
    the field under the box. Duo's reply holds your new key, so clear your clipboard
    after pasting if it syncs to other devices. Each QR code works once; if Duo says the code expired or was used, unduo tells you
