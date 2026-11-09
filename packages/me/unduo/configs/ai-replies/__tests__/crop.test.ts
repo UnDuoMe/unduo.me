@@ -1,5 +1,4 @@
 import { expect, test } from "vite-plus/test";
-import { replyHash } from "#capture";
 import { rowMeans, sameRows, showsAll } from "#crop";
 
 test("a row's mean is its average gray", () => {
@@ -30,21 +29,4 @@ test("a page shows all of itself when a scroll brings in only blank space", () =
   expect(
     showsAll([...bar, ...blank(4), ...text, ...blank(6), 100, 230, 110, 240, ...bar], more),
   ).toBe(false);
-});
-
-test("finds the reply's last SHA-256 and checks it against the file's", () => {
-  const sha256 = "ab".repeat(32);
-  expect(replyHash(`Safe: yes.\n\nSHA-256: ${sha256.toUpperCase()}`, sha256)).toEqual({
-    found: sha256,
-    matches: true,
-  });
-  expect(replyHash(`An example: ${"cd".repeat(32)}. This file: ${sha256}`, sha256).matches).toBe(
-    true,
-  );
-  expect(replyHash(`SHA-256: ${"ef".repeat(32)}`, sha256)).toEqual({
-    found: "ef".repeat(32),
-    matches: false,
-  });
-  expect(replyHash("Safe: yes.", sha256)).toEqual({ found: undefined, matches: false });
-  expect(replyHash(undefined, sha256).matches).toBe(false);
 });

@@ -1,3 +1,4 @@
+import { aiPrompt } from "@-/me.unduo.components.home/server";
 import { expect, test } from "vite-plus/test";
 import {
   copyButton,
@@ -23,6 +24,13 @@ const tree = (lines: string[]) =>
 
 const prompt =
   'text Answer "Safe: no" only if you can point to how. Start your reply with "Safe: yes" or "Safe: no", then explain.';
+
+test("no paragraph of the real prompt reads as the AI's verdict", () => {
+  // The sites show each paragraph as its own line, and only "Start your reply" marks one as the prompt's.
+  expect(
+    finishedReply(tree(aiPrompt.split("\n\n").map((paragraph) => `text ${paragraph}`))),
+  ).toBeUndefined();
+});
 
 test("reads element lines and finds one by pattern", () => {
   const lines = tree([

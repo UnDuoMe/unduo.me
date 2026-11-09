@@ -35,7 +35,7 @@ minutes or more, so the script waits up to 45 minutes for a reply.
 
 Once a reply has its verdict and reads the same twice, the script takes one screenshot of
 the whole conversation, nothing joined: the attached file, the whole prompt and the whole
-reply, down to its end, where the prompt's P.S. asks for the file's SHA-256. ChatGPT and
+reply, down to its end. ChatGPT and
 Claude fold a long prompt behind "Show more" and Gemini behind "Expand"; the script
 unfolds it first, and stops if it stays folded. A window can't be taller than the screen,
 so the script zooms the page out one of Chrome's steps at a time (90, 80, 75, 67, 50, 33
@@ -53,10 +53,7 @@ The screenshot leaves out only the browser's toolbar and the strips at the page'
 show the signed-in account: ChatGPT's and Gemini's rail of icons, with the account's picture
 at its foot, and Gemini's line under the prompt box, which names the account's domain
 (`account` in `sites.ts`, in CSS pixels). Chrome's bar across the page, such as "isn't your
-default browser", is closed first. Each reply in `results.json` records the zoom, and
-`hash`: the last SHA-256 in the reply or anywhere on the page under it, as in a code block,
-and whether it matches the file's; the script warns when it doesn't. Gemini and Claude's
-incognito chat can't run code, and say so instead of giving one.
+default browser", is closed first. Each reply in `results.json` records the zoom.
 
 ## Output
 

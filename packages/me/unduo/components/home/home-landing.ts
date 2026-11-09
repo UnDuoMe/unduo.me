@@ -173,7 +173,7 @@ export function aiTestimonials() {
           div(p({ class: "reply-name" }, reply.name), p({ class: "reply-model" }, reply.model)),
           span({ class: "reply-verdict" }, checkIcon(), `Safe: ${reply.verdict}`),
         ),
-        // The whole reply, so its end, where the file's SHA-256 goes, is in view too.
+        // The whole reply.
         div({ class: "reply-text" }, replyText(reply.reply)),
       ),
     );

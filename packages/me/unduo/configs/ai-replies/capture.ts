@@ -56,22 +56,11 @@ export interface Capture {
   screenshot?: string;
   /** The page's zoom in that screenshot, in percent: as far out as it took to fit. */
   zoom?: number;
-  /**
-   * The last SHA-256 the reply gives, which the prompt's P.S. asks for, and
-   * whether it's the attached file's.
-   */
-  hash?: { found?: string; matches: boolean };
   /** Why the site couldn't be asked, if it couldn't. */
   error?: string;
   capturedAt: string;
   /** The attached file's name and SHA-256. */
   file: { name: string; sha256: string };
-}
-
-/** The last SHA-256 in `reply`, and whether it's `sha256`, the attached file's. */
-export function replyHash(reply: string | undefined, sha256: string) {
-  const found = [...(reply ?? "").matchAll(/\b[0-9a-f]{64}\b/gi)].at(-1)?.[0].toLowerCase();
-  return { found, matches: found === sha256 };
 }
 
 /**
@@ -230,13 +219,12 @@ async function ask(window: ChromeWindow, site: Site, upload: string, options: Ca
   const copied = options.focus ? await copyReply(window, tree, reply) : undefined;
   const { markdown, whole } = copied ? { markdown: copied, whole: true } : replyMarkdown(tree)!;
   // The whole conversation, from the file and prompt down to the end of the reply,
-  // where it gives the file's SHA-256, in one screenshot.
+  // in one screenshot.
   window.dismissInfobar();
   const { cropped, zoom } = await screenshotWhole(window, site, options.raw);
   const screenshot = `ai-reply-${site.id}.webp`;
   toWebp(cropped, join(options.images, screenshot));
   return {
-    tree,
     site: site.id,
     name: site.name,
     model,
@@ -273,15 +261,7 @@ export async function captureAiReplies(options: CaptureOptions) {
       // One site failing, as when it renames a button, doesn't stop the others.
       captures.push(
         await ask(window, site, upload, options).then(
-          ({ tree, ...capture }) => {
-            // The tree too: a hash in a code block isn't in the reply's Markdown.
-            const hash = replyHash(`${capture.reply ?? ""}\n${tree ?? ""}`, file.sha256);
-            if (!hash.matches)
-              console.warn(
-                `${site.name}'s reply ${hash.found ? `gives ${hash.found}, not the file's SHA-256` : "gives no SHA-256"}.`,
-              );
-            return { ...capture, hash, capturedAt: new Date().toISOString(), file };
-          },
+          (capture) => ({ ...capture, capturedAt: new Date().toISOString(), file }),
           (error: Error) => {
             // What the page showed when it failed, to tell a slow reply from a changed page.
             try {
