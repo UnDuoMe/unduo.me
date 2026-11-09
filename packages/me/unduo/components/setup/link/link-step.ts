@@ -125,7 +125,7 @@ export function linkStep(page: SetupPage, school: SetupSchool) {
             disabled: () => !!view.val.linkBusy,
             onclick: page.scan,
           },
-          "Scan my screen",
+          "Detect QR Code",
         ),
         button(
           {

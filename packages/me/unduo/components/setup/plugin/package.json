@@ -3,7 +3,6 @@
   "private": true,
   "type": "module",
   "imports": {
-    "#js-plugin": "./js-plugin.ts",
     "#setup-plugin": "./setup-plugin.ts",
     "#plugin-file": "./plugin-file.server.ts",
     "#entities": "@-/me.unduo.components.setup.plugin.entities"

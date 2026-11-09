@@ -19,7 +19,6 @@ const noView: SetupView = {
   value: "",
   request: null,
   submitted: false,
-  codeType: "hotp",
   account: null,
   linkError: "",
   linkBusy: "",
@@ -318,40 +317,35 @@ export function createSetupPage(load: (limits: PluginLimits) => Promise<SetupPlu
     );
   }
   /**
-   * The screenshot list: the text in `#setup`'s data-screenshots, or the file
-   * at its data-screenshots-url, only if its SHA-256 matches
+   * The screenshot list at `#setup`'s data-screenshots-url, only if its SHA-256 matches
    * data-screenshots-integrity. Anything but a list of checked file names and
    * SHA-256s is refused.
    */
   function screenshotList() {
     const data = document.getElementById("setup")!.dataset;
     listUrl = new URL(data.screenshotsUrl ?? "", document.baseURI).href;
-    const text =
-      data.screenshots !== undefined
-        ? Promise.resolve(data.screenshots)
-        : pinned(listUrl, data.screenshotsIntegrity ?? "").then((response) => response.text());
+    const text = pinned(listUrl, data.screenshotsIntegrity ?? "").then((response) =>
+      response.text(),
+    );
     return text.then((json) => checkedList(JSON.parse(json)));
   }
   /**
    * Fetch a screenshot, once: the file next to the screenshot list, only if its
-   * SHA-256 matches the list's, as a blob: URL. The self-contained experiment's
-   * list holds each screenshot as a data: URL instead.
+   * SHA-256 matches the list's, as a blob: URL.
    */
   function loadScreenshot(shot: Screenshot) {
     if (!images.has(shot.file))
       images.set(
         shot.file,
-        shot.file.startsWith("data:image/webp;base64,")
-          ? Promise.resolve(shot.file)
-          : pinned(new URL(shot.file, listUrl).href, shot.integrity)
-              .then((response) => response.blob())
-              .then((blob) => URL.createObjectURL(blob)),
+        pinned(new URL(shot.file, listUrl).href, shot.integrity)
+          .then((response) => response.blob())
+          .then((blob) => URL.createObjectURL(blob)),
       );
     return images.get(shot.file)!;
   }
   /** Show a screenshot in `picture` once it's fetched and checked. */
   function screenshot(picture: HTMLImageElement, shot: Screenshot) {
-    if (!shot.file.startsWith("data:")) picture.dataset.screenshot = shot.file;
+    picture.dataset.screenshot = shot.file;
     void loadScreenshot(shot).then(
       (source) => (picture.src = source),
       () => {},
@@ -394,8 +388,8 @@ export function createSetupPage(load: (limits: PluginLimits) => Promise<SetupPlu
   };
 }
 
-/** A screenshot's file: a plain file name, or in the self-contained experiment a data: URL. */
-const shotFile = /^(?:[\w.-]+\.webp|data:image\/webp;base64,[A-Za-z0-9+/]+=*)$/;
+/** A screenshot's plain file name. */
+const shotFile = /^[\w.-]+\.webp$/;
 const shotIntegrity = /^sha256-[A-Za-z0-9+/]{43}=$/;
 
 /** `value` as a screenshot list, if it is one: every set's files and SHA-256s checked. */

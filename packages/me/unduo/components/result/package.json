@@ -3,7 +3,9 @@
   "private": true,
   "type": "module",
   "imports": {
-    "#authenticator-result": "./authenticator-result.ts"
+    "#authenticator-result": "./authenticator-result.ts",
+    "#code-check": "./code-check.ts",
+    "#verify-code": "./verify-code.ts"
   },
   "exports": {
     ".": "./+.ts"
@@ -11,5 +13,8 @@
   "dependencies": {
     "@-/me.unduo.components.setup.entities": "workspace:*",
     "@-/me.unduo.lib.dom": "workspace:*"
+  },
+  "devDependencies": {
+    "vite-plus": "catalog:"
   }
 }

@@ -17,8 +17,6 @@ dist
 
 # We intentionally commit www/ so users can download the .html files directly
 !/www/
-# The experimental self-contained build (vp run build:web:self-contained).
-/www-self/
 
 # Local dev supervisor logs
 .mprocs-logs/

@@ -7,10 +7,11 @@ Security authentication.**
 
 `unduo` lets you use any standard two-factor authentication app in place of
 Cisco's proprietary Duo Mobile software. It registers a virtual device with Duo
-and hands you a QR code (and `otpauth://` URI) you can add to Google
-Authenticator, 2FAS, Aegis, or any other authenticator app that supports
-counter-based (HOTP) codes. Download your university's file from the website, or
-run the same steps yourself [in a terminal](#in-a-terminal).
+and hands you a QR code (and `otpauth://` URI) for time-based (TOTP) codes,
+which work in any authenticator app. If your organization's Duo uses
+counter-based codes instead, unduo says so and makes no QR code. Download your
+university's file from the website, or run the same steps yourself
+[in a terminal](#in-a-terminal).
 
 ## Website
 
@@ -31,7 +32,7 @@ has no page that runs it.
    (Tablet → Android → _I have Duo Mobile installed_), right-click the QR code,
    choose **Copy Image**, and press <kbd>⌘V</kbd>/<kbd>Ctrl+V</kbd> anywhere on
    the page. A copied image address, an emailed activation link, a dropped or
-   uploaded screenshot, or **Scan my screen** work too. A scan that finds the
+   uploaded screenshot, or **Detect QR Code** work too. A scan that finds the
    code puts it in the field and waits for you to press **Continue**.
 4. **Activate with Duo.** Get your 2FA app ready: the next step shows a QR code
    to scan with it. Your browser submits the activation directly to Duo,
@@ -39,10 +40,9 @@ has no page that runs it.
    the field under the box. Duo's reply holds your new key, so clear your clipboard
    after pasting if it syncs to other devices. Each QR code works once; if Duo says the code expired or was used, unduo tells you
    to make a new one.
-5. **Add it to your authenticator.** Scan the QR code with an app that supports
-   counter-based codes (Google Authenticator, 2FAS, Aegis, FreeOTP), then test a
-   passcode on any Duo sign-in. Switch to **Time-based** only if your
-   organization uses time-based Duo passcodes.
+5. **Add it to your authenticator.** Scan the QR code with any authenticator
+   app, and type one of its codes into the page to check that the app has the
+   right key. Then test a passcode on a Duo sign-in.
 
 **Keep your existing Duo Mobile device registered as a backup, even after your
 new authenticator works.** If you lose your authenticator or its codes stop
@@ -73,7 +73,7 @@ Sharing, page exit, errors, or a five-minute timeout. The activation code,
 Duo's reply and your key stay in the tab's memory. They are never written to the
 URL, browser history or browser storage, so refreshing or closing the tab clears
 them, and the browser asks before you leave with progress. The URL hash records
-only the step and code type. There are no accounts, analytics or cookies.
+only the step. There are no accounts, analytics or cookies.
 
 The home page saves it as `UnDuo - <school name>.html` to open
 directly in your browser. The file is small enough to paste into an AI assistant and ask
@@ -173,7 +173,7 @@ pubkey=$(openssl genrsa 2048 | openssl rsa -pubout)
 reply=$(curl -sS "https://$host/push/v2/activation/$code?customer_protocol=1" -A okhttp/2.7.5 \
   --data-urlencode "pubkey=$pubkey" -d pkpush=rsa-sha512 \
   -d platform=Android -d version=13 -d manufacturer=Google -d model=Cheetah \
-  -d app_id=com.duosecurity.duomobile -d app_version=4.33.0 -d app_build_number=433000 \
+  -d app_id=com.duosecurity.duomobile -d app_version=4.124.0 -d app_build_number=4124000 \
   -d architecture=arm64 -d jailbroken=false -d full_disk_encryption=true -d passcode_status=true \
   -d security_patch_level=2024-01-01 -d region=US -d language=en)
 ```
@@ -186,42 +186,41 @@ printf %s "$reply" | python3 -c '
 import base64, json, sys, urllib.parse
 reply = json.load(sys.stdin)
 if reply.get("stat") != "OK": sys.exit("Duo said: %s" % reply.get("message"))
+if reply["response"].get("use_totp") is not True: sys.exit("Your organization’s Duo is using an unsupported setting :(")
 key = base64.b32encode(reply["response"]["hotp_secret"].encode()).decode().rstrip("=")
 name = urllib.parse.quote(reply["response"]["customer_name"], safe="")
 print("Key:", key)
-print(f"otpauth://hotp/Duo:{name}?secret={key}&issuer=Duo&algorithm=SHA1&digits=6&counter=0")'
+print(f"otpauth://totp/Duo:{name}?secret={key}&issuer=Duo&algorithm=SHA1&digits=6&period=30")'
 ```
 
-Add the key to an authenticator app that supports counter-based (HOTP) codes,
-such as Google Authenticator, 2FAS, Aegis or FreeOTP, or show the link as a QR
-code to scan with [qrencode](https://fukuchi.org/works/qrencode/):
-`qrencode -t ansiutf8 'otpauth://…'`. If it prints `Duo said: …` instead, get a
-new QR code and start again. Close the terminal when you're done, since `reply`
-holds your key. You can rename the device in Duo if you like.
+Add the key to your authenticator as time-based, or show the link as a QR code
+with [qrencode](https://fukuchi.org/works/qrencode/):
+`qrencode -t ansiutf8 'otpauth://…'`. Its codes change every 30 seconds. If Duo's
+reply doesn't set `use_totp` to `true`, your organization's Duo uses
+counter-based codes, which unduo doesn't support, and the command prints
+`Your organization’s Duo is using an unsupported setting :(` instead of a key.
+If it prints `Duo said: …` instead, get a new QR code and start again. Close the
+terminal when you're done, since `reply` holds your key. Test a passcode on a Duo
+sign-in, and keep your existing Duo Mobile device registered as a backup even
+after your new authenticator works.
 
-If your organization switched Duo to time-based passcodes and the codes are
-rejected, change `hotp` to `totp` and `counter=0` to `period=30` in the link, or
-add the key as a time-based account. Test a passcode on a Duo sign-in, and keep
-your existing Duo Mobile device registered as a backup even after your new
-authenticator works.
-
-To generate passcodes in a terminal instead of an app, use
-[oath-toolkit](https://www.nongnu.org/oath-toolkit/)'s `oathtool`. Duo accepts
-each counter value once, so add one to the counter after every code:
+To generate time-based passcodes in a terminal, use
+[oath-toolkit](https://www.nongnu.org/oath-toolkit/)'s `oathtool`:
 
 ```sh
-oathtool --hotp --base32 --counter=0 KEY
+oathtool --totp --base32 KEY
 ```
-
-For time-based organizations, run `oathtool --totp --base32 KEY`.
 
 ## Notes
 
-- Duo validates this device's passcodes as **HOTP** (counter-based, RFC 4226,
-  SHA-1, 6 digits, counter starting at 0). Use an authenticator that supports
-  counter-based codes. Organizations that switched Duo to time-based passcodes
-  accept TOTP codes from the same key instead (**Time-based** on the website,
-  or a `totp` link in the terminal).
+- UnDuo registers as Duo Mobile for Android **4.124.0**, build **4124000**,
+  verified against [Duo's official APK](https://duo.com/docs/checksums#duo-mobile).
+  UnDuo makes only time-based codes (TOTP: SHA-1, 6 digits, 30 seconds), and
+  only when Duo's reply sets `response.use_totp` to `true`. Duo Mobile makes
+  counter-based codes when the flag is `false` or missing, so UnDuo says
+  "Your organization's Duo is using an unsupported setting :(" and makes no QR
+  code. See [Duo's passcode policy](https://duo.com/docs/administration-settings#passcodes).
+  The protocol calls the shared key `hotp_secret` for both types.
 - Duo's activation API responds without CORS headers, which is why the website
   asks you to copy Duo's reply back by hand. The terminal commands read it
   directly.

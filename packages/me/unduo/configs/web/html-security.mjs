@@ -63,13 +63,11 @@ export function validateStylesheet(css) {
  * Lock the page's inline code with CSP hashes. Every script is inline and
  * imports nothing, so the document alone shows everything it runs. Published
  * stylesheets, images and the setup plugin must come from `assetBase`, the
- * content-addressed jsDelivr commit. A `selfContained` page, an experiment,
- * loads nothing by URL; `selfContained` names every request its script can
- * make, for the policy's data-comment.
+ * content-addressed jsDelivr commit.
  * @param {string} source
- * @param {{ stylesheets?: Record<string, string>, assetBase?: string, selfContained?: string }} published
+ * @param {{ stylesheets?: Record<string, string>, assetBase?: string }} published
  */
-export function finalizeHtml(source, { stylesheets = {}, assetBase, selfContained } = {}) {
+export function finalizeHtml(source, { stylesheets = {}, assetBase } = {}) {
   const html = source.replace(/\r\n?/g, "\n");
   const stylesheetUrls = new Set();
   const plugins = new Set();
@@ -194,11 +192,6 @@ export function finalizeHtml(source, { stylesheets = {}, assetBase, selfContaine
     return styleHashes.get(css);
   });
   if (plugins.size > 1) throw new Error("A page loads at most one setup plugin.");
-  if (
-    selfContained !== undefined &&
-    (stylesheetUrls.size || plugins.size || images.size || folders.size)
-  )
-    throw new Error("A self-contained page loads no stylesheet, plugin or screenshot by URL.");
   const scriptSources = [...new Set(hashes)];
   // Compiling WebAssembly is allowed only on pages that load the pinned plugin.
   if (plugins.size) scriptSources.push("'wasm-unsafe-eval'");
@@ -241,27 +234,16 @@ export function finalizeHtml(source, { stylesheets = {}, assetBase, selfContaine
     "The script builds one frame, duo-reply, with the sandbox attribute, no permissions and no src. Only the Duo form loads anything in it, and scripts can't run there or read it from this page: you copy Duo's reply out of it by hand. No form or button sends Duo's form anywhere else, such as a new tab.";
   const navigationNote =
     "No CSP directive that browsers enforce limits top-level navigation or window.open, so only this page's own scripts can use them.";
-  const comment = (
-    selfContained !== undefined
-      ? [
-          `This page loads nothing over the network: its styles and images are in this file, and the only code that runs is its one inline script, so that script shows every request the page can make: ${selfContained}. This policy restricts the same requests a second time; it isn't what keeps them the only ones.`,
-          scriptNote,
-          "connect-src 'none' allows no fetch, and form-action allows forms only to Duo. img-src and font-src allow only data: URLs, and style-src-elem only the hashes of this page's style elements, so a stylesheet can request nothing.",
-          replyFrame && formNote,
-          frameNote,
-          navigationNote,
-        ]
-      : [
-          scriptNote,
-          plugins.size && "'wasm-unsafe-eval' allows compiling WebAssembly only.",
-          plugins.size && formNote,
-          frameNote,
-          folders.size
-            ? "Fetches may reach only the files in connect-src's folder, one commit of github.com/UnDuoMe/unduo.me whose files jsDelivr lists at the #setup element's data-integrity-source, and the script uses each only if its SHA-256 matches. Forms may reach only Duo."
-            : "Fetches may reach only the files in connect-src, and forms only Duo.",
-          `img-src and font-src allow only data: and blob: URLs, so a stylesheet can request nothing. ${navigationNote}`,
-        ]
-  )
+  const comment = [
+    scriptNote,
+    plugins.size && "'wasm-unsafe-eval' allows compiling WebAssembly only.",
+    plugins.size && formNote,
+    frameNote,
+    folders.size
+      ? "Fetches may reach only the files in connect-src's folder, one commit of github.com/UnDuoMe/unduo.me whose files jsDelivr lists at the #setup element's data-integrity-source, and the script uses each only if its SHA-256 matches. Forms may reach only Duo."
+      : "Fetches may reach only the files in connect-src, and forms only Duo.",
+    `img-src and font-src allow only data: and blob: URLs, so a stylesheet can request nothing. ${navigationNote}`,
+  ]
     .filter(Boolean)
     .join(" ");
   if (!/<head>/i.test(html)) throw new Error("Missing document head.");

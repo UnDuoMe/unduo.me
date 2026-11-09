@@ -53,14 +53,20 @@ export const defaultPluginLimits: PluginLimits = {
  */
 const duoUrl =
   /^https:\/\/(api-[a-z0-9]{8}\.duosecurity\.com)\/push\/v2\/activation\/[A-Za-z0-9]{5,128}\?customer_protocol=1$/;
-/** Duo Mobile's activation fields, in order; `pubkey` becomes this page's key. */
+/**
+ * Duo Mobile's activation fields, in order; `pubkey` becomes this page's key.
+ * Version and build come from the official Android APK's manifest:
+ * https://dl.duosecurity.com/DuoMobile-4.124.0.apk
+ * Keep them in sync with the terminal commands in the setup help package.
+ */
 const duoFields = [
   ...new URLSearchParams(
-    "pkpush=rsa-sha512&pubkey=&jailbroken=false&architecture=arm64&region=US&app_id=com.duosecurity.duomobile&full_disk_encryption=true&passcode_status=true&platform=Android&app_version=4.33.0&app_build_number=433000&version=13&manufacturer=Google&language=en&model=Cheetah&security_patch_level=2024-01-01",
+    "pkpush=rsa-sha512&pubkey=&jailbroken=false&architecture=arm64&region=US&app_id=com.duosecurity.duomobile&full_disk_encryption=true&passcode_status=true&platform=Android&app_version=4.124.0&app_build_number=4124000&version=13&manufacturer=Google&language=en&model=Cheetah&security_patch_level=2024-01-01",
   ),
 ];
+/** Time-based codes only: the plugin refuses accounts Duo set up for counter-based ones. */
 const otpauth =
-  /^otpauth:\/\/[ht]otp\/Duo:[\w.!~*'()%-]*\?secret=([A-Z2-7]+)&issuer=Duo&algorithm=SHA1&digits=6&(?:counter=0|period=30)$/;
+  /^otpauth:\/\/totp\/Duo:[\w.!~*'()%-]*\?secret=([A-Z2-7]+)&issuer=Duo&algorithm=SHA1&digits=6&period=30$/;
 
 /**
  * Size caps. `crates/setup` echoes pasted text up to `maxText` units. Its
@@ -115,6 +121,7 @@ export const pageTexts = {
     "That doesn't look like Duo's reply. Click in Duo's reply, select everything (Ctrl+A or ⌘A), copy it, then paste it here.",
     "Duo didn't accept this QR code: it has expired or was already used. Each code works once — create a new one in your Duo portal.",
     "That's too long to be Duo's reply. Copy only the text of Duo's reply.",
+    "Your organization's Duo is using an unsupported setting :(",
   ],
   /** The setup key until you reveal it. */
   hiddenKey: "•••• •••• •••• •••• •••• ••••",
@@ -245,7 +252,6 @@ const View = shape({
   value: text(),
   request: nullable(shape({ url: text(duoUrl) })),
   submitted: boolean,
-  codeType: oneOf("hotp", "totp"),
   account: nullable(Account),
   linkError: oneOf("", ...pageTexts.messages),
   linkBusy: oneOf("", "prepare", "image", "scan"),
@@ -405,9 +411,9 @@ function check(output: unknown): SetupResult {
     if (!fromReply(account.uri, account.secret)) unsafe("view.account");
     // The name, its QR code description and the key all come from the link and its secret.
     const name = decodeURIComponent(/\/Duo:([^?]*)\?/.exec(account.uri)![1]!) || "Duo";
-    const kind = account.uri.startsWith("otpauth://totp/") ? "Time-based" : "Counter-based";
     if (account.customer !== name) unsafe("view.account.customer");
-    if (account.qrAlt !== `${kind} authenticator QR code for ${name}`) unsafe("view.account.qrAlt");
+    if (account.qrAlt !== `Time-based authenticator QR code for ${name}`)
+      unsafe("view.account.qrAlt");
     const grouped = account.secret.match(/.{1,4}/g)!.join(" ");
     if (account.key !== (account.revealed ? grouped : pageTexts.hiddenKey))
       unsafe("view.account.key");

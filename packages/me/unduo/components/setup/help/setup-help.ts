@@ -1,10 +1,7 @@
 import { button, code, div, h2, h3, li, ol, p, path, pre, strong, svg } from "@-/me.unduo.lib.dom";
 import { terminalCommands } from "#terminal-commands";
 
-// The experimental self-contained build (UNDUO_SELF_CONTAINED=1) has every file in the page.
-const selfContained = import.meta.env.UNDUO_SELF_CONTAINED;
-
-/** How unduo works: the steps, the code type and its limits. */
+/** How unduo works: the steps and its limits. */
 function guide() {
   return div(
     { class: "dialog-body" },
@@ -26,9 +23,9 @@ function guide() {
         " Scan the new QR code, then test a passcode on any Duo sign-in.",
       ),
     ),
-    h3({ class: "dialog-heading" }, "Counter-based or time-based?"),
+    h3({ class: "dialog-heading" }, "Which authenticator apps work?"),
     p(
-      "Duo checks this device's passcodes with a counter (HOTP), so use an app that supports counter-based codes: Google Authenticator, 2FAS, Aegis and FreeOTP all do. Some organizations have switched Duo to time-based codes (TOTP); if counter-based codes are rejected, switch the result to time-based and add it again.",
+      "unduo makes time-based (TOTP) codes, which every authenticator app supports. If your organization's Duo uses counter-based codes instead, unduo says “Your organization's Duo is using an unsupported setting :(” and makes no QR code. Test a passcode on a Duo sign-in after adding it to your app.",
     ),
     h3({ class: "dialog-heading" }, "Keep a backup"),
     p(
@@ -55,18 +52,10 @@ function privacy() {
       "Your activation code, Duo's reply and your key stay in this tab's memory. This page never puts them in its address or in browser storage, so refreshing or closing the tab clears them, and your browser asks before you leave. Its address doesn't change while you set up. Duo's reply opens in a box rather than a new tab, so the activation code stays out of your browser history. On a computer you share, use a private window.",
     ),
     p(
-      `There are no accounts, analytics or cookies. ${
-        selfContained
-          ? "All of this page's code, styles and images are in the page itself, so it downloads nothing."
-          : "All of this page's code is in the page itself, apart from its setup plugin. Your browser downloads the plugin, styles and images from jsDelivr, which receives ordinary request details such as your IP address but none of your codes or keys."
-      } Your authenticator app decides how your key is stored after that.`,
+      `There are no accounts, analytics or cookies. All of this page's code is in the page itself, apart from its setup plugin. Your browser downloads the plugin, styles and images from jsDelivr, which receives ordinary request details such as your IP address but none of your codes or keys. Your authenticator app decides how your key is stored after that.`,
     ),
     p(
-      `This page runs from the file you downloaded. ${
-        selfContained
-          ? "It needs no other files."
-          : "It loads its setup plugin, styles and images from hash-pinned jsDelivr files."
-      } To skip unduo's code entirely, use the commands under `,
+      `This page runs from the file you downloaded. It loads its setup plugin, styles and images from hash-pinned jsDelivr files. To skip unduo's code entirely, use the commands under `,
       strong("Terminal"),
       ", at the bottom of the page.",
     ),
@@ -107,17 +96,9 @@ function terminal() {
       strong("3."),
       " Print your key and ",
       code("otpauth://"),
-      " link. Add the key to your app as counter-based, or show the link as a QR code with ",
+      " link. Add the key to your app as time-based, or show the link as a QR code with ",
       code("qrencode -t ansiutf8 '…'"),
-      ". For time-based codes, change ",
-      code("hotp"),
-      " to ",
-      code("totp"),
-      " and ",
-      code("counter=0"),
-      " to ",
-      code("period=30"),
-      ". Close the terminal when you're done.",
+      ". If Duo didn't turn on time-based codes, it prints the unsupported-setting message instead. Close the terminal when you're done.",
     ),
     pre({ class: "command" }, terminalCommands.account),
     p(

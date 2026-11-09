@@ -1,5 +1,5 @@
-//! An address the page opens with may name a step and code type, form-encoded
-//! like a query: `#step=add&type=totp`. The plugin only reads it, and the page
+//! An address the page opens with may name a step, form-encoded
+//! like a query: `#step=add`. The plugin only reads it, and the page
 //! never changes its address after opening. The activation value and key are a
 //! [`Session`] in the plugin model, which the host keeps in memory. They never
 //! reach the address, history state or browser storage.
@@ -17,20 +17,11 @@ pub enum Step {
     Add,
 }
 
-/// Public navigation fields: the step and the code type, serialized as `type`
-/// and only ever `totp`. The host accepts no other hash.
+/// Public navigation: the step. Legacy code-type fields are ignored.
 #[derive(Clone, Debug, Default, PartialEq, Serialize, Deserialize)]
 pub struct Search {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub step: Option<Step>,
-    #[serde(rename = "type", skip_serializing_if = "Option::is_none")]
-    pub totp: Option<Totp>,
-}
-
-#[derive(Clone, Copy, Debug, PartialEq, Serialize, Deserialize)]
-#[serde(rename_all = "lowercase")]
-pub enum Totp {
-    Totp,
 }
 
 /// Sensitive progress: the activation value, whether it was sent, and the
@@ -54,8 +45,7 @@ pub fn validate_search(data: &Map<String, Value>) -> Search {
         Some("add") => Some(Step::Add),
         _ => None,
     };
-    let totp = (data.get("type").and_then(Value::as_str) == Some("totp")).then_some(Totp::Totp);
-    Search { step, totp }
+    Search { step }
 }
 
 /// Hashes and queries are untrusted input: keep only valid public fields. Reads
@@ -78,7 +68,6 @@ mod tests {
     fn reads_public_fields() {
         let search = Search {
             step: Some(Step::Activate),
-            totp: Some(Totp::Totp),
         };
         assert_eq!(parse_search("#step=activate&type=totp"), search);
     }
@@ -98,7 +87,6 @@ mod tests {
     fn reads_queries_and_legacy_hashes() {
         let expected = Search {
             step: Some(Step::Add),
-            totp: Some(Totp::Totp),
         };
         for text in [
             "?step=add&type=totp&university=Uof%20T",

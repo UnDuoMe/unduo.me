@@ -67,7 +67,7 @@ first and then checks that the live setup file is served as a download.
 
 `vp run test:web` uses an isolated headless agent-browser session to check the home
 page and its downloads, the setup flow from a local file, branch files, QR decoding, synthetic reply import,
-HOTP/TOTP, history, reset and help popovers, with assets served locally until
+the time-based result, history, reset and help popovers, with assets served locally until
 they are published. It checks that SRI rejects changed styles, CSP
 rejects changed application code, and `fetch` rejects a changed plugin. No real
 activation request is submitted.

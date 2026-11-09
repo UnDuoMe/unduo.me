@@ -1,7 +1,7 @@
 import { randomBytes } from "node:crypto";
 import { QRCode } from "@-/com.npmjs.qrcode";
 import type { Route } from "@playwright/test";
-import { hotp } from "#authenticator";
+import { totp } from "#authenticator";
 
 /**
  * A stand-in for UofT's sign-in, its UTORMFA enrollment site and the Duo frame in it,
@@ -86,8 +86,8 @@ export function mockDuo() {
   let signedIn = false;
   let verified = false;
   const devices = ["Mobile device named Android (XXX-XXX-0100)"];
-  /** Duo's counter: a passcode counts only ahead of the last accepted one. */
-  let counter = 0;
+  /** Fixture-only time window and replay tracking, not a claim about Duo's clock tolerance. */
+  const usedWindows = new Set<number>();
   const activations: Activation[] = [];
   const posts: { url: string; fields: URLSearchParams; referer?: string }[] = [];
   const mail: { to: string; body: string }[] = [];
@@ -169,14 +169,16 @@ export function mockDuo() {
     };
     if (url.pathname === `${framePath}/push` && post) return done();
     if (url.pathname === `${framePath}/passcode`) {
-      // HOTP's look-ahead window, as Duo checks a device's passcodes.
       const secret = activations.at(-1)?.secret ?? "";
-      const offset = Array.from({ length: 10 }, (_, ahead) => ahead).find(
-        (ahead) =>
-          secret !== "" && hotp(Buffer.from(secret), counter + ahead) === form.get("passcode"),
-      );
-      if (post && offset !== undefined && devices.includes("Android tablet")) {
-        counter += offset + 1;
+      const window = Math.floor(Date.now() / 30_000);
+      if (
+        post &&
+        secret &&
+        !usedWindows.has(window) &&
+        devices.includes("Android tablet") &&
+        totp(Buffer.from(secret), window * 30_000) === form.get("passcode")
+      ) {
+        usedWindows.add(window);
         return done();
       }
       return html(
@@ -319,7 +321,7 @@ export function mockDuo() {
         body: JSON.stringify({ code: 40403, message: "Unknown activation code", stat: "FAIL" }),
       });
     devices.push("Android tablet");
-    counter = 0;
+    usedWindows.clear();
     return route.fulfill({
       contentType: "application/json",
       body: JSON.stringify({
@@ -330,6 +332,7 @@ export function mockDuo() {
           customer_logo: randomBytes(66_000).toString("base64"),
           has_backup_restore: false,
           hotp_secret: activation.secret,
+          use_totp: true,
           pkey: `DP${randomBytes(9).toString("hex").toUpperCase()}`,
           reactivation_token: randomBytes(16).toString("hex"),
           urg_secret: randomBytes(16).toString("hex"),

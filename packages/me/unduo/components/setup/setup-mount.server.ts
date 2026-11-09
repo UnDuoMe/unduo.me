@@ -15,11 +15,8 @@ interface SetupMount {
   universities: readonly University[];
   /** A screenshot's file, relative to the screenshot list, and its SHA-256. */
   screenshot: (name: string) => { file: string; integrity: string };
-  /**
-   * Publish `bytes` as `name` with the setup files' assets and say how the page
-   * loads it, or, in the self-contained experiment, give its text to put in the page.
-   */
-  asset: (name: string, bytes: Buffer) => PublishedAsset | { inline: string };
+  /** Publish `bytes` as `name` with the setup files' assets and say how the page loads it. */
+  asset: (name: string, bytes: Buffer) => PublishedAsset;
 }
 
 /**
@@ -48,19 +45,15 @@ export function setupMount({ universities, screenshot, asset }: SetupMount) {
     "screenshots.json",
     Buffer.from(`${JSON.stringify(screenshotList(sets, screenshot), null, 1)}\n`),
   );
-  const setup = attributes(
-    "inline" in list
-      ? { id: "setup", "data-screenshots": list.inline }
-      : {
-          id: "setup",
-          "data-screenshots-url": list.url,
-          "data-screenshots-integrity": list.integrity,
-          "data-integrity-source": list.source,
-          "data-integrity-file": list.file,
-          "data-comment":
-            "data-screenshots-url is the screenshot list: for each kind of Duo portal, its example screenshots' text, file names and SHA-256s. The script fetches it only if its SHA-256 matches data-screenshots-integrity, and fetches the screenshots of the institution shown from the same folder, each only if its SHA-256 matches the list's.",
-        },
-  );
+  const setup = attributes({
+    id: "setup",
+    "data-screenshots-url": list.url,
+    "data-screenshots-integrity": list.integrity,
+    "data-integrity-source": list.source,
+    "data-integrity-file": list.file,
+    "data-comment":
+      "data-screenshots-url is the screenshot list: for each kind of Duo portal, its example screenshots' text, file names and SHA-256s. The script fetches it only if its SHA-256 matches data-screenshots-integrity, and fetches the screenshots of the institution shown from the same folder, each only if its SHA-256 matches the list's.",
+  });
   return `<div${setup}></div>
       <template id="setup-schools">${schools.join("")}</template>`;
 }

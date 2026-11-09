@@ -286,7 +286,7 @@ const stepDetails = [
   },
   {
     art: phoneArt,
-    text: "Any app that supports counter-based (HOTP) codes works, such as Google Authenticator, 2FAS, Aegis or FreeOTP. Its codes work wherever Duo asks for a passcode.",
+    text: "Any authenticator app works, such as Google Authenticator, 1Password, 2FAS or Aegis: UnDuo makes time-based codes. They work wherever Duo asks for a passcode.",
   },
 ];
 

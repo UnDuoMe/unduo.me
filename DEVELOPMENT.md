@@ -104,14 +104,28 @@ Generated HTML is kept in `www/` for inspection and downloads.
 
 ## Duo protocol facts
 
-These were verified against Duo's live endpoints with invalid (unenrollable)
-codes and against reference implementations; keep them in mind when changing
-the activation code:
+Keep these in mind when changing the activation code. Endpoint behavior was
+checked with invalid (unenrollable) codes and reference implementations; the
+version and policy details come from Duo's downloads and documentation:
 
-- Duo validates passcodes of a device registered this way as **HOTP** with a
-  counter starting at 0, so the default export is `otpauth://hotp/…&counter=0`.
-  Organizations that enabled Duo's time-based passcodes accept TOTP from the
-  same secret, which the UI and the terminal commands offer as a fallback.
+- The web form and terminal commands identify as Duo Mobile for Android
+  **4.124.0**, build **4124000**. Both values were read from the manifest of
+  [Duo's official APK](https://duo.com/docs/checksums#duo-mobile), whose SHA-256
+  is `6828022b539898c9fcbfdbb9e9cd1631658af3b724b52ffdbc683eb41b51749f`.
+  Update both activation paths and the README together when changing them.
+- Duo's [passcode policy](https://duo.com/docs/administration-settings#passcodes)
+  controls which passcodes it accepts. The official Android APK's
+  `com.duosecurity.duokit.model.Activation$Response` has a boolean `use_totp`;
+  its activation handler (`qp6.c` in 4.124.0) reads it to choose the TOTP or HOTP
+  generator using the same UTF-8 `hotp_secret`. Missing defaults to false in
+  that app. UnDuo supports only TOTP (SHA-1, six digits, 30 seconds): the web
+  and terminal make an account only when the flag is `true`. When it is `false`
+  or missing, both say "Your organization's Duo is using an unsupported
+  setting :(" and make no QR code or key; there is no HOTP export anywhere.
+  Malformed flags are refused as not Duo's reply. Firefox's copied JSON-viewer
+  text follows the same rule. Caveat: with "TOTP for specific groups", users
+  outside those groups may get `use_totp: false` even though Duo would accept
+  their TOTP codes.
 - Duo's QR codes contain `https://m-<id>.duosecurity.com/activate/<CODE>`; the
   portal's QR image address is `https://api-<id>.duosecurity.com/frame/qr?value=…`
   whose `value` may be that link, `duo://CODE-BASE64HOST`, or a raw value, often
@@ -139,7 +153,7 @@ Every output passes the security guard in
 sees it. The guard treats the plugin as hostile and throws on a violation, so
 the page stops and shows an error. Each output must match its schema, plain
 checks written in the guard, exactly: every field, no others, with its type, pattern or allowed
-values. Within that, it checks the three values that can leave the page: the URL hash may hold only the step and code type; the plugin names
+values. Within that, it checks the three values that can leave the page: the URL hash may hold only the step; the plugin names
 only the Duo form's URL, and the guard writes Duo Mobile's standard device
 fields and the page's own key, so only the activation code (seen only by Duo)
 and one Duo host per page load come from the plugin; and the authenticator link must be an `otpauth://` link
@@ -178,12 +192,13 @@ The user copies Duo's reply back: browsers refuse a drag from another origin's f
 into the page. The plugin accepts JSON (also with browser
 labels around it, or Firefox's JSON-viewer text), explains Duo errors (40403
 means "get a new QR code"), and keeps only the customer and base32 secret. Step
-4 renders the authenticator QR with a counter-based/time-based switch. The
+4 renders the time-based authenticator QR; a reply without `use_totp: true`
+shows the unsupported-setting message instead. The
 plugin formats the `otpauth://` link and the host draws the QR code from the
 guarded link, so a QR code cannot send a phone's camera to a web page.
 
 The URL hash holds only public navigation, form-encoded like a query
-(`#step=add&type=totp`), and is validated field by field. The session (the
+(`#step=add`), and is validated field by field. The session (the
 activation value, submitted flag and parsed account) lives only in the plugin's
 memory. The page never writes it to its URL, history state or browser
 storage, so the page's copied links and history entries never carry it. The
@@ -219,7 +234,7 @@ before release.
 ## QR decoding and portal scanning
 
 The host draws pasted, dropped and uploaded images, and frames of a window
-shared with **Scan my screen**, onto a white canvas at most 1920 pixels across,
+shared with **Detect QR Code**, onto a white canvas at most 1920 pixels across,
 so transparent pixels read as white. A second instance of the plugin, which
 shares no memory with the one running setup, reads every QR code there (its
 `read` export, built on rqrr). The host wipes the pixels and sends the setup
@@ -261,33 +276,6 @@ file, so anyone can reproduce the published plugin from source. Both builds
 remap local paths and run rustc through `configs/web/rustc-wrapper.mjs`: for
 stable toolchains Cargo hashes `rustc -vV`, which names the host, into each
 crate's `-C metadata`, which would otherwise make macOS and Linux builds differ.
-
-### Experimental build without WebAssembly
-
-`UNDUO_JS_PLUGIN=1 vp run build:web` builds pages whose setup logic is the
-TypeScript port in `components/setup/plugin/js-plugin.ts`, inlined in each
-page's script, with QR codes read by paulmillr's decoder copied into
-`lib/qr-reader`. The pages load and compile no WebAssembly: they carry no
-`data-plugin-url`, their CSP has no `'wasm-unsafe-eval'`, and `connect-src`
-lists only the screenshots. The port's output passes the same `guard()` and
-`check()`. The root element's `data-comment` describes this logic instead of
-the module. Without the variable the output is byte for byte the normal build,
-and both builds pin the same assets commit. `js-plugin.test.ts` compares the
-port with `setup.wasm` event by event; run
-`UNDUO_TEST_WEB=1 UNDUO_JS_PLUGIN=1 vp test run auditable` in
-`packages/me/unduo/configs/web` (with `UNDUO_WEB_OUTPUT` for a copy of that
-build) for the browser checks. The deploy workflow never sets the variable.
-
-Adding `UNDUO_SELF_CONTAINED=1` builds pages that load nothing over the network.
-`configs/web/self-contained.ts` puts the app stylesheet and UIkit's CSS in style
-elements, which the CSP allows by hash, and the screenshots in `data:` URLs.
-UIkit is trimmed with postcss to the selectors whose `.uk-` classes all appear in
-the page's `class` attributes and script, the selectors with no `.uk-` class,
-and the `@keyframes` they name, after checking the installed file against the
-SHA-256 the normal pages pin. The CSP then has `connect-src 'none'`, `img-src
-data:` and hashes only in `script-src` and `style-src-elem`, and both data-comments
-state what the page's script can request. The variable needs
-`UNDUO_JS_PLUGIN=1`. Without it, both other builds stay byte for byte the same.
 
 ## Static website and setup files
 

@@ -51,7 +51,7 @@ test.each(capacity.map((bytes, i) => [i + 1, bytes]))(
 
 test("reads back an authenticator link and UTF-8", async () => {
   for (const text of [
-    "otpauth://hotp/Duo:University%20of%20Toronto?secret=GEZDGNBVGY3TQOJQGEZDGNBVGY3TQOJQ&issuer=Duo&algorithm=SHA1&digits=6&counter=0",
+    "otpauth://totp/Duo:University%20of%20Toronto?secret=GEZDGNBVGY3TQOJQGEZDGNBVGY3TQOJQ&issuer=Duo&algorithm=SHA1&digits=6&period=30",
     "École · 東京 · 🔑",
     "a",
   ])

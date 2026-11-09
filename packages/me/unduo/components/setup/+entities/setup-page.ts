@@ -21,7 +21,7 @@ export interface SetupSchool {
 
 /**
  * An example screenshot in the page's screenshot list: its file, relative to
- * the list's address (or a `data:` URL in the self-contained experiment), the
+ * the list's address, the
  * SHA-256 it must have, and its text.
  */
 export interface Screenshot {

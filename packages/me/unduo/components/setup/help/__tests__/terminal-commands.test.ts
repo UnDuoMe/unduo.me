@@ -16,8 +16,8 @@ const deviceFields = {
   full_disk_encryption: "true",
   passcode_status: "true",
   platform: "Android",
-  app_version: "4.33.0",
-  app_build_number: "433000",
+  app_version: "4.124.0",
+  app_build_number: "4124000",
   version: "13",
   manufacturer: "Google",
   language: "en",
@@ -81,6 +81,7 @@ test(
         response: {
           customer_name: "U of T / St. George",
           hotp_secret: "0123456789abcdef0123456789abcdef",
+          use_totp: true,
           logo: "x".repeat(100_000),
         },
         stat: "OK",
@@ -101,7 +102,30 @@ test(
     // base32 of the secret's ASCII bytes, unpadded, as an authenticator expects.
     const key = "GAYTEMZUGU3DOOBZMFRGGZDFMYYDCMRTGQ2TMNZYHFQWEY3EMVTA";
     expect(stdout).toBe(
-      `Key: ${key}\notpauth://hotp/Duo:U%20of%20T%20%2F%20St.%20George?secret=${key}&issuer=Duo&algorithm=SHA1&digits=6&counter=0\n`,
+      `Key: ${key}\notpauth://totp/Duo:U%20of%20T%20%2F%20St.%20George?secret=${key}&issuer=Duo&algorithm=SHA1&digits=6&period=30\n`,
+    );
+  },
+);
+
+test.each([false, undefined, null, "true", 1])(
+  "prints no key unless Duo turns on time-based codes, for use_totp=%s",
+  { timeout: 30_000 },
+  async (setting) => {
+    const result = await run({
+      status: 200,
+      body: {
+        stat: "OK",
+        response: {
+          customer_name: "ACME",
+          hotp_secret: "secret",
+          use_totp: setting,
+        },
+      },
+    });
+    expect(result.code).not.toBe(0);
+    expect(result.stdout).toBe("");
+    expect(result.stderr).toMatch(
+      /\nYour organization’s Duo is using an unsupported setting :\(\n$/,
     );
   },
 );

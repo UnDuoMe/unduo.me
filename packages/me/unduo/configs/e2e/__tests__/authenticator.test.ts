@@ -22,9 +22,14 @@ describe("the end-to-end test's authenticator", () => {
 
   test("reads a Duo link", () => {
     const link = readOtpauth(
-      "otpauth://hotp/Duo:A%20School?secret=MZXW6YTB&issuer=Duo&algorithm=SHA1&digits=6&counter=0",
+      "otpauth://totp/Duo:A%20School?secret=MZXW6YTB&issuer=Duo&algorithm=SHA1&digits=6&period=30",
     );
-    expect(link).toMatchObject({ type: "hotp", label: "Duo:A School", counter: "0" });
+    expect(link).toMatchObject({
+      type: "totp",
+      label: "Duo:A School",
+      period: "30",
+      counter: null,
+    });
     expect(link.secret.toString()).toBe("fooba");
     expect(() => readOtpauth("https://example.com/")).toThrow();
   });

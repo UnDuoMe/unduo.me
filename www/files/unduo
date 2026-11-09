@@ -1,6 +1,6 @@
 <!doctype html>
 <html lang="en">
-  <head><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'sha256-dZu710qV7pUozk9WNNw7Nr449YAqE6wv/arVKnsnH/Y=' 'sha256-/Q3KOfbm1VzzoprrIWj1WXDcud1ojouePk/TM4UCFjM=' 'sha256-Rk8KnOZTGvkeJSeVJ5U/VJH8a5z6WToFyDV7exdMWPg=' 'sha256-QCjSYGcGNK/jmp32WIyQzd4/q10ahJS0k8Adn5QHefk=' 'sha256-hhCdJod1+QlzKCh0P1CJ4wO8f6hs8ZVTdX6HjQU4izU=' 'sha256-nOvSNWf6ivbw+IJVx8tQ9+0365B8iA3jzvEGKWCuRdc=' 'wasm-unsafe-eval'; script-src-attr 'none'; style-src-elem https://cdn.jsdelivr.net/npm/uikit@3.25.29/dist/css/uikit.min.css https://cdn.jsdelivr.net/gh/UnDuoMe/unduo.me@8f560618387206123dde02aef5b7598ef5f0640c/setup-styles.gaJBamsO.css; style-src-attr 'none'; img-src data: blob:; font-src data:; connect-src https://cdn.jsdelivr.net/gh/UnDuoMe/unduo.me@8f560618387206123dde02aef5b7598ef5f0640c/; form-action https://*.duosecurity.com; frame-src https://*.duosecurity.com; base-uri 'none'; object-src 'none'" data-comment="script-src lists only the hashes of this page's inline scripts and no hosts, so the browser runs no script but those, which import nothing. No source allows inline handlers or eval. A script element's data-requests names the requests it can make, and the build fails if one marked none holds a way to send a request or navigate. 'wasm-unsafe-eval' allows compiling WebAssembly only. Once the page accepts a Duo form, its script adds a second policy, form-action and frame-src https://api-XXXXXXXX.duosecurity.com for that form's host, and browsers enforce both. The script builds one frame, duo-reply, with the sandbox attribute, no permissions and no src. Only the Duo form loads anything in it, and scripts can't run there or read it from this page: you copy Duo's reply out of it by hand. No form or button sends Duo's form anywhere else, such as a new tab. Fetches may reach only the files in connect-src's folder, one commit of github.com/UnDuoMe/unduo.me whose files jsDelivr lists at the #setup element's data-integrity-source, and the script uses each only if its SHA-256 matches. Forms may reach only Duo. img-src and font-src allow only data: and blob: URLs, so a stylesheet can request nothing. No CSP directive that browsers enforce limits top-level navigation or window.open, so only this page's own scripts can use them.">
+  <head><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'sha256-dZu710qV7pUozk9WNNw7Nr449YAqE6wv/arVKnsnH/Y=' 'sha256-TU5k7KrYnFtipCvjIMa6wPdiuszFIr7A4Kz6LMzJaIg=' 'sha256-Rk8KnOZTGvkeJSeVJ5U/VJH8a5z6WToFyDV7exdMWPg=' 'sha256-UBYaRSCTNTRWzSP7JWh5Iig+8YOr9Bqxte7GxK+cM94=' 'sha256-d7Zb2g/EzIzydBz3g6BCTpdibn/aBuOrv7T+2u8K5RY=' 'sha256-AqxIgmukRzl4o68d1ezFKjPrYop4RssP88IPWNSQ4FU=' 'wasm-unsafe-eval'; script-src-attr 'none'; style-src-elem https://cdn.jsdelivr.net/npm/uikit@3.25.29/dist/css/uikit.min.css https://cdn.jsdelivr.net/gh/UnDuoMe/unduo.me@05338f37e271de0e9ee3a258cee415b4fc5f4133/setup-styles.gaJBamsO.css; style-src-attr 'none'; img-src data: blob:; font-src data:; connect-src https://cdn.jsdelivr.net/gh/UnDuoMe/unduo.me@05338f37e271de0e9ee3a258cee415b4fc5f4133/; form-action https://*.duosecurity.com; frame-src https://*.duosecurity.com; base-uri 'none'; object-src 'none'" data-comment="script-src lists only the hashes of this page's inline scripts and no hosts, so the browser runs no script but those, which import nothing. No source allows inline handlers or eval. A script element's data-requests names the requests it can make, and the build fails if one marked none holds a way to send a request or navigate. 'wasm-unsafe-eval' allows compiling WebAssembly only. Once the page accepts a Duo form, its script adds a second policy, form-action and frame-src https://api-XXXXXXXX.duosecurity.com for that form's host, and browsers enforce both. The script builds one frame, duo-reply, with the sandbox attribute, no permissions and no src. Only the Duo form loads anything in it, and scripts can't run there or read it from this page: you copy Duo's reply out of it by hand. No form or button sends Duo's form anywhere else, such as a new tab. Fetches may reach only the files in connect-src's folder, one commit of github.com/UnDuoMe/unduo.me whose files jsDelivr lists at the #setup element's data-integrity-source, and the script uses each only if its SHA-256 matches. Forms may reach only Duo. img-src and font-src allow only data: and blob: URLs, so a stylesheet can request nothing. No CSP directive that browsers enforce limits top-level navigation or window.open, so only this page's own scripts can use them.">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="referrer" content="no-referrer">
@@ -19,10 +19,10 @@
       data-integrity-file="/dist/css/uikit.min.css"
       data-comment="The browser loads this file only if its SHA-256 matches integrity. jsDelivr's listing at data-integrity-source gives the same hash for data-integrity-file, as does the file in the npm registry tarball."
     />
-    <link rel="stylesheet" data-vendor="app" href="https://cdn.jsdelivr.net/gh/UnDuoMe/unduo.me@8f560618387206123dde02aef5b7598ef5f0640c/setup-styles.gaJBamsO.css" integrity="sha256-gaJBamsOUD0BTwJ9LtObPkmwg7gZFGfYFj4rtpYN3u4=" crossorigin="anonymous" referrerpolicy="no-referrer" data-integrity-source="https://data.jsdelivr.com/v1/packages/gh/UnDuoMe/unduo.me@8f560618387206123dde02aef5b7598ef5f0640c?structure=flat" data-integrity-file="/setup-styles.gaJBamsO.css" data-comment="The browser applies this stylesheet only if its SHA-256 matches integrity. jsDelivr's listing at data-integrity-source, a commit of github.com/UnDuoMe/unduo.me, gives the same hash for data-integrity-file.">
+    <link rel="stylesheet" data-vendor="app" href="https://cdn.jsdelivr.net/gh/UnDuoMe/unduo.me@05338f37e271de0e9ee3a258cee415b4fc5f4133/setup-styles.gaJBamsO.css" integrity="sha256-gaJBamsOUD0BTwJ9LtObPkmwg7gZFGfYFj4rtpYN3u4=" crossorigin="anonymous" referrerpolicy="no-referrer" data-integrity-source="https://data.jsdelivr.com/v1/packages/gh/UnDuoMe/unduo.me@05338f37e271de0e9ee3a258cee415b4fc5f4133?structure=flat" data-integrity-file="/setup-styles.gaJBamsO.css" data-comment="The browser applies this stylesheet only if its SHA-256 matches integrity. jsDelivr's listing at data-integrity-source, a commit of github.com/UnDuoMe/unduo.me, gives the same hash for data-integrity-file.">
   </head>
   <body class="page-body">
-    <div id="root" data-plugin-url="https://cdn.jsdelivr.net/gh/UnDuoMe/unduo.me@8f560618387206123dde02aef5b7598ef5f0640c/setup.yNHDGc_C.wasm" data-plugin-integrity="sha256-yNHDGc/CiMm/73Kt2fhsk/H5BIM3VROMsl46QZcgna4=" data-integrity-source="https://data.jsdelivr.com/v1/packages/gh/UnDuoMe/unduo.me@8f560618387206123dde02aef5b7598ef5f0640c?structure=flat" data-integrity-file="/setup.yNHDGc_C.wasm" data-comment="The page treats the WebAssembly module at data-plugin-url as untrusted code and runs any module the same way, whatever its bytes. loadSetupPlugin() refuses a module unless it imports exactly alloc, input_length, input_load_u8, input_load_u64, store_u8, store_u64, output_set and error_set, which kernel(), in the script below, implements, and exports exactly memory and update. A WebAssembly module computes on its own memory and can reach anything else only through its imports, and these only copy one call's input in and its output or error out. So the module acts only through its output, and the script decides what that output can do. The module runs the setup steps. It receives events as JSON and never pixels: readQrCodes(), in the script, reads QR codes from images and screen frames, and the module gets only their text. check() validates each of its outputs against the Output schema before the page uses it. Its output reaches only what the page shows, the text field, the Duo form's URL and the otpauth:// link. The page shows only the titles, labels and messages listed in pageTexts in the script, and text built from what you pasted: the organization name and setup key from Duo's reply, Duo's reason when it refuses, from a pasted reply that says it failed, and your pasted text in the text field. Its output never reaches the address: the script changes the address only once, with history.replaceState() when the page opens, before anything is pasted, to drop any query or hash. The Duo form's URL, the only output sent to a server, is an api-XXXXXXXX.duosecurity.com host, the same for the whole page load, with a 5 to 128 character activation code in its path, and fromInput() requires that code and host in text the page read: pasted text or HTML, or the text readQrCodes() read from a QR code. The otpauth:// link becomes a QR code, a link and clipboard text when you ask, and fromReply() requires the text its secret encodes, and its organization name, to appear in text you pasted, where Duo's reply arrives. Calls run on the page's thread, so the page can't stop a call that never returns; limits apply once it returns. So whatever its bytes compute, the module can only choose among this page's own steps and messages, leave setup unfinished or hang the tab. Its bytes decide only whether setup works. They are built from crates/setup in github.com/UnDuoMe/unduo.me; the browser fetches them only if their SHA-256 matches data-plugin-integrity, the hash jsDelivr's listing at data-integrity-source gives for data-integrity-file; and GitHub's artifact attestation for this file names the commit and workflow run that built it: gh attestation verify FILE --repo UnDuoMe/unduo.me."><div id="setup" data-screenshots-url="https://cdn.jsdelivr.net/gh/UnDuoMe/unduo.me@8f560618387206123dde02aef5b7598ef5f0640c/screenshots.7O7-SI89.json" data-screenshots-integrity="sha256-7O7+SI897pT/dA+Jz6MsI361niEcv9yctaAKoV93Bo8=" data-integrity-source="https://data.jsdelivr.com/v1/packages/gh/UnDuoMe/unduo.me@8f560618387206123dde02aef5b7598ef5f0640c?structure=flat" data-integrity-file="/screenshots.7O7-SI89.json" data-comment="data-screenshots-url is the screenshot list: for each kind of Duo portal, its example screenshots' text, file names and SHA-256s. The script fetches it only if its SHA-256 matches data-screenshots-integrity, and fetches the screenshots of the institution shown from the same folder, each only if its SHA-256 matches the list's."></div>
+    <div id="root" data-plugin-url="https://cdn.jsdelivr.net/gh/UnDuoMe/unduo.me@05338f37e271de0e9ee3a258cee415b4fc5f4133/setup.mlOYAc2G.wasm" data-plugin-integrity="sha256-mlOYAc2GsCJt0sdPel1PoilcWJXtbm3nhzCAKijJCb8=" data-integrity-source="https://data.jsdelivr.com/v1/packages/gh/UnDuoMe/unduo.me@05338f37e271de0e9ee3a258cee415b4fc5f4133?structure=flat" data-integrity-file="/setup.mlOYAc2G.wasm" data-comment="The page treats the WebAssembly module at data-plugin-url as untrusted code and runs any module the same way, whatever its bytes. loadSetupPlugin() refuses a module unless it imports exactly alloc, input_length, input_load_u8, input_load_u64, store_u8, store_u64, output_set and error_set, which kernel(), in the script below, implements, and exports exactly memory and update. A WebAssembly module computes on its own memory and can reach anything else only through its imports, and these only copy one call's input in and its output or error out. So the module acts only through its output, and the script decides what that output can do. The module runs the setup steps. It receives events as JSON and never pixels: readQrCodes(), in the script, reads QR codes from images and screen frames, and the module gets only their text. check() validates each of its outputs against the Output schema before the page uses it. Its output reaches only what the page shows, the text field, the Duo form's URL and the otpauth:// link. The page shows only the titles, labels and messages listed in pageTexts in the script, and text built from what you pasted: the organization name and setup key from Duo's reply, Duo's reason when it refuses, from a pasted reply that says it failed, and your pasted text in the text field. Its output never reaches the address: the script changes the address only once, with history.replaceState() when the page opens, before anything is pasted, to drop any query or hash. The Duo form's URL, the only output sent to a server, is an api-XXXXXXXX.duosecurity.com host, the same for the whole page load, with a 5 to 128 character activation code in its path, and fromInput() requires that code and host in text the page read: pasted text or HTML, or the text readQrCodes() read from a QR code. The otpauth:// link becomes a QR code, a link and clipboard text when you ask, and fromReply() requires the text its secret encodes, and its organization name, to appear in text you pasted, where Duo's reply arrives. Calls run on the page's thread, so the page can't stop a call that never returns; limits apply once it returns. So whatever its bytes compute, the module can only choose among this page's own steps and messages, leave setup unfinished or hang the tab. Its bytes decide only whether setup works. They are built from crates/setup in github.com/UnDuoMe/unduo.me; the browser fetches them only if their SHA-256 matches data-plugin-integrity, the hash jsDelivr's listing at data-integrity-source gives for data-integrity-file; and GitHub's artifact attestation for this file names the commit and workflow run that built it: gh attestation verify FILE --repo UnDuoMe/unduo.me."><div id="setup" data-screenshots-url="https://cdn.jsdelivr.net/gh/UnDuoMe/unduo.me@05338f37e271de0e9ee3a258cee415b4fc5f4133/screenshots.7O7-SI89.json" data-screenshots-integrity="sha256-7O7+SI897pT/dA+Jz6MsI361niEcv9yctaAKoV93Bo8=" data-integrity-source="https://data.jsdelivr.com/v1/packages/gh/UnDuoMe/unduo.me@05338f37e271de0e9ee3a258cee415b4fc5f4133?structure=flat" data-integrity-file="/screenshots.7O7-SI89.json" data-comment="data-screenshots-url is the screenshot list: for each kind of Duo portal, its example screenshots' text, file names and SHA-256s. The script fetches it only if its SHA-256 matches data-screenshots-integrity, and fetches the screenshots of the institution shown from the same folder, each only if its SHA-256 matches the list's."></div>
       <template id="setup-schools"><div data-school-id="IAU-020599" data-school-name="University of Toronto" data-portal-url="https://enroll.utormfa.utoronto.ca/" data-source-url="https://security.utoronto.ca/wp-content/uploads/2024/07/UTORMFA-Info-Sessions-Presentation.pdf" data-screenshots="traditional"></div><div data-school-id="IAU-020623" data-school-name="University of Waterloo" data-portal-url="https://uwaterloo.login.duosecurity.com/devices" data-duo-prompt="universal" data-source-url="https://uwaterloo.ca/mechanical-mechatronics-engineering-information-technology/two-factor-authentication-2fa#enroll" data-screenshots="universal"></div><div data-school-id="IAU-020629" data-school-name="University of Western Ontario" data-portal-url="https://identity.uwo.ca/" data-school-note="After you sign in, open the Security tab, choose Manage My MFA, then Launch Duo Manager." data-source-url="https://mfa.uwo.ca/manage_your_devices/add_a_new_authentication_device.html" data-screenshots="western"></div></template></div>
     <noscript>Enable JavaScript to use unduo.</noscript>
     <script data-app="unduo" data-part="vanjs" data-upstream="https://raw.githubusercontent.com/vanjs-org/van/84f30ae917107c9d4b4c38b9969a0d56aaac5ac8/public/van-1.6.2.nomodule.js" data-upstream-sha256="759bbbd74a95ee9528ce4f5634dc3b36be38f5802a13ac2ffdaad52a7b271ff6" data-requests="none" data-comment="These script elements, which run in order and share one scope, are all the JavaScript the page runs, bundled from github.com/UnDuoMe/unduo.me without minifying. Together they are the script this comment describes. It imports nothing. It holds VanJS 1.6.2 (this element: the file at data-upstream, byte for byte, whose SHA-256 is data-upstream-sha256; it sets window.van and nothing else), which builds the page's elements with createElement and text nodes and updates them when state changes; the setup page and its steps (startSetupPage, createSetupPage, screenshot); the QR code encoder and reader (qrModules, qrImage, readQrCodes), and the plugin loader and its output checks (kernel, loadSetupPlugin, guard, check, fromInput, fromReply). Nothing in the script writes HTML or evaluates text as code, and no attribute in the page's HTML holds an expression: the data attributes of the institutions in the #setup-schools template are text the script shows or sets as links. It reads its own file name from location.pathname only to pick which of those institutions to show, which the first step lets you change, and the name goes nowhere. Its only requests are the Duo form, whose action check() approves, and fetch() of data-plugin-url, of the screenshot list at the #setup element's data-screenshots-url and of the screenshots it names for the institution shown, each of which returns a file only if its SHA-256 matches. Before setup starts, it tries fetch() of a data: URL, which the CSP forbids, and starts only if that fails. It navigates only with window.open() of the portal link the user clicked (popup), and with one history.replaceState() when the page opens, before anything is pasted, which drops any query or hash from its address. The script sets four kinds of changing URL: the Duo form's action and the otpauth:// link's href, both approved by check(); the authenticator QR code's src, a data: URL from qrImage(); and each screenshot's src, a blob: URL of its fetched file. Every other link's href is written in the script or is the data-portal-url or data-source-url of an institution in the #setup-schools template.">(() => {
@@ -199,9 +199,15 @@ var defaultPluginLimits = {
 * call the plugin again.
 */
 var duoUrl = /^https:\/\/(api-[a-z0-9]{8}\.duosecurity\.com)\/push\/v2\/activation\/[A-Za-z0-9]{5,128}\?customer_protocol=1$/;
-/** Duo Mobile's activation fields, in order; `pubkey` becomes this page's key. */
-var duoFields = [...new URLSearchParams("pkpush=rsa-sha512&pubkey=&jailbroken=false&architecture=arm64&region=US&app_id=com.duosecurity.duomobile&full_disk_encryption=true&passcode_status=true&platform=Android&app_version=4.33.0&app_build_number=433000&version=13&manufacturer=Google&language=en&model=Cheetah&security_patch_level=2024-01-01")];
-var otpauth = /^otpauth:\/\/[ht]otp\/Duo:[\w.!~*'()%-]*\?secret=([A-Z2-7]+)&issuer=Duo&algorithm=SHA1&digits=6&(?:counter=0|period=30)$/;
+/**
+* Duo Mobile's activation fields, in order; `pubkey` becomes this page's key.
+* Version and build come from the official Android APK's manifest:
+* https://dl.duosecurity.com/DuoMobile-4.124.0.apk
+* Keep them in sync with the terminal commands in the setup help package.
+*/
+var duoFields = [...new URLSearchParams("pkpush=rsa-sha512&pubkey=&jailbroken=false&architecture=arm64&region=US&app_id=com.duosecurity.duomobile&full_disk_encryption=true&passcode_status=true&platform=Android&app_version=4.124.0&app_build_number=4124000&version=13&manufacturer=Google&language=en&model=Cheetah&security_patch_level=2024-01-01")];
+/** Time-based codes only: the plugin refuses accounts Duo set up for counter-based ones. */
+var otpauth = /^otpauth:\/\/totp\/Duo:[\w.!~*'()%-]*\?secret=([A-Z2-7]+)&issuer=Duo&algorithm=SHA1&digits=6&period=30$/;
 /**
 * Size caps. `crates/setup` echoes pasted text up to `maxText` units. Its
 * longest other string, the otpauth link for the longest organization name and
@@ -253,7 +259,8 @@ var pageTexts = {
 		"Couldn't read the shared screen. Paste the QR code instead.",
 		"That doesn't look like Duo's reply. Click in Duo's reply, select everything (Ctrl+A or ⌘A), copy it, then paste it here.",
 		"Duo didn't accept this QR code: it has expired or was already used. Each code works once — create a new one in your Duo portal.",
-		"That's too long to be Duo's reply. Copy only the text of Duo's reply."
+		"That's too long to be Duo's reply. Copy only the text of Duo's reply.",
+		"Your organization's Duo is using an unsupported setting :("
 	],
 	/** The setup key until you reveal it. */
 	hiddenKey: "•••• •••• •••• •••• •••• ••••"
@@ -368,7 +375,6 @@ var Output = shape({
 		value: text(),
 		request: nullable(shape({ url: text(duoUrl) })),
 		submitted: boolean,
-		codeType: oneOf("hotp", "totp"),
 		account: nullable(Account),
 		linkError: oneOf("", ...pageTexts.messages),
 		linkBusy: oneOf("", "prepare", "image", "scan"),
@@ -498,9 +504,8 @@ function check(output) {
 	if (account) {
 		if (!fromReply(account.uri, account.secret)) unsafe("view.account");
 		const name = decodeURIComponent(/\/Duo:([^?]*)\?/.exec(account.uri)[1]) || "Duo";
-		const kind = account.uri.startsWith("otpauth://totp/") ? "Time-based" : "Counter-based";
 		if (account.customer !== name) unsafe("view.account.customer");
-		if (account.qrAlt !== `${kind} authenticator QR code for ${name}`) unsafe("view.account.qrAlt");
+		if (account.qrAlt !== `Time-based authenticator QR code for ${name}`) unsafe("view.account.qrAlt");
 		const grouped = account.secret.match(/.{1,4}/g).join(" ");
 		if (account.key !== (account.revealed ? grouped : pageTexts.hiddenKey)) unsafe("view.account.key");
 	}
@@ -2011,7 +2016,7 @@ function qrImage(text, scale = 6, border = 2) {
 	return `data:image/svg+xml,${encodeURIComponent(svg)}`;
 }
 </script>
-<script data-app="unduo" data-part="steps" data-source="packages/me/unduo/lib/dom/dom.ts packages/me/unduo/components/result/authenticator-result.ts packages/me/unduo/components/setup/shortcuts/shortcut-keys.ts packages/me/unduo/components/setup/portal/portal-step.ts packages/me/unduo/components/setup/portal/portal-instructions.ts packages/me/unduo/components/setup/link/link-step.ts packages/me/unduo/components/stepper/stepper.ts packages/me/unduo/components/setup/help/terminal-commands.ts packages/me/unduo/components/setup/help/setup-help.ts packages/me/unduo/components/setup/limits/plugin-limits.ts packages/me/unduo/components/setup/setup-layout.ts" data-requests="none" data-comment="The element functions from the vanjs element's global, and the elements of each setup step but the Duo form. Their links open only when you click them, and the one form here, for pasted text, has no action: the page handles it.">"use strict";
+<script data-app="unduo" data-part="steps" data-source="packages/me/unduo/lib/dom/dom.ts packages/me/unduo/components/result/verify-code.ts packages/me/unduo/components/result/code-check.ts packages/me/unduo/components/result/authenticator-result.ts packages/me/unduo/components/setup/shortcuts/shortcut-keys.ts packages/me/unduo/components/setup/portal/portal-step.ts packages/me/unduo/components/setup/portal/portal-instructions.ts packages/me/unduo/components/setup/link/link-step.ts packages/me/unduo/components/stepper/stepper.ts packages/me/unduo/components/setup/help/terminal-commands.ts packages/me/unduo/components/setup/help/setup-help.ts packages/me/unduo/components/setup/limits/plugin-limits.ts packages/me/unduo/components/setup/setup-layout.ts" data-requests="none" data-comment="The element functions from the vanjs element's global, and the elements of each setup step but the Duo form. Their links open only when you click them. The forms here, for pasted text and the local passcode check, have no action: the page handles them.">"use strict";
 /**
 * The HTML elements the pages build, each a function of its properties and
 * children. A function or `State` as a value keeps that property or child up
@@ -2023,20 +2028,139 @@ var { a, aside, button, code, details, dialog, div, em, fieldset, figcaption, fi
 * their namespace. `svgText` is SVG's `text`.
 */
 var { g, path, rect, svg, text: svgText } = van.tags("http://www.w3.org/2000/svg");
-/** The last step: the `otpauth://` QR code, code type, setup key and how to test it. */
+var alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ234567";
+/** Decode the unpadded base32 key from the guarded authenticator account. */
+function secretBytes(secret) {
+	if (!/^[A-Z2-7]+$/.test(secret)) throw new Error("Invalid setup key.");
+	const bytes = new Uint8Array(Math.floor(secret.length * 5 / 8));
+	let buffer = 0;
+	let bits = 0;
+	let index = 0;
+	for (const letter of secret) {
+		buffer = buffer << 5 | alphabet.indexOf(letter);
+		bits += 5;
+		if (bits >= 8) {
+			bits -= 8;
+			bytes[index++] = buffer >> bits & 255;
+			buffer &= (1 << bits) - 1;
+		}
+	}
+	return bytes;
+}
+/**
+* RFC 6238, SHA-1 and six digits: check this and the adjacent 30-second
+* windows. Web Crypto runs locally; neither the key nor the code leaves the tab.
+*/
+async function verifyCode(secret, code, now = Date.now()) {
+	if (!/^[0-9]{6}$/.test(code) || !Number.isSafeInteger(now) || now < 0) return false;
+	const bytes = secretBytes(secret);
+	let key;
+	try {
+		key = await crypto.subtle.importKey("raw", bytes, {
+			name: "HMAC",
+			hash: "SHA-1"
+		}, false, ["sign"]);
+	} finally {
+		bytes.fill(0);
+	}
+	const step = Math.floor(now / 3e4);
+	for (const offset of [
+		0,
+		-1,
+		1
+	]) {
+		if (step + offset < 0) continue;
+		const moving = new Uint8Array(8);
+		new DataView(moving.buffer).setBigUint64(0, BigInt(step + offset));
+		const digest = new Uint8Array(await crypto.subtle.sign("HMAC", key, moving));
+		const start = digest[digest.length - 1] & 15;
+		const value = new DataView(digest.buffer).getUint32(start) & 2147483647;
+		if (String(value % 1e6).padStart(6, "0") === code) return true;
+	}
+	return false;
+}
+/** A local check of the app's key, separate from trying a real Duo sign-in. */
+function codeCheck({ view }) {
+	const entered = van.state("");
+	const message = van.state("");
+	const busy = van.state(false);
+	const invalid = van.state(false);
+	let attempt = 0;
+	let lastSecret = "";
+	function clear() {
+		attempt++;
+		busy.val = false;
+		invalid.val = false;
+		message.val = "";
+	}
+	van.derive(() => {
+		const secret = view.val.account?.secret ?? "";
+		if (secret === lastSecret) return;
+		lastSecret = secret;
+		clear();
+		entered.val = "";
+	});
+	return form({
+		class: "stack-2",
+		hidden: () => !view.val.account?.uri.startsWith("otpauth://totp/"),
+		onsubmit: async (event) => {
+			event.preventDefault();
+			const id = ++attempt;
+			const code = entered.val;
+			const account = view.val.account;
+			if (!account?.uri.startsWith("otpauth://totp/")) return;
+			const key = account.secret;
+			busy.val = true;
+			invalid.val = false;
+			message.val = "Checking…";
+			try {
+				const matches = await verifyCode(key, code);
+				if (id !== attempt || key !== view.val.account?.secret) return;
+				invalid.val = !matches;
+				message.val = matches ? "Code matches — your app has the right setup key. Try a Duo sign-in below to confirm it works with your organization." : "That code doesn't match. Try a fresh code and check that your device's date and time are set automatically.";
+			} catch {
+				if (id === attempt) message.val = "Your browser couldn't check the code. Try a current browser, or test it at a Duo sign-in below.";
+			} finally {
+				if (id === attempt) busy.val = false;
+			}
+		}
+	}, h3({ class: "subheading" }, "Check your app's code"), p({
+		class: "body-note",
+		id: "code-check-hint"
+	}, "Enter the six-digit code your authenticator shows. This check happens only in this tab; nothing is sent to Duo or anyone else."), div({ class: "stack-1" }, label({
+		class: "uk-form-label",
+		for: "authenticator-code"
+	}, "6-digit code"), input({
+		id: "authenticator-code",
+		class: "uk-input",
+		type: "text",
+		inputmode: "numeric",
+		autocomplete: "off",
+		pattern: "[0-9]{6}",
+		maxlength: 6,
+		required: true,
+		spellcheck: false,
+		value: entered,
+		"aria-describedby": "code-check-hint code-check-result",
+		"aria-invalid": () => String(invalid.val),
+		onpaste: (event) => event.stopPropagation(),
+		oninput: (event) => {
+			clear();
+			entered.val = event.target.value;
+		}
+	})), div({ class: "row-2" }, button({
+		type: "submit",
+		class: "uk-button uk-button-default btn",
+		disabled: () => busy.val || !/^[0-9]{6}$/.test(entered.val)
+	}, "Check code")), p({
+		class: "body-note",
+		id: "code-check-result",
+		role: "status",
+		"aria-live": "polite"
+	}, message));
+}
+/** The last step: the time-based QR code, setup key, a code check and how to test it. */
 function authenticatorResult({ view, qr, send }) {
-	const codeType = (type, name) => label({ class: () => `code-type ${view.val.codeType === type ? "code-type-on" : "code-type-off"}` }, input({
-		class: "uk-radio no-shrink",
-		type: "radio",
-		name: "code-type",
-		value: type,
-		checked: () => view.val.codeType === type,
-		onchange: () => send({
-			type: "changeType",
-			codeType: type
-		})
-	}), name);
-	const advice = "advice";
 	return div({ class: "stack-5" }, div({ class: "result-layout" }, div({ class: "qr-column" }, div({ class: "qr-box" }, () => qr.val ? img({
 		class: "qr-image",
 		src: qr.val,
@@ -2046,13 +2170,7 @@ function authenticatorResult({ view, qr, send }) {
 	}) : "", span({
 		role: "status",
 		hidden: () => !!qr.val
-	}, van.derive(() => qr.val === false ? "Use the setup key instead." : "Creating QR code…"))), fieldset({ class: "code-types" }, legend({ class: "sr-only" }, "Code type"), codeType("hotp", "Counter-based"), codeType("totp", "Time-based"))), div({ class: "result-details" }, p({ class: "result-summary" }, "Duo account for ", strong(van.derive(() => view.val.account?.customer ?? ""))), h3({ class: "subheading" }, "Scan this with your authenticator app"), p({
-		class: advice,
-		hidden: () => view.val.codeType !== "hotp"
-	}, "Use an app that supports ", strong("counter-based codes"), ", such as Google Authenticator, 2FAS, Aegis or FreeOTP. Tap refresh in the app whenever you need a new code."), p({
-		class: advice,
-		hidden: () => view.val.codeType !== "totp"
-	}, "Time-based codes work in any authenticator app, but ", strong("only"), " if your organization switched Duo to time-based passcodes. Use them if counter-based codes are rejected."), a({
+	}, van.derive(() => qr.val === false ? "Use the setup key instead." : "Creating QR code…")))), div({ class: "result-details" }, p({ class: "result-summary" }, "Duo account for ", strong(van.derive(() => view.val.account?.customer ?? ""))), h3({ class: "subheading" }, "Scan this with your authenticator app"), p({ class: "advice" }, "Time-based codes work in any authenticator app."), a({
 		class: "uk-button uk-button-default btn touch-only",
 		href: () => view.val.account?.uri ?? ""
 	}, "Open in authenticator app"), div({
@@ -2063,7 +2181,7 @@ function authenticatorResult({ view, qr, send }) {
 		type: "button",
 		class: "uk-button uk-button-text btn",
 		onclick: () => send({ type: "reveal" })
-	}, van.derive(() => view.val.account?.revealed ? "Hide" : "Show"))), code({ class: "setup-key" }, van.derive(() => view.val.account?.key ?? "")), p({ class: "hint" }, van.derive(() => view.val.codeType === "hotp" ? "Counter-based (HOTP) · counter 0 · 6 digits · SHA-1" : "Time-based (TOTP) · 30 seconds · 6 digits · SHA-1"))))), div({ class: "next-test" }, h3({ class: "subheading" }, "Then test it"), p({ class: "body-note" }, "Sign in somewhere that uses Duo, choose ", em("Other options"), " → ", em("Duo Mobile passcode"), " (or ", em("Enter a passcode"), "), and type the code your app shows.")), aside({
+	}, van.derive(() => view.val.account?.revealed ? "Hide" : "Show"))), code({ class: "setup-key" }, van.derive(() => view.val.account?.key ?? "")), p({ class: "hint" }, "Time-based (TOTP) · 30 seconds · 6 digits · SHA-1")))), codeCheck({ view }), div({ class: "next-test" }, h3({ class: "subheading" }, "Then test it"), p({ class: "body-note" }, "Sign in somewhere that uses Duo, choose ", em("Other options"), " → ", em("Duo Mobile passcode"), " (or ", em("Enter a passcode"), "), and type the code your app shows.")), aside({
 		class: "uk-alert-warning warning",
 		role: "note"
 	}, h3({ class: "warning-title" }, "Add it now — unduo forgets the key when you close this tab"), p({ class: "warning-text" }, "Keep your existing Duo Mobile device registered as a backup, even after a code from your new authenticator works. If you lose your authenticator or its codes stop working, use your Duo device to sign in.")));
@@ -2280,7 +2398,7 @@ function linkStep(page, school) {
 		hidden: () => !(view.val.canScan && view.val.linkBusy !== "scan"),
 		disabled: () => !!view.val.linkBusy,
 		onclick: page.scan
-	}, "Scan my screen"), button({
+	}, "Detect QR Code"), button({
 		type: "button",
 		class: secondary,
 		hidden: () => !(view.val.canScan && view.val.linkBusy === "scan"),
@@ -2343,22 +2461,26 @@ code=ABCDE12345`,
 reply=$(curl -sS "https://$host/push/v2/activation/$code?customer_protocol=1" -A okhttp/2.7.5 \
   --data-urlencode "pubkey=$pubkey" -d pkpush=rsa-sha512 \
   -d platform=Android -d version=13 -d manufacturer=Google -d model=Cheetah \
-  -d app_id=com.duosecurity.duomobile -d app_version=4.33.0 -d app_build_number=433000 \
+  -d app_id=com.duosecurity.duomobile -d app_version=4.124.0 -d app_build_number=4124000 \
   -d architecture=arm64 -d jailbroken=false -d full_disk_encryption=true -d passcode_status=true \
   -d security_patch_level=2024-01-01 -d region=US -d language=en)`,
-	/** Reads Duo's reply locally and prints the base32 key and its otpauth link. */
+	/**
+	* Reads Duo's reply locally and prints the base32 key and its time-based
+	* otpauth link, or stops if Duo didn't turn on time-based codes.
+	*/
 	account: String.raw`printf %s "$reply" | python3 -c '
 import base64, json, sys, urllib.parse
 reply = json.load(sys.stdin)
 if reply.get("stat") != "OK": sys.exit("Duo said: %s" % reply.get("message"))
+if reply["response"].get("use_totp") is not True: sys.exit("Your organization’s Duo is using an unsupported setting :(")
 key = base64.b32encode(reply["response"]["hotp_secret"].encode()).decode().rstrip("=")
 name = urllib.parse.quote(reply["response"]["customer_name"], safe="")
 print("Key:", key)
-print(f"otpauth://hotp/Duo:{name}?secret={key}&issuer=Duo&algorithm=SHA1&digits=6&counter=0")'`
+print(f"otpauth://totp/Duo:{name}?secret={key}&issuer=Duo&algorithm=SHA1&digits=6&period=30")'`
 };
-/** How unduo works: the steps, the code type and its limits. */
+/** How unduo works: the steps and its limits. */
 function guide() {
-	return div({ class: "dialog-body" }, p("Duo Mobile is an ordinary one-time-passcode app inside. When you add a device, Duo hands the new device a secret key. unduo registers itself as that device and gives the key to the authenticator app you prefer."), ol({ class: "dialog-list" }, li(strong("Get a QR code."), " In your Duo device portal, add a tablet with Duo Mobile. Copy the QR code it shows and paste it here."), li(strong("Activate."), " unduo sends the activation to Duo. Copy Duo's reply from the box and paste it under it. Each QR code works only once."), li(strong("Add it to your app."), " Scan the new QR code, then test a passcode on any Duo sign-in.")), h3({ class: "dialog-heading" }, "Counter-based or time-based?"), p("Duo checks this device's passcodes with a counter (HOTP), so use an app that supports counter-based codes: Google Authenticator, 2FAS, Aegis and FreeOTP all do. Some organizations have switched Duo to time-based codes (TOTP); if counter-based codes are rejected, switch the result to time-based and add it again."), h3({ class: "dialog-heading" }, "Keep a backup"), p("Keep your existing Duo Mobile device registered as a backup, even after your new authenticator works. It gives you another way to sign in if you lose your authenticator or its codes stop working."), h3({ class: "dialog-heading" }, "What it can't do"), p("Duo Push approvals aren't supported, only passcodes. Your organization must allow adding devices and passcode sign-ins."));
+	return div({ class: "dialog-body" }, p("Duo Mobile is an ordinary one-time-passcode app inside. When you add a device, Duo hands the new device a secret key. unduo registers itself as that device and gives the key to the authenticator app you prefer."), ol({ class: "dialog-list" }, li(strong("Get a QR code."), " In your Duo device portal, add a tablet with Duo Mobile. Copy the QR code it shows and paste it here."), li(strong("Activate."), " unduo sends the activation to Duo. Copy Duo's reply from the box and paste it under it. Each QR code works only once."), li(strong("Add it to your app."), " Scan the new QR code, then test a passcode on any Duo sign-in.")), h3({ class: "dialog-heading" }, "Which authenticator apps work?"), p("unduo makes time-based (TOTP) codes, which every authenticator app supports. If your organization's Duo uses counter-based codes instead, unduo says “Your organization's Duo is using an unsupported setting :(” and makes no QR code. Test a passcode on a Duo sign-in after adding it to your app."), h3({ class: "dialog-heading" }, "Keep a backup"), p("Keep your existing Duo Mobile device registered as a backup, even after your new authenticator works. It gives you another way to sign in if you lose your authenticator or its codes stop working."), h3({ class: "dialog-heading" }, "What it can't do"), p("Duo Push approvals aren't supported, only passcodes. Your organization must allow adding devices and passcode sign-ins."));
 }
 /** What the page sends, keeps and loads. */
 function privacy() {
@@ -2366,7 +2488,7 @@ function privacy() {
 }
 /** The commands that do the same setup without this page. */
 function terminal() {
-	return div({ class: "dialog-body-single" }, p("These macOS or Linux commands do what this page does with curl, openssl and python3 instead of unduo's code. Duo's reply stays in your terminal."), p(strong("1."), " Copy the QR code's image address. Set ", code("host"), " to its ", code("api-…"), " host and ", code("code"), " to the letters and digits after the last ", code("value="), ", ", code("duo%3A%2F%2F"), " or ", code("activate%2F"), ", up to any ", code("-"), " or ", code("&"), "."), pre({ class: "command" }, terminalCommands.values), p(strong("2."), " Register a device. openssl keeps only the public key. Each code works once."), pre({ class: "command" }, terminalCommands.activate), p(strong("3."), " Print your key and ", code("otpauth://"), " link. Add the key to your app as counter-based, or show the link as a QR code with ", code("qrencode -t ansiutf8 '…'"), ". For time-based codes, change ", code("hotp"), " to ", code("totp"), " and ", code("counter=0"), " to ", code("period=30"), ". Close the terminal when you're done."), pre({ class: "command" }, terminalCommands.account), p("Test a passcode on a Duo sign-in, and keep your existing Duo Mobile device registered as a backup even after your new authenticator works. It gives you another way to sign in if you lose access to your authenticator."));
+	return div({ class: "dialog-body-single" }, p("These macOS or Linux commands do what this page does with curl, openssl and python3 instead of unduo's code. Duo's reply stays in your terminal."), p(strong("1."), " Copy the QR code's image address. Set ", code("host"), " to its ", code("api-…"), " host and ", code("code"), " to the letters and digits after the last ", code("value="), ", ", code("duo%3A%2F%2F"), " or ", code("activate%2F"), ", up to any ", code("-"), " or ", code("&"), "."), pre({ class: "command" }, terminalCommands.values), p(strong("2."), " Register a device. openssl keeps only the public key. Each code works once."), pre({ class: "command" }, terminalCommands.activate), p(strong("3."), " Print your key and ", code("otpauth://"), " link. Add the key to your app as time-based, or show the link as a QR code with ", code("qrencode -t ansiutf8 '…'"), ". If Duo didn't turn on time-based codes, it prints the unsupported-setting message instead. Close the terminal when you're done."), pre({ class: "command" }, terminalCommands.account), p("Test a passcode on a Duo sign-in, and keep your existing Duo Mobile device registered as a backup even after your new authenticator works. It gives you another way to sign in if you lose access to your authenticator."));
 }
 var dialogs = {
 	guide: {
@@ -2528,7 +2650,7 @@ function activateStep(page) {
 	return div(aside({
 		class: "ready-note",
 		role: "note"
-	}, h3({ class: "ready-title" }, "Get your 2FA app ready"), p({ class: "ready-text" }, "After this step, you'll scan a QR code with your authenticator app. Use one that supports counter-based codes, such as Google Authenticator, 2FAS, Aegis or FreeOTP.")), form({
+	}, h3({ class: "ready-title" }, "Get your 2FA app ready"), p({ class: "ready-text" }, "After this step, you'll scan a QR code with your authenticator app, such as Google Authenticator, 1Password, 2FAS or Aegis.")), form({
 		action: () => view.val.request?.url ?? "",
 		method: "post",
 		enctype: "application/x-www-form-urlencoded",
@@ -2659,7 +2781,6 @@ var noView = {
 	value: "",
 	request: null,
 	submitted: false,
-	codeType: "hotp",
 	account: null,
 	linkError: "",
 	linkBusy: "",
@@ -2951,28 +3072,26 @@ function createSetupPage(load) {
 		}).then((response) => response.ok ? response : Promise.reject(new Error(url)));
 	}
 	/**
-	* The screenshot list: the text in `#setup`'s data-screenshots, or the file
-	* at its data-screenshots-url, only if its SHA-256 matches
+	* The screenshot list at `#setup`'s data-screenshots-url, only if its SHA-256 matches
 	* data-screenshots-integrity. Anything but a list of checked file names and
 	* SHA-256s is refused.
 	*/
 	function screenshotList() {
 		const data = document.getElementById("setup").dataset;
 		listUrl = new URL(data.screenshotsUrl ?? "", document.baseURI).href;
-		return (data.screenshots !== void 0 ? Promise.resolve(data.screenshots) : pinned(listUrl, data.screenshotsIntegrity ?? "").then((response) => response.text())).then((json) => checkedList(JSON.parse(json)));
+		return pinned(listUrl, data.screenshotsIntegrity ?? "").then((response) => response.text()).then((json) => checkedList(JSON.parse(json)));
 	}
 	/**
 	* Fetch a screenshot, once: the file next to the screenshot list, only if its
-	* SHA-256 matches the list's, as a blob: URL. The self-contained experiment's
-	* list holds each screenshot as a data: URL instead.
+	* SHA-256 matches the list's, as a blob: URL.
 	*/
 	function loadScreenshot(shot) {
-		if (!images.has(shot.file)) images.set(shot.file, shot.file.startsWith("data:image/webp;base64,") ? Promise.resolve(shot.file) : pinned(new URL(shot.file, listUrl).href, shot.integrity).then((response) => response.blob()).then((blob) => URL.createObjectURL(blob)));
+		if (!images.has(shot.file)) images.set(shot.file, pinned(new URL(shot.file, listUrl).href, shot.integrity).then((response) => response.blob()).then((blob) => URL.createObjectURL(blob)));
 		return images.get(shot.file);
 	}
 	/** Show a screenshot in `picture` once it's fetched and checked. */
 	function screenshot(picture, shot) {
-		if (!shot.file.startsWith("data:")) picture.dataset.screenshot = shot.file;
+		picture.dataset.screenshot = shot.file;
 		loadScreenshot(shot).then((source) => picture.src = source, () => {});
 	}
 	/** Move to the current step's title, for the skip link. */
@@ -3014,8 +3133,8 @@ function createSetupPage(load) {
 		focusStep
 	};
 }
-/** A screenshot's file: a plain file name, or in the self-contained experiment a data: URL. */
-var shotFile = /^(?:[\w.-]+\.webp|data:image\/webp;base64,[A-Za-z0-9+/]+=*)$/;
+/** A screenshot's plain file name. */
+var shotFile = /^[\w.-]+\.webp$/;
 var shotIntegrity = /^sha256-[A-Za-z0-9+/]{43}=$/;
 /** `value` as a screenshot list, if it is one: every set's files and SHA-256s checked. */
 function checkedList(value) {

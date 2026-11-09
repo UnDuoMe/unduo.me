@@ -27,6 +27,14 @@ serves the generated `www/` directory on localhost; `PORT` selects the port and
 Paths resolve from the package location so these commands work from any working
 directory.
 
+Vite keeps the home page live, but serves `files/unduo` as a download built with
+the production pipeline: its scripts are inline and its CSP and resource hashes
+are preserved. Its stylesheet, setup plugin and screenshots load from absolute,
+content-addressed localhost URLs with CORS enabled, so the saved HTML works from
+`file://` while Vite is running. Source changes invalidate the next download;
+download a fresh copy after editing. This builds in memory without changing `www/`
+or publishing assets to jsDelivr.
+
 `build-universities.ts` selects the published institutions. The default
 `UNDUO_UNIVERSITIES=published` includes only the main UofT, Waterloo and Western records; `all` enables the
 full directory. Use the same scope for building and running `test:web`.
@@ -46,9 +54,7 @@ jsDelivr serves it.
 match across operating systems and CPU architectures. `cdn-source.mjs`
 reads the reviewed URLs and hashes in the web adapter's
 `src/cdn-resources.html`. `html-security.mjs` validates resources and adds
-SRI and CSP protection. `self-contained.ts` serves the experimental
-`UNDUO_SELF_CONTAINED=1` build: it finds the `uk-` classes a page's markup uses
-and trims UIkit's CSS to them, so the build can put every stylesheet in the page.
+SRI and CSP protection.
 
 `update-cdn.mjs` refreshes pinned CDN versions, hashes and integrity sources
 after root catalog changes, and fails unless jsDelivr serves the installed npm

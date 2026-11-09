@@ -10,7 +10,6 @@ Import the documented public API from `@-/me.unduo.components.setup.plugin`. Pac
 ## API
 
 ```ts
-export { createSetupLogic, loadJsSetupPlugin } from "#js-plugin";
 export { defaultPluginLimits, guard, loadSetupPlugin, newPublicKey } from "#setup-plugin";
 export type { DuoRequest, PluginLimits, SetupEffect, SetupEvent, SetupPlugin, SetupView, … } from "#entities";
 ```
@@ -80,25 +79,6 @@ generates the RSA key pair for the Duo form with WebCrypto and keeps its public
 key in the guard; the plugin never sees it, and the private key is never
 exported or used. `__tests__` drives the guard with a fake plugin, and runs the
 real `setup.wasm` through a whole setup so the schema and `crates/setup` agree.
-
-**Readable logic without WebAssembly (an experiment).** `js-plugin.ts` ports
-`crates/setup` function by function to TypeScript for the build
-`UNDUO_JS_PLUGIN=1 vp run build:web`. `createSetupLogic()` returns a function
-that takes one event as JSON and returns the JSON the plugin's `update` export
-returns, keeping the page's state in its closure. `loadJsSetupPlugin(limits)`
-returns it through the same `guard`, so the page checks the port's output as it
-checks the plugin's. In that build the pages carry no `data-plugin-url`, their CSP has no
-`'wasm-unsafe-eval'` and `connect-src` lists only the screenshots. Without the
-variable the build is unchanged: the bundler drops the loader the page doesn't
-use, and the stylesheet and assets commit stay the same.
-
-`__tests__/js-plugin.test.ts` gives the committed `setup.wasm` and the port the
-same events (every event type, the inputs of the Rust tests, cases where
-JavaScript's built-ins differ from Rust's, and seeded random walks) and requires
-the same JSON byte for byte, or that both refuse the event. One difference is
-known. The platform's URL parser keeps a host label that starts with `xn--` but
-isn't valid punycode, which the `url` crate refuses, so the port names a
-different reason for refusing such a link.
 
 Build-time code imports `@-/me.unduo.components.setup.plugin/server`:
 

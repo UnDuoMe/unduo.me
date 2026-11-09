@@ -7,7 +7,6 @@
     "authenticator",
     "duo",
     "duo-security",
-    "hotp",
     "otp",
     "totp"
   ],
@@ -45,7 +44,6 @@
       "parse5": "^8.0.1",
       "mprocs": "0.9.6",
       "vanjs-core": "1.6.2",
-      "postcss": "^8.5.32",
       "@playwright/test": "1.64.1"
     }
   },
@@ -58,7 +56,6 @@
     "capture:ai": "vpx packages/me/unduo/configs/ai-replies/capture-command.ts",
     "check:git": "vpx packages/me/unduo/configs/git/git-hook.ts history",
     "build:web": "vp run --filter @-apps/unduo-web build",
-    "build:web:self-contained": "vp run --filter @-/me.unduo.configs.web build:self-contained",
     "dev": "vp exec _dev",
     "preview": "vp run --filter @-/me.unduo.configs.web preview",
     "check": "vp check",

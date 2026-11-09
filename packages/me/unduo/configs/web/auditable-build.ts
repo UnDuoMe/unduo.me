@@ -8,22 +8,9 @@ import { repoRoot, webRoot } from "#web-paths";
 import { universityCatalog } from "#university-catalog";
 import { cdnLibraries } from "#cdn-libraries";
 import { cdnBase, cdnCommit } from "#cdn-assets";
-import { assetIntegritySource, installedVersion, readCdnSource, template } from "#cdn-source";
+import { assetIntegritySource, installedVersion, template } from "#cdn-source";
 import { finalizeHtml, validateScript, validateStylesheet } from "#html-security";
 import { readSetupPlugin, setupPluginFile } from "@-/me.unduo.components.setup.plugin/server";
-import { reviewedStylesheet, selfContained, trimUikit, usedUikitClasses } from "#self-contained";
-
-/**
- * An experiment: with UNDUO_JS_PLUGIN=1, setup pages run the TypeScript port
- * of `crates/setup` in their script and load no WebAssembly.
- */
-export const jsPlugin = process.env.UNDUO_JS_PLUGIN === "1";
-
-/** The build's choices that the pages' scripts read as constants. */
-export const pageDefines = {
-  "import.meta.env.UNDUO_JS_PLUGIN": JSON.stringify(jsPlugin),
-  "import.meta.env.UNDUO_SELF_CONTAINED": JSON.stringify(selfContained),
-};
 
 /** The script each kind of page runs, from the web adapter's root. */
 const pageEntries = {
@@ -37,7 +24,7 @@ export type PageEntry = keyof typeof pageEntries;
 export interface PageResources {
   /** The head's elements for the page's stylesheets. */
   head: string;
-  /** The attributes that load the setup plugin; absent when the logic is in the script. */
+  /** The attributes that load the setup plugin; absent on the home page. */
   plugin?: Record<string, string> | undefined;
   /** The attributes that load an image in `src/assets/`, named without `.webp`. */
   image: (name: string) => Record<string, string>;
@@ -48,13 +35,12 @@ export interface PageResources {
   screenshot: (name: string) => { file: string; integrity: string };
   /**
    * Publish `bytes` as `name` with the page's assets: its address, SHA-256 and
-   * jsDelivr's listing of it, or in the self-contained experiment its text to
-   * put in the page.
+   * jsDelivr's listing of it.
    */
   asset: (
     name: string,
     bytes: Buffer,
-  ) => { url: string; integrity: string; source: string; file: string } | { inline: string };
+  ) => { url: string; integrity: string; source: string; file: string };
   /** The element that runs the page's script. */
   script: (entry: PageEntry) => string;
 }
@@ -73,7 +59,6 @@ async function bundleScript(entry: string) {
     root,
     logLevel: "silent",
     plugins: [universityCatalog(), cdnLibraries()],
-    define: pageDefines,
     build: {
       write: false,
       minify: false,
@@ -128,17 +113,9 @@ const setupParts = [
   {
     part: "plugin-checks",
     modules: /\/setup\/plugin\/setup-plugin\.ts$/,
-    requests: jsPlugin ? "none" : "fetch() of data-plugin-url",
-    comment: jsPlugin
-      ? "guard() and check() test each output of the setup logic before the page uses it, and fromInput() and fromReply() bind what it names to what the page read."
-      : "kernel() gives the WebAssembly module its only imports, loadSetupPlugin() refuses a module with any others, and guard() and check() test each of its outputs before the page uses it. fromInput() and fromReply() bind what it names to what the page read. fetch() returns the module only if its SHA-256 matches.",
-  },
-  {
-    part: "setup-logic",
-    modules: /\/setup\/plugin\/js-plugin\.ts$/,
-    requests: "none",
+    requests: "fetch() of data-plugin-url",
     comment:
-      "The setup logic ported from crates/setup to TypeScript. Its output goes through guard().",
+      "kernel() gives the WebAssembly module its only imports, loadSetupPlugin() refuses a module with any others, and guard() and check() test each of its outputs before the page uses it. fromInput() and fromReply() bind what it names to what the page read. fetch() returns the module only if its SHA-256 matches.",
   },
   {
     part: "qr-codes",
@@ -153,7 +130,7 @@ const setupParts = [
       /\/lib\/dom\/dom\.ts$|\/components\/result\/[\w-]+\.ts$|\/components\/stepper\/[\w-]+\.ts$|\/setup\/(?:shortcuts|limits|portal|link|help)\/[\w-]+\.ts$|\/setup\/setup-layout\.ts$/,
     requests: "none",
     comment:
-      "The element functions from the vanjs element's global, and the elements of each setup step but the Duo form. Their links open only when you click them, and the one form here, for pasted text, has no action: the page handles it.",
+      "The element functions from the vanjs element's global, and the elements of each setup step but the Duo form. Their links open only when you click them. The forms here, for pasted text and the local passcode check, have no action: the page handles them.",
   },
   {
     part: "duo-form",
@@ -166,9 +143,8 @@ const setupParts = [
     part: "page",
     modules:
       /\/setup\/setup-page\.ts$|\/setup\/setup-app\.ts$|\/setup\/school-choice\.ts$|\/src\/main\.ts$/,
-    requests: selfContained
-      ? "fetch() of a data: URL the CSP must refuse; window.open() of the portal link"
-      : "fetch() of the screenshots, and of a data: URL the CSP must refuse; window.open() of the portal link",
+    requests:
+      "fetch() of the screenshots, and of a data: URL the CSP must refuse; window.open() of the portal link",
     comment:
       "The page's browser I/O, which sends each event to the setup logic and performs what check() approved. It starts setup.",
   },
@@ -224,25 +200,11 @@ export const scriptComments: Record<string, string> = {
   setup: `This is all the JavaScript the page runs, bundled from github.com/UnDuoMe/unduo.me without minifying. It imports nothing. It holds ${vanjs}, which builds the page's elements with createElement and text nodes and updates them when state changes; the setup page and its steps (startSetupPage, createSetupPage, screenshot); the QR code encoder and reader (qrModules, qrImage, readQrCodes), and the plugin loader and its output checks (kernel, loadSetupPlugin, guard, check, fromInput, fromReply). Nothing in the script writes HTML or evaluates text as code, and no attribute in the page's HTML holds an expression: the data attributes of the institutions in the #setup-schools template are text the script shows or sets as links. It reads its own file name from location.pathname only to pick which of those institutions to show, which the first step lets you change, and the name goes nowhere. Its only requests are the Duo form, whose action check() approves, and fetch() of data-plugin-url, of the screenshot list at the #setup element's data-screenshots-url and of the screenshots it names for the institution shown, each of which returns a file only if its SHA-256 matches. Before setup starts, it tries fetch() of a data: URL, which the CSP forbids, and starts only if that fails. It navigates only with window.open() of the portal link the user clicked (popup), and with one history.replaceState() when the page opens, before anything is pasted, which drops any query or hash from its address. The script sets four kinds of changing URL: the Duo form's action and the otpauth:// link's href, both approved by check(); the authenticator QR code's src, a data: URL from qrImage(); and each screenshot's src, a blob: URL of its fetched file. Every other link's href is written in the script or is the data-portal-url or data-source-url of an institution in the #setup-schools template.`,
   home: `This and the vanjs element before it are all the JavaScript the page runs. This one is bundled from github.com/UnDuoMe/unduo.me without minifying. It imports nothing. With VanJS, which builds the page's elements with createElement and text nodes, it filters the list of institutions as you type and takes the one you choose through downloading its setup file, asking an AI about it and opening it. Its only requests are fetch() of the screenshots of what ChatGPT, Claude and Gemini said about a setup file (showScreenshot): each image's data-image-src in the #ai-reply-images template, which returns a file only if its SHA-256 matches, shown as a blob: URL. It changes the URL only with history.pushState(), which records the institution and step you chose in this page's own address. It opens a window only with window.open() of the AI link you click (openWindow), and only links you click go anywhere else. When you ask, it copies a prompt for an AI to your clipboard.`,
 };
-if (jsPlugin)
-  scriptComments.setup = `This is all the JavaScript the page runs, bundled from github.com/UnDuoMe/unduo.me without minifying. It imports nothing. It holds ${vanjs}, which builds the page's elements with createElement and text nodes and updates them when state changes; the setup page and its steps (startSetupPage, createSetupPage, screenshot); the QR code encoder and reader (qrModules, qrImage, readQrCodes), the setup logic ported from crates/setup to TypeScript (loadJsSetupPlugin, createSetupLogic, readEvent, view), and the checks on the setup logic's output (guard, check, fromInput, fromReply). Nothing in the script writes HTML or evaluates text as code, and no attribute in the page's HTML holds an expression: the data attributes of the institutions in the #setup-schools template are text the script shows or sets as links. It reads its own file name from location.pathname only to pick which of those institutions to show, which the first step lets you change, and the name goes nowhere. Its only requests are the Duo form, whose action check() approves, and fetch() of the screenshot list at the #setup element's data-screenshots-url and of the screenshots it names for the institution shown, each of which returns a file only if its SHA-256 matches. Before setup starts, it tries fetch() of a data: URL, which the CSP forbids, and starts only if that fails. Once the page accepts a Duo form, it adds a second CSP limiting forms to that form's host. It navigates only with window.open() of the portal link the user clicked (popup), and with one history.replaceState() when the page opens, before anything is pasted, which drops any query or hash from its address. The script sets four kinds of changing URL: the Duo form's action and the otpauth:// link's href, both approved by check(); the authenticator QR code's src, a data: URL from qrImage(); and each screenshot's src, a blob: URL of its fetched file. Every other link's href is written in the script or is the data-portal-url or data-source-url of an institution in the #setup-schools template.`;
-
 /** A copy of `text` with `from` replaced, which must appear in it. */
 function rewrite(text: string, from: string, to: string) {
   if (!text.includes(from)) throw new Error(`Missing text to rewrite: ${from}`);
   return text.replace(from, () => to);
 }
-if (selfContained && jsPlugin)
-  scriptComments.setup = rewrite(
-    rewrite(
-      scriptComments.setup!,
-      "Its only requests are the Duo form, whose action check() approves, and fetch() of the screenshot list at the #setup element's data-screenshots-url and of the screenshots it names for the institution shown, each of which returns a file only if its SHA-256 matches. Before setup starts, it tries fetch() of a data: URL, which the CSP forbids, and starts only if that fails.",
-      "Its only requests are the Duo form, whose action check() approves, and, before setup starts, fetch() of a data: URL, which the CSP forbids; setup starts only if that fails. The screenshot list is the #setup element's data-screenshots, and its screenshots are data: URLs, so loadScreenshot() fetches nothing.",
-    ),
-    "The script sets four kinds of changing URL: the Duo form's action and the otpauth:// link's href, both approved by check(); the authenticator QR code's src, a data: URL from qrImage(); and each screenshot's src, a blob: URL of its fetched file. Every other link's href is written in the script or is the data-portal-url or data-source-url of an institution in the #setup-schools template.",
-    "The script sets three kinds of changing URL: the Duo form's action and the otpauth:// link's href, both approved by check(); and the authenticator QR code's src, a data: URL from qrImage(). Every other link's href is written in the script or is the data-portal-url or data-source-url of an institution in the #setup-schools template, and every other image has a fixed src.",
-  );
-
 scriptComments.setup = rewrite(
   rewrite(
     scriptComments.setup!,
@@ -252,13 +214,6 @@ scriptComments.setup = rewrite(
   vanjs,
   vanjsInElement,
 );
-
-/** Every request a self-contained page's script can make, for its CSP's data-comment. */
-const selfContainedRequests: Record<string, string> = {
-  setup:
-    "the fetch('data:,') probe, which this policy must refuse, and the Duo form's POST to the URL that check() approves, besides opening links you click",
-  home: "none, besides opening links you click",
-};
 
 const stylesheetComment =
   "The browser applies this stylesheet only if its SHA-256 matches integrity. jsDelivr's listing at data-integrity-source, a commit of github.com/UnDuoMe/unduo.me, gives the same hash for data-integrity-file.";
@@ -283,12 +238,10 @@ async function devResources(
     head: `<meta http-equiv="Content-Security-Policy" content="connect-src 'self' ws:">
     ${(await readFile(template, "utf8")).trim()}
     <link rel="stylesheet" data-vendor="app" href="${fs(stylesheet)}">`,
-    plugin: jsPlugin
-      ? undefined
-      : {
-          "data-plugin-url": fs(fileURLToPath(setupPluginFile)),
-          "data-plugin-integrity": sri(plugin.bytes),
-        },
+    plugin: {
+      "data-plugin-url": fs(fileURLToPath(setupPluginFile)),
+      "data-plugin-integrity": sri(plugin.bytes),
+    },
     image: (name) => ({ "data-image-src": fs(fileURLToPath(imageFile(name))) }),
     screenshot: (name) => ({
       file: `${name}.webp`,
@@ -315,18 +268,15 @@ const assetOutputs: Record<AssetGroup, { directory: string; manifest: string }> 
 };
 
 /**
- * Write the site from the compiled stylesheets: every page, each with its whole
+ * Render the site from the compiled stylesheets: every page, each with its whole
  * script inline so it's reviewable from the HTML alone, and two content-addressed
  * jsDelivr commits. `cdn/` holds what the setup files load (their stylesheet,
  * the setup plugin and the setup screenshots) and `cdn-home/` what the home
  * page loads (its stylesheet and the AI replies' screenshots), so nothing on
  * the home page changes a setup file's bytes.
  */
-async function writeSite(
-  output: string,
-  css: Record<PageEntry, string>,
-  pages: readonly SitePage[],
-) {
+async function renderSite(css: Record<PageEntry, string>, pages: readonly SitePage[]) {
+  const output = new Map<string, Buffer>();
   validateStylesheet(css.setup);
   validateStylesheet(css.home);
   const groups = Object.fromEntries(
@@ -374,18 +324,17 @@ async function writeSite(
   });
   // A page can publish files of its own, such as the setup file's screenshot
   // list: render each once to publish them before the commits are named.
-  if (!selfContained)
-    for (const page of pages)
-      page.render({
-        head: "",
-        image: () => ({}),
-        screenshot,
-        asset: (name, bytes) => {
-          publish(groupOf(page.entry), name, bytes);
-          return { url: "", integrity: "", source: "", file: "" };
-        },
-        script: () => "",
-      });
+  for (const page of pages)
+    page.render({
+      head: "",
+      image: () => ({}),
+      screenshot,
+      asset: (name, bytes) => {
+        publish(groupOf(page.entry), name, bytes);
+        return { url: "", integrity: "", source: "", file: "" };
+      },
+      script: () => "",
+    });
   for (const group of Object.values(groups)) {
     group.commit = cdnCommit(group.files);
     group.base = cdnBase(group.commit);
@@ -406,7 +355,7 @@ async function writeSite(
   const resourcesFor = (entry: PageEntry): PageResources => ({
     head: `${uikitLink}\n    ${appLink(stylesheets[entry])}`,
     plugin:
-      jsPlugin || entry !== "setup"
+      entry !== "setup"
         ? undefined
         : {
             "data-plugin-url": plugin.url(),
@@ -433,68 +382,18 @@ async function writeSite(
     script,
   });
 
-  /** UIkit trimmed to each set of classes a page uses. */
-  const trimmed = new Map<string, string>();
-  /** A style element holding `css`, which must not end the element early. */
-  const style = (vendor: string, comment: string, source: string) => {
-    if (/<\/style/i.test(source)) throw new Error(`A stylesheet would end its element: ${vendor}`);
-    return `<style data-vendor="${vendor}" data-comment="${comment}">${source}</style>`;
-  };
-  /**
-   * The experiment's self-contained page: its stylesheets become style
-   * elements, which the CSP allows by hash, UIkit's trimmed to the rules this
-   * page can use, and its screenshots become data: URLs.
-   */
-  const containedResources = (page: SitePage): PageResources => {
-    const contained: PageResources = {
-      head: "",
-      plugin: undefined,
-      image: (file) => ({
-        src: `data:image/webp;base64,${image(file).bytes.toString("base64")}`,
-      }),
-      screenshot: (name) => ({
-        file: `data:image/webp;base64,${image(name).bytes.toString("base64")}`,
-        integrity: sri(image(name).bytes),
-      }),
-      asset: (_name, bytes) => ({ inline: bytes.toString("utf8") }),
-      script,
-    };
-    // The script builds most of the elements, so this counts its classes too.
-    const used = usedUikitClasses(page.render(contained));
-    const key = [...used].sort().join(" ");
-    const reviewed = Object.keys(readCdnSource().assets).map((url) => {
-      const { css: source, integrity, name, version, file } = reviewedStylesheet(url);
-      if (name !== "uikit") throw new Error(`Only UIkit's stylesheet is trimmed: ${url}`);
-      if (!trimmed.has(key)) trimmed.set(key, trimUikit(source, used));
-      const comment = `UIkit ${version}'s ${file.slice(1)} from the npm registry, whose SHA-256 is ${integrity}, trimmed to the selectors whose .uk- classes all appear in this page's class attributes and script, the selectors with no .uk- class, and the @keyframes they name. The CSP allows this element by the hash of its contents.`;
-      return style("uikit", comment, trimmed.get(key)!);
-    });
-    const stylesheet = stylesheets[page.entry];
-    const comment = `The page's own stylesheet, compiled with Tailwind CSS from github.com/UnDuoMe/unduo.me: the bytes the normal build pins at ${stylesheet.url()}, whose SHA-256 is ${sri(stylesheet.bytes)}. The CSP allows this element by the hash of its contents.`;
-    return {
-      ...contained,
-      head: [...reviewed, style("app", comment, css[page.entry])].join("\n    "),
-    };
-  };
-
   let totalBytes = 0;
-  const secure = async (page: SitePage) => {
+  const secure = (page: SitePage) => {
     const stylesheet = stylesheets[page.entry];
-    const html = finalizeHtml(
-      page.render(selfContained ? containedResources(page) : resourcesFor(page.entry)),
-      {
-        stylesheets: selfContained ? {} : { [stylesheet.url()]: sri(stylesheet.bytes) },
-        assetBase: groups[groupOf(page.entry)].base,
-        selfContained: selfContained ? selfContainedRequests[page.entry] : undefined,
-      },
-    );
-    const path = resolve(output, page.path);
-    await mkdir(dirname(path), { recursive: true });
-    await writeFile(path, html);
+    const html = finalizeHtml(page.render(resourcesFor(page.entry)), {
+      stylesheets: { [stylesheet.url()]: sri(stylesheet.bytes) },
+      assetBase: groups[groupOf(page.entry)].base,
+    });
+    output.set(page.path, Buffer.from(html));
     totalBytes += Buffer.byteLength(html);
   };
   for (let offset = 0; offset < pages.length; offset += 32) {
-    await Promise.all(pages.slice(offset, offset + 32).map(secure));
+    pages.slice(offset, offset + 32).forEach(secure);
     if (offset > 0 && offset % 2048 === 0)
       console.log(
         `Secured ${Math.min(offset + 32, pages.length).toLocaleString("en-US")} of ${pages.length.toLocaleString("en-US")} documents.`,
@@ -504,19 +403,56 @@ async function writeSite(
   // `vp run publish:assets` pushes each group's directory as the commit its pages reference.
   for (const [group, { directory, manifest }] of Object.entries(assetOutputs)) {
     const { files, commit, base } = groups[group as AssetGroup];
-    const published = resolve(output, directory);
-    await mkdir(published, { recursive: true });
-    for (const [name, bytes] of files) await writeFile(resolve(published, name), bytes);
-    await writeFile(
-      resolve(output, manifest),
-      `${JSON.stringify({ commit, base, files: Object.fromEntries([...files].map(([name, bytes]) => [name, sri(bytes)])) }, null, 2)}\n`,
+    for (const [name, bytes] of files) output.set(`${directory}/${name}`, bytes);
+    output.set(
+      manifest,
+      Buffer.from(
+        `${JSON.stringify({ commit, base, files: Object.fromEntries([...files].map(([name, bytes]) => [name, sri(bytes)])) }, null, 2)}\n`,
+      ),
     );
   }
   for (const name of ["CNAME", ".nojekyll"])
-    await writeFile(resolve(output, name), await readFile(new URL(name, repoRoot)));
+    output.set(name, await readFile(new URL(name, repoRoot)));
   console.log(
     `Secured ${pages.length.toLocaleString("en-US")} documents (${(totalBytes / 1e6).toFixed(2)} MB); setup files' assets are pinned to ${groups.setup.base}, the home page's to ${groups.home.base}`,
   );
+  return output;
+}
+
+/** Build downloads with the production pipeline, keeping unpublished assets on localhost. */
+async function devDownloads(
+  pages: readonly SitePage[],
+  stylesheets: Record<PageEntry, string>,
+  assets: Map<string, Buffer>,
+) {
+  const result = await bundle({
+    configFile: false,
+    root: fileURLToPath(webRoot),
+    logLevel: "silent",
+    build: { write: false, minify: false, rolldownOptions: { input: stylesheets } },
+  });
+  const css: Partial<Record<PageEntry, string>> = {};
+  for (const output of Array.isArray(result) ? result : [result]) {
+    if (!("output" in output)) continue;
+    for (const file of output.output) {
+      const entry = /(?:^|\/)(setup|home)-[\w-]*\.css$/.exec(file.fileName)?.[1] as
+        | PageEntry
+        | undefined;
+      if (file.type === "asset" && entry)
+        css[entry] = file.source.toString().replace(/\/\*\$vite\$:\d+\*\/$/, "");
+    }
+  }
+  if (!css.setup || !css.home) throw new Error("Vite compiled no setup or no home stylesheet.");
+  const files = await renderSite({ setup: css.setup, home: css.home }, pages);
+  const bases = new Map<string, string>();
+  for (const { directory, manifest } of Object.values(assetOutputs)) {
+    const { commit, base } = JSON.parse(files.get(manifest)!.toString());
+    bases.set(base, `${devAssets}${commit}/`);
+    for (const [path, bytes] of files)
+      if (path.startsWith(`${directory}/`))
+        assets.set(`${commit}/${path.slice(directory.length + 1)}`, bytes);
+  }
+  return { files, bases };
 }
 
 /**
@@ -536,12 +472,20 @@ export function auditableBuild(
     config() {
       // Refuse to serve or build a plugin older than its Rust sources.
       readSetupPlugin();
-      if (selfContained && !jsPlugin)
-        throw new Error(
-          "UNDUO_SELF_CONTAINED=1 needs UNDUO_JS_PLUGIN=1: the WebAssembly plugin is a file the page fetches.",
-        );
     },
     configureServer(server) {
+      let downloads: ReturnType<typeof devDownloads> | undefined;
+      const getDownloads = () =>
+        (downloads ??= devDownloads(pages, stylesheets, assets).catch((error) => {
+          downloads = undefined;
+          throw error;
+        }));
+      // The nested production bundles don't enter Vite's dev module graph.
+      // Watch their workspace sources as well as the adapter's root.
+      server.watcher.add(fileURLToPath(new URL("packages/", repoRoot)));
+      server.watcher.on("all", () => {
+        downloads = undefined;
+      });
       server.middlewares.use((request, response, next) => {
         const url = request.originalUrl ?? request.url ?? "/";
         const { pathname } = new URL(url, "http://localhost");
@@ -553,20 +497,55 @@ export function auditableBuild(
             (/^setup-[\w.-]+\.webp$/.test(name)
               ? readFileSync(imageFile(name.slice(0, -5)))
               : undefined);
-          if (!bytes) {
-            next();
-            return;
-          }
-          response.setHeader(
-            "Content-Type",
-            name.endsWith(".json") ? "application/json" : "image/webp",
-          );
-          response.end(bytes);
+          // A saved file may be the first request after Vite restarts. Rebuild
+          // its content-addressed assets without needing another download first.
+          const ready = bytes
+            ? Promise.resolve(bytes)
+            : /^[a-f0-9]{40}\//.test(name)
+              ? getDownloads().then(() => assets.get(name))
+              : Promise.resolve(undefined);
+          ready
+            .then((bytes) => {
+              if (!bytes) {
+                next();
+                return;
+              }
+              response.setHeader(
+                "Content-Type",
+                name.endsWith(".json")
+                  ? "application/json"
+                  : name.endsWith(".css")
+                    ? "text/css; charset=utf-8"
+                    : name.endsWith(".wasm")
+                      ? "application/wasm"
+                      : "image/webp",
+              );
+              response.setHeader("Access-Control-Allow-Origin", "*");
+              response.end(request.method === "HEAD" ? undefined : bytes);
+            })
+            .catch(next);
           return;
         }
         const page = pages.find((candidate) => `/${candidate.path}` === path);
         if (!page) {
           next();
+          return;
+        }
+        if (page.entry === "setup") {
+          getDownloads()
+            .then(({ files, bases }) => {
+              const address = server.httpServer!.address();
+              if (!address || typeof address === "string")
+                throw new Error("The download needs the dev server's HTTP address.");
+              const host = address.family === "IPv6" ? `[${address.address}]` : address.address;
+              const origin = `${server.config.server.https ? "https" : "http"}://${host}:${address.port}`;
+              let html = files.get(page.path)!.toString();
+              for (const [base, local] of bases) html = html.replaceAll(base, origin + local);
+              response.setHeader("Content-Type", "application/octet-stream");
+              response.setHeader("Content-Disposition", "attachment");
+              response.end(request.method === "HEAD" ? undefined : html);
+            })
+            .catch(next);
           return;
         }
         devResources(stylesheets[page.entry], assets)
@@ -589,7 +568,12 @@ export function auditableBuild(
     },
     async writeBundle(options) {
       if (!css.setup || !css.home) throw new Error("Vite compiled no setup or no home stylesheet.");
-      await writeSite(options.dir!, { setup: css.setup, home: css.home }, pages);
+      const files = await renderSite({ setup: css.setup, home: css.home }, pages);
+      for (const [name, bytes] of files) {
+        const path = resolve(options.dir!, name);
+        await mkdir(dirname(path), { recursive: true });
+        await writeFile(path, bytes);
+      }
     },
   };
 }

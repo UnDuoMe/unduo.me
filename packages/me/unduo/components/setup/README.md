@@ -26,7 +26,7 @@ five steps:
    (from the portal step too) is routed by the
    setup plugin: a copied QR image (its `<img src>` is preferred when present),
    an image address, a `duo://` or activation link, or even Duo's reply. Dropped
-   and uploaded screenshots and **Scan my screen** use the same path, except that
+   and uploaded screenshots and **Detect QR Code** use the same path, except that
    a scan that finds Duo's code stops sharing, puts the code's text in the field
    with a success note under it, and waits for **Continue**. Problems with the
    input are shown on this step.
@@ -40,8 +40,10 @@ five steps:
    user can activate again. **Use a new QR code** clears the used code and returns
    to step 3.
 5. **Add it to your authenticator.** The authenticator result template shows the QR,
-   key (no copy buttons: some systems sync the clipboard to the cloud), defaulting
-   to counter-based (HOTP) codes.
+   key (no copy buttons: some systems sync the clipboard to the cloud) and a local
+   code check, for time-based (TOTP) codes only. A reply without `use_totp: true`
+   stops on the activate step with "Your organization's Duo is using an
+   unsupported setting :(" instead.
 
 ## Usage
 
@@ -71,8 +73,7 @@ The script picks the institution whose name the file's own name holds (`schoolFr
 `school-choice.ts`: `UnDuo - <name>.html`, even with a browser's ` (1)` or ` 2`), or Other, and
 the first step's **Your school** menu changes it. It fetches all of an institution's
 screenshots as soon as it's shown, never step by step, so when they load says nothing about the
-setup. In the self-contained experiment the list is `#setup`'s `data-screenshots`, with each
-screenshot a `data:` URL. The file links home to `https://unduo.me/`. The adapter calls `startSetupPage(load)`,
+setup. The file links home to `https://unduo.me/`. The adapter calls `startSetupPage(load)`,
 which builds the alerts, stepper and step card in `#setup` and the header, introduction, help
 dialogs, footer and Advanced panel around it with VanJS, where `load(limits)` calls
 `loadSetupPlugin(url, integrity, limits)` with the root element's
@@ -123,7 +124,7 @@ The `activate`, `link` and `plugin` packages keep shared types in their own nest
 
 | State                                     | Where            | Why                                                                                                           |
 | ----------------------------------------- | ---------------- | ------------------------------------------------------------------------------------------------------------- |
-| Current step and code type                | Plugin memory    | The address never changes during setup, so nothing the plugin decides reaches history or browser sync         |
+| Current step                              | Plugin memory    | The address never changes during setup, so nothing the plugin decides reaches history or browser sync         |
 | WHED institution ID                       | Document path    | Shareable institution page                                                                                    |
 | Activation value, submitted flag, account | Plugin memory    | Secret: never in this page's links, history or browser storage; the Duo frame's URL holds the activation code |
 | Errors, busy state, scan notes, Duo form  | Plugin memory    | Short-lived                                                                                                   |
@@ -133,8 +134,8 @@ The page changes its address once, when it opens and before anything is
 pasted: `history.replaceState` drops any query or hash. It never changes the
 address after that, and it adds no history entries, so links, history and
 browser sync carry nothing the plugin decides, and no activation values or
-keys. The plugin reads the step and code type from the address it opened with
-(`#step=add&type=totp`, or an old `?step=` query), validated field by field; a
+keys. The plugin reads the step from the address it opened with
+(`#step=add`, or an old `?step=` query), validated field by field; a
 step the session can't reach opens the portal. The numbered steps move between
 steps; Back and Forward leave the page. Refreshing or closing the tab discards
 the activation and key, so the host asks the browser to confirm leaving while
@@ -153,7 +154,7 @@ allows no style attributes. The screenshots load with `fetch` and their SHA-256
 and `blob:` URLs and stylesheets can request nothing. The "Open in authenticator app" link shows only on
 touch screens, through a `pointer-coarse:` utility. Everything the page
 shows is built in the browser with VanJS (see `lib/dom`), without eval. The home page school search uses a native search
-input and keyboard-accessible buttons; code types are native radio inputs.
+input and keyboard-accessible buttons.
 
 Layout, typography and responsive states are named classes in `setup-styles.css`,
 such as `step-card` and `btn-accent`, each compiled from Tailwind CSS v4 utilities

@@ -50,6 +50,6 @@ screen. Headless Chromium's clipboard is its own, so the tests leave yours alone
 
 - A real activation, or anything real Duo does with the request. A real run enrolls a
   device on someone's account.
-- **Scan my screen**, which needs a screen-share picker.
+- **Detect QR Code**, which needs a screen-share picker.
 - Browsers other than Chromium, including Safari, and phones.
 - Whether real assistants clear the file.

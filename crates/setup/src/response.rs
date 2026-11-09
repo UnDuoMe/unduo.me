@@ -11,6 +11,8 @@ pub const MAX_RESPONSE_LENGTH: usize = 2_000_000;
 /// Duo's code for an activation link that is unknown, expired or already used.
 const UNKNOWN_ACTIVATION: i64 = 40403;
 const NOT_A_RESPONSE: &str = "That doesn't look like Duo's reply. Click in Duo's reply, select everything (Ctrl+A or ⌘A), copy it, then paste it here.";
+/// Duo's reply didn't turn on time-based codes, the only kind UnDuo exports.
+pub const UNSUPPORTED: &str = "Your organization's Duo is using an unsupported setting :(";
 
 static RESPONSE_KEY: LazyLock<Regex> =
     LazyLock::new(|| Regex::new(r#""?\b(?:hotp_secret|stat)\b"?\s*:?"#).unwrap());
@@ -19,7 +21,8 @@ static CUSTOMER: LazyLock<Regex> = LazyLock::new(|| {
     Regex::new(r#"(?m)(?:^|[\s"{,])customer_name"?[\s:]*(?:"([^"\n]*)"|([^\n]*))"#).unwrap()
 });
 
-/// What an authenticator needs: the organization and the unpadded base32 secret.
+/// What a time-based authenticator needs: the organization and the unpadded
+/// base32 secret.
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 pub struct Account {
     pub customer: String,
@@ -91,10 +94,18 @@ fn parse_viewer_text(text: &str) -> Value {
                 .map(|m| m.as_str().trim().to_string())
         })
         .unwrap_or_default();
-    serde_json::json!({
+    let mut data = serde_json::json!({
         "stat": status,
         "response": { "customer_name": customer, "hotp_secret": secret },
-    })
+    });
+    if let Some((quoted, bare)) = viewer_field(text, "use_totp") {
+        data["response"]["use_totp"] = match (quoted, bare.as_deref()) {
+            (None, Some("true")) => Value::Bool(true),
+            (None, Some("false")) => Value::Bool(false),
+            _ => Value::Null,
+        };
+    }
+    data
 }
 
 /// True when pasted text is plausibly Duo's activation reply rather than a link.
@@ -178,6 +189,13 @@ pub fn parse_activation_response(text: &str) -> Result<Account, ReplyError> {
         let customer = string_up_to(response.and_then(|r| r.get("customer_name")), 0, 4096);
         let secret = string_up_to(response.and_then(|r| r.get("hotp_secret")), 1, 4096);
         if let (Some(customer), Some(secret)) = (customer, secret) {
+            // Duo Mobile reads `use_totp` and makes counter-based codes when
+            // it is false or missing. UnDuo makes only time-based codes.
+            match response.and_then(|r| r.get("use_totp")) {
+                Some(Value::Bool(true)) => {}
+                None | Some(Value::Bool(false)) => return Err(ReplyError::other(UNSUPPORTED)),
+                _ => return Err(ReplyError::other(NOT_A_RESPONSE)),
+            }
             let customer = customer.trim();
             return Ok(Account {
                 customer: if customer.is_empty() {
@@ -217,16 +235,13 @@ fn encode_component(text: &str) -> String {
     out
 }
 
-/// A Key URI Format `otpauth://` link. HOTP is Duo's default: Duo checks this
-/// device's passcodes against a counter that starts at 0.
-pub fn otpauth_uri(account: &Account, totp: bool) -> String {
+/// A Key URI Format link for time-based codes: SHA-1, six digits, 30 seconds.
+pub fn otpauth_uri(account: &Account) -> String {
     let label = format!("Duo:{}", encode_component(&account.customer));
-    let params = format!("secret={}&issuer=Duo&algorithm=SHA1&digits=6", account.secret);
-    if totp {
-        format!("otpauth://totp/{label}?{params}&period=30")
-    } else {
-        format!("otpauth://hotp/{label}?{params}&counter=0")
-    }
+    format!(
+        "otpauth://totp/{label}?secret={}&issuer=Duo&algorithm=SHA1&digits=6&period=30",
+        account.secret
+    )
 }
 
 #[cfg(test)]
@@ -234,7 +249,7 @@ mod tests {
     use super::*;
 
     fn ok(customer: &str, secret: &str) -> String {
-        serde_json::json!({ "stat": "OK", "response": { "customer_name": customer, "hotp_secret": secret } })
+        serde_json::json!({ "stat": "OK", "response": { "customer_name": customer, "hotp_secret": secret, "use_totp": true } })
             .to_string()
     }
 
@@ -250,12 +265,48 @@ mod tests {
             parse_activation_response(&format!("Pretty-print\n{json}\n")),
             Ok(account.clone())
         );
-        let viewer =
-            "response\ncustomer_name: \"ACME University\"\nhotp_secret: \"supersecretkey\"\nstat: \"OK\"";
+        let viewer = "response\ncustomer_name: \"ACME University\"\nhotp_secret: \"supersecretkey\"\nuse_totp: true\nstat: \"OK\"";
         assert_eq!(parse_activation_response(viewer), Ok(account.clone()));
-        let bare = "customer_name: ACME University\nhotp_secret: supersecretkey\nstat: OK";
+        let bare = "customer_name: ACME University\nhotp_secret: supersecretkey\nuse_totp: true\nstat: OK";
         assert_eq!(parse_activation_response(bare), Ok(account));
         assert_eq!(parse_activation_response(&ok("  ", "x")).unwrap().customer, "Duo");
+    }
+
+    #[test]
+    fn refuses_replies_without_time_based_codes() {
+        for flag in [Some(false), None] {
+            let mut data: Value = serde_json::from_str(&ok("ACME", "secret")).unwrap();
+            match flag {
+                Some(flag) => data["response"]["use_totp"] = Value::Bool(flag),
+                None => {
+                    data["response"].as_object_mut().unwrap().remove("use_totp");
+                }
+            }
+            let error = parse_activation_response(&data.to_string()).unwrap_err();
+            assert_eq!(error, ReplyError::other(UNSUPPORTED));
+            let line = flag.map(|flag| format!("use_totp: {flag}\n")).unwrap_or_default();
+            let viewer = format!("customer_name: ACME\nhotp_secret: secret\n{line}stat: OK");
+            assert_eq!(parse_activation_response(&viewer).unwrap_err(), error);
+        }
+    }
+
+    #[test]
+    fn rejects_malformed_flags() {
+        for setting in [Value::Null, serde_json::json!("true"), serde_json::json!(1)] {
+            let mut data: Value = serde_json::from_str(&ok("ACME", "secret")).unwrap();
+            data["response"]["use_totp"] = setting;
+            assert_eq!(
+                parse_activation_response(&data.to_string()).unwrap_err().message,
+                NOT_A_RESPONSE
+            );
+        }
+        for flag in ["\"true\"", "null", "trueish", "1"] {
+            let viewer = format!("customer_name: ACME\nhotp_secret: secret\nuse_totp: {flag}\nstat: OK");
+            assert_eq!(
+                parse_activation_response(&viewer).unwrap_err().message,
+                NOT_A_RESPONSE
+            );
+        }
     }
 
     #[test]
@@ -333,9 +384,8 @@ mod tests {
             secret: "ABC".into(),
         };
         assert_eq!(
-            otpauth_uri(&account, false),
-            "otpauth://hotp/Duo:ACME%20U%20%26%20Co?secret=ABC&issuer=Duo&algorithm=SHA1&digits=6&counter=0"
+            otpauth_uri(&account),
+            "otpauth://totp/Duo:ACME%20U%20%26%20Co?secret=ABC&issuer=Duo&algorithm=SHA1&digits=6&period=30"
         );
-        assert!(otpauth_uri(&account, true).ends_with("&period=30"));
     }
 }

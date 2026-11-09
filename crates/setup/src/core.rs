@@ -6,7 +6,7 @@ use crate::activation::{parse_activation_input, try_parse_activation};
 use crate::html::first_image_source;
 use crate::request::{DuoRequest, activation_request};
 use crate::response::{Account, looks_like_duo_response, otpauth_uri, parse_activation_response};
-use crate::state::{Search, Session, Step, Totp, parse_search};
+use crate::state::{Search, Session, Step, parse_search};
 use serde::{Deserialize, Serialize};
 use serde_json::{Value, json};
 
@@ -104,9 +104,6 @@ pub enum Event {
     },
     GoTo {
         step: usize,
-    },
-    ChangeType {
-        code_type: String,
     },
     StartOver {
         step: usize,
@@ -239,7 +236,6 @@ pub struct View {
     value: String,
     request: Option<DuoRequest>,
     submitted: bool,
-    code_type: &'static str,
     account: Option<AccountView>,
     link_error: String,
     link_busy: Busy,
@@ -370,7 +366,6 @@ impl<'a> Transition<'a> {
                 let session = &mut self.model.session;
                 session.submitted = session.value.is_some().then_some(true);
                 session.account = Some(account);
-                self.model.search.totp = None;
                 self.set_step(ADD);
             }
             Err(error) if self.submitted() => {
@@ -390,7 +385,6 @@ impl<'a> Transition<'a> {
         if let Some(legacy) = legacy {
             let old = parse_search(legacy);
             search.step = search.step.or(old.step);
-            search.totp = search.totp.or(old.totp);
         }
         self.model.search = search;
     }
@@ -463,16 +457,12 @@ impl<'a> Transition<'a> {
             }
             Event::Navigate { hash } => self.restore(&hash, None),
             Event::GoTo { step } => self.set_step(step),
-            Event::ChangeType { code_type } => {
-                self.model.search.totp = (code_type == "totp").then_some(Totp::Totp);
-            }
             Event::StartOver { step } => {
                 self.cancel();
                 self.model.session = Session::default();
                 self.model.request = None;
                 self.model.link_error.clear();
                 self.model.problem = None;
-                self.model.search.totp = None;
                 self.set_text(String::new());
                 self.set_step(step);
             }
@@ -712,7 +702,6 @@ fn view(model: &Model) -> View {
         session.account.is_some(),
         session.account.is_some(),
     ];
-    let totp = model.search.totp.is_some();
     let account = (current == ADD)
         .then_some(session.account.as_ref())
         .flatten()
@@ -725,12 +714,8 @@ fn view(model: &Model) -> View {
                 HIDDEN_KEY.into()
             },
             revealed: model.revealed,
-            uri: otpauth_uri(account, totp),
-            qr_alt: format!(
-                "{} authenticator QR code for {}",
-                if totp { "Time-based" } else { "Counter-based" },
-                account.customer
-            ),
+            uri: otpauth_uri(account),
+            qr_alt: format!("Time-based authenticator QR code for {}", account.customer),
         });
     let value = if current == ACTIVATE {
         session.value.clone().unwrap_or_default()
@@ -778,7 +763,6 @@ fn view(model: &Model) -> View {
         value,
         request,
         submitted: current == ACTIVATE && session.submitted == Some(true),
-        code_type: if totp { "totp" } else { "hotp" },
         account,
         link_error: model.link_error.clone(),
         link_busy: model.link_busy,
@@ -802,6 +786,7 @@ pub fn update(model: &mut Model, event: Event) -> Output {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::response::UNSUPPORTED;
 
     const VALUE: &str = "TESTCODE123-YXBpLTEyMzQ1Njc4LmR1b3NlY3VyaXR5LmNvbQ";
     const LINK: &str = "https://m-12345678.duosecurity.com/activate/TESTCODE123";
@@ -820,7 +805,7 @@ mod tests {
     }
 
     fn reply() -> String {
-        json!({ "stat": "OK", "response": { "customer_name": "ACME University", "hotp_secret": "supersecretkey" } })
+        json!({ "stat": "OK", "response": { "customer_name": "ACME University", "hotp_secret": "supersecretkey", "use_totp": true } })
             .to_string()
     }
 
@@ -908,7 +893,7 @@ mod tests {
             account["uri"]
                 .as_str()
                 .unwrap()
-                .starts_with("otpauth://hotp/Duo:ACME%20University?")
+                .starts_with("otpauth://totp/Duo:ACME%20University?")
         );
         let revealed = send(&mut model, json!({ "type": "reveal" }));
         assert_eq!(
@@ -924,19 +909,42 @@ mod tests {
         let reset = send(&mut model, event.clone());
         assert_eq!(reset.view.copied, "");
 
-        let totp = send(&mut model, json!({ "type": "changeType", "codeType": "totp" }));
-        assert_eq!(totp.view.code_type, "totp");
-        assert!(
-            view_json(&totp)["account"]["uri"]
-                .as_str()
-                .unwrap()
-                .contains("/totp/")
-        );
-        assert_eq!(totp.view.current, ADD);
-
         let over = send(&mut model, json!({ "type": "startOver", "step": PORTAL }));
         assert_eq!(over.view.current, PORTAL);
         assert_eq!(model.session, Session::default());
+    }
+
+    #[test]
+    fn refuses_accounts_without_time_based_codes() {
+        for submitted in [false, true] {
+            for missing in [false, true] {
+                let (mut model, _) = load("#step=qr&type=hotp", "");
+                if submitted {
+                    activate(&mut model);
+                    send(&mut model, json!({ "type": "submitted", "value": VALUE }));
+                }
+                let mut reply: Value = serde_json::from_str(&reply()).unwrap();
+                if missing {
+                    reply["response"].as_object_mut().unwrap().remove("use_totp");
+                } else {
+                    reply["response"]["use_totp"] = json!(false);
+                }
+                let output = send(&mut model, json!({ "type": "input", "text": reply.to_string() }));
+                assert_ne!(output.view.current, ADD);
+                assert!(output.view.account.is_none());
+                assert!(model.session.account.is_none());
+                if submitted {
+                    let problem = output.view.problem.unwrap();
+                    assert_eq!(problem.message, UNSUPPORTED);
+                    assert!(!problem.needs_new_code);
+                } else {
+                    assert_eq!(output.view.link_error, UNSUPPORTED);
+                }
+            }
+        }
+        assert!(
+            serde_json::from_value::<Event>(json!({ "type": "changeType", "codeType": "hotp" })).is_err()
+        );
     }
 
     #[test]
@@ -984,8 +992,6 @@ mod tests {
         let (mut model, loaded) = load("", "?step=add&type=totp");
         assert_eq!(loaded.view.current, PORTAL);
         assert_eq!(loaded.view.shortcut, "⌘");
-        // A query's fields count too.
-        assert_eq!(loaded.view.code_type, "totp");
         let ahead = send(&mut model, json!({ "type": "goTo", "step": ADD }));
         assert_eq!(ahead.view.current, PORTAL);
         assert_eq!(load("#/?step=qr", "").1.view.current, QR);
@@ -1275,7 +1281,7 @@ mod tests {
         let (mut model, output) = load("", "");
         let json = serde_json::to_value(&output).unwrap();
         assert_eq!(json["view"]["linkBusy"], "");
-        assert_eq!(json["view"]["codeType"], "hotp");
+        assert!(json["view"].get("codeType").is_none());
         assert_eq!(json["view"]["request"], Value::Null);
         assert_eq!(json["effects"], json!([{ "type": "setText", "text": "" }]));
         let prepared = activate(&mut model);

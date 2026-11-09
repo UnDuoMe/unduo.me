@@ -12,7 +12,7 @@ import { readFile } from "node:fs/promises";
 import { pathToFileURL } from "node:url";
 import { expect, test as base } from "@playwright/test";
 import type { BrowserContext, FrameLocator, Locator, Page } from "@playwright/test";
-import { hotp, readOtpauth, totp } from "#authenticator";
+import { readOtpauth, totp } from "#authenticator";
 import { copyImage, copyText, dropFile, pastedText, scanQrCode } from "#browser-actions";
 import { mockAssistant } from "#mock-assistant";
 import { duoHost, mockDuo, portalHost, signInHost, student } from "#mock-duo";
@@ -385,22 +385,23 @@ test("from a blank browser to a passcode that signs in", async ({
     ).toHaveCount(0);
   });
 
-  let counterLink = "";
+  let authenticatorLink = "";
 
   await instruction("file 5. scan the code with an authenticator", setup, async () => {
     await expect(setup.getByText(`Duo account for ${school}`)).toBeVisible();
     const qr = setup.locator(".qr-image");
-    counterLink = await scanQrCode(qr);
-    const link = readOtpauth(counterLink);
+    authenticatorLink = await scanQrCode(qr);
+    const link = readOtpauth(authenticatorLink);
     expect(link).toMatchObject({
-      type: "hotp",
+      type: "totp",
       label: `Duo:${school}`,
       issuer: "Duo",
       algorithm: "SHA1",
       digits: "6",
-      counter: "0",
+      period: "30",
+      counter: null,
     });
-    expect(link.parameters).toEqual(["algorithm", "counter", "digits", "issuer", "secret"]);
+    expect(link.parameters).toEqual(["algorithm", "digits", "issuer", "period", "secret"]);
     expect(link.secret.toString(), "The key the phone gets is the one Duo sent").toBe(secret);
 
     // Nothing puts the key or its link on the clipboard, which some systems sync to the cloud.
@@ -409,7 +410,7 @@ test("from a blank browser to a passcode that signs in", async ({
       0,
     );
 
-    const setupKey = counterLink.match(/secret=([A-Z2-7]+)/)![1]!;
+    const setupKey = authenticatorLink.match(/secret=([A-Z2-7]+)/)![1]!;
     const shown = setupKey.match(/.{1,4}/g)!.join(" ");
     await expect(
       setup.locator(".setup-key"),
@@ -418,21 +419,13 @@ test("from a blank browser to a passcode that signs in", async ({
     await setup.getByRole("button", { name: "Show" }).click();
     await expect(setup.locator(".setup-key")).toHaveText(shown);
 
-    await setup.getByLabel("Time-based").check();
-    await expect
-      .poll(() => scanQrCode(qr).then((text) => text.startsWith("otpauth://totp/")))
-      .toBe(true);
-    const time = readOtpauth(await scanQrCode(qr));
-    expect(time).toMatchObject({ type: "totp", period: "30" });
-    expect(time.secret.toString()).toBe(secret);
-    expect(totp(time.secret)).toMatch(/^\d{6}$/);
-    await setup.getByLabel("Counter-based").check();
-    await expect.poll(() => scanQrCode(qr)).toBe(counterLink);
+    await expect(setup.getByRole("radio", { name: /Counter-based|Time-based/ })).toHaveCount(0);
+    expect(totp(link.secret)).toMatch(/^\d{6}$/);
   });
 
   await instruction("file 5. then test it: a passcode signs in", portal!, async () => {
     const choices = await namesIn(setup.locator(".next-test"));
-    const key = readOtpauth(counterLink).secret;
+    const key = readOtpauth(authenticatorLink).secret;
     const frame = duoFrame(portal);
 
     duo.signOut();
@@ -442,24 +435,22 @@ test("from a blank browser to a passcode that signs in", async ({
     await signInWithPasscode(portal, choices, "000000");
     await expect(frame.getByRole("alert")).toHaveText("Incorrect passcode. Try again.");
 
-    await frame.getByLabel("Passcode").fill(hotp(key, 0));
+    const passcode = totp(key);
+    await frame.getByLabel("Passcode").fill(passcode);
     await frame.getByRole("button", { name: "Log In" }).click();
     await expect(frame.getByRole("heading", { name: "My Settings & Devices" })).toBeVisible();
     await expect(frame.locator("#devices")).toContainText("Android tablet");
 
-    // "Tap refresh in the app whenever you need a new code."
+    // A time-based passcode cannot be reused after a successful sign-in.
     duo.signOut();
     await portal.goto(portalUrl);
     await signIn(portal);
-    await signInWithPasscode(portal, choices, hotp(key, 0));
+    await signInWithPasscode(portal, choices, passcode);
     await expect(frame.getByRole("alert"), "A used code doesn't work twice").toBeVisible();
-    await frame.getByLabel("Passcode").fill(hotp(key, 1));
-    await frame.getByRole("button", { name: "Log In" }).click();
-    await expect(frame.getByRole("heading", { name: "My Settings & Devices" })).toBeVisible();
   });
 
   await test.step("the code and key went only to Duo and the phone", async () => {
-    const setupKey = counterLink.match(/secret=([A-Z2-7]+)/)![1]!;
+    const setupKey = authenticatorLink.match(/secret=([A-Z2-7]+)/)![1]!;
     const secrets = [code, secret, setupKey];
     const leaks = network.requests.filter(
       ({ url, body, headers }) =>

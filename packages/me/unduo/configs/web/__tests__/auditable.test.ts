@@ -19,10 +19,9 @@ import { jsQR } from "@-/com.npmjs.jsqr";
 import { QRCode } from "@-/com.npmjs.qrcode";
 import { init, parse as parseModules } from "es-module-lexer";
 import { afterAll, beforeAll, describe, expect, test } from "vite-plus/test";
-import { jsPlugin, scriptComments } from "#auditable-build";
+import { scriptComments } from "#auditable-build";
 import { getBuildUniversities } from "#build-universities";
-import { installedPackage, readCdnSource } from "#cdn-source";
-import { reviewedStylesheet, selfContained, trimUikit, usedUikitClasses } from "#self-contained";
+import { installedPackage, integritySource, readCdnSource } from "#cdn-source";
 import { repoRoot, webOutput } from "#web-paths";
 
 const enabled = Boolean(process.env.UNDUO_TEST_WEB);
@@ -70,7 +69,7 @@ const pinsOf = (document: string) =>
     : { ...homeAssets, published: homePublishedFiles };
 
 /** The setup page's program runs as this many script elements; see `setupParts`. */
-const setupPartCount = jsPlugin ? 7 : 6;
+const setupPartCount = 6;
 
 /** A screenshot in the setup file's screenshot list. */
 interface ListedShot {
@@ -86,10 +85,6 @@ const listedShots = (list: {
     settings,
     ...steps,
   ]);
-/** An attribute's value as the build writes it: `&`, `<` and `"` escaped. */
-const unescaped = (value: string) =>
-  value.replaceAll("&quot;", '"').replaceAll("&lt;", "<").replaceAll("&amp;", "&");
-
 /**
  * The setup file names no screenshot: it pins its screenshot list by SHA-256,
  * and the list names every published screenshot with its SHA-256.
@@ -130,75 +125,13 @@ function expectSelfContained(document: string, name: string) {
   ).toBe(name.endsWith("index.html") && !/\d/.test(name) ? 2 : setupPartCount);
 }
 
-/**
- * The experimental self-contained page: its styles and screenshots are in the
- * file, the same bytes the normal build publishes (UIkit trimmed to what the
- * markup uses), and its CSP allows no URL but data: images and Duo's forms.
- */
-function expectLoadsNothingByUrl(document: string) {
-  const hash = "'sha256-[A-Za-z0-9+/]{43}='";
-  const policy = document.match(/http-equiv="Content-Security-Policy" content="([^"]*)"/)![1]!;
-  expect(policy).toMatch(new RegExp(`(?:^|; )script-src ${hash}(?: ${hash})*;`));
-  expect(policy).toMatch(new RegExp(`; style-src-elem ${hash}(?: ${hash})*;`));
-  for (const directive of [
-    "img-src data:;",
-    "connect-src 'none';",
-    "form-action https://*.duosecurity.com;",
-    // Only setup pages build the frame for Duo's reply.
-    ...(document.includes('name: "duo-reply"') ? ["frame-src https://*.duosecurity.com;"] : []),
-  ])
-    expect(policy).toContain(directive);
-  expect(document, "No stylesheet loads by URL").not.toMatch(/<link\b[^>]*rel="stylesheet"/);
-  const styles = Object.fromEntries(
-    [...document.matchAll(/<style data-vendor="(\w+)"[^>]*>([\s\S]*?)<\/style>/g)].map(
-      ([, vendor, css]) => [vendor!, css!],
-    ),
-  );
-  const pins = pinsOf(document);
-  const appStyle = pins.published.find((name) => name.endsWith(".css"))!;
-  expect(sri(Buffer.from(styles.app!)), "The app stylesheet's published bytes").toBe(
-    pins.files[appStyle],
-  );
-  const uikit = reviewedStylesheet(Object.keys(cdn.assets)[0]!);
-  expect(styles.uikit, "UIkit, trimmed to the classes the markup uses").toBe(
-    trimUikit(uikit.css, usedUikitClasses(document)),
-  );
-  const inline = /\bdata-screenshots="([^"]*)"/.exec(document)?.[1];
-  if (inline !== undefined)
-    expect(
-      [
-        ...new Set(
-          listedShots(JSON.parse(unescaped(inline))).map(({ file }) =>
-            sri(Buffer.from(file.slice("data:image/webp;base64,".length), "base64")),
-          ),
-        ),
-      ].sort(),
-      "Every institution's portal screenshots, as published",
-    ).toEqual(
-      publishedFiles
-        .filter((name) => name.endsWith(".webp"))
-        .map((name) => assets.files[name])
-        .sort(),
-    );
-  expect(document, "No image loads by URL").not.toMatch(/\sdata-image-src=/);
-}
-
 /** The page pins its plugin, scripts and styles, and its CSP allows nothing else. */
 function expectPinned(document: string) {
   expect(document, "No session storage in the built app").not.toMatch(/\bsessionStorage\b/);
   expect(document).toMatch(/http-equiv="Content-Security-Policy"/);
   expect(document).not.toMatch(/'unsafe-eval'/);
   const pluginUrl = document.match(/\bdata-plugin-url="([^"]+)"/)?.[1];
-  /** The experimental build's setup pages run the TypeScript logic and fetch only screenshots. */
-  const jsSetup = jsPlugin && isSetupPage(document) && !selfContained;
-  if (jsSetup) {
-    expect(document).not.toMatch(/\bdata-plugin-(?:url|integrity)=/);
-    expectScreenshotList(document);
-    expect(document, "No WebAssembly is compiled").not.toMatch(/wasm-unsafe-eval/);
-    expect(document, "The inline code documents its guard on the logic's output").toMatch(
-      /\/\*\*\n\s*\* Plugin output check\. `guard` checks each output before any other code sees/,
-    );
-  } else if (pluginUrl) {
+  if (pluginUrl) {
     expect(pluginUrl).toBe(assets.base + pluginName);
     expect(
       document.match(/\bdata-plugin-integrity="([^"]+)"/)?.[1],
@@ -214,11 +147,10 @@ function expectPinned(document: string) {
     const replies = [
       ...document.matchAll(/\bdata-image-src="([^"]+)" data-image-integrity="([^"]+)"/g),
     ];
-    if (!selfContained)
-      expect(
-        replies.map(([, url]) => /\/(ai-reply-\w+)\./.exec(url!)?.[1]),
-        "The AI replies' screenshots",
-      ).toEqual(["ai-reply-chatgpt", "ai-reply-claude", "ai-reply-gemini"]);
+    expect(
+      replies.map(([, url]) => /\/(ai-reply-\w+)\./.exec(url!)?.[1]),
+      "The AI replies' screenshots",
+    ).toEqual(["ai-reply-chatgpt", "ai-reply-claude", "ai-reply-gemini"]);
     for (const [, url, integrity] of replies)
       expect(integrity, url).toBe(homeAssets.files[url!.slice(homeAssets.base.length)]);
     const fetched = replies.map(([, url]) => url!).sort();
@@ -228,7 +160,6 @@ function expectPinned(document: string) {
     ).toBe(true);
     expect(document).not.toMatch(/wasm-unsafe-eval/);
   }
-  if (selfContained) expectLoadsNothingByUrl(document);
   expect(
     document.includes(
       /\sdata-(?:image-src|screenshots-url)=/.test(document)
@@ -329,31 +260,31 @@ describe.runIf(enabled)("static output", () => {
     ).toEqual([]);
   });
 
-  test.skipIf(jsPlugin)(
-    "the setup plugin imports exactly the kernel functions its comment lists and the page defines",
-    () => {
-      const imports = WebAssembly.Module.imports(
-        new WebAssembly.Module(new Uint8Array(pluginBytes)),
-      );
-      expect(imports.filter((entry) => entry.module !== "extism:host/env")).toEqual([]);
-      const names = imports.map((entry) => entry.name).sort();
-      const listed =
-        /refuses a module unless it imports exactly ([\w, ]+) and (\w+), which kernel\(\)/.exec(
-          html.match(/<div id="root"[^>]*data-comment="([^"]*)"/)![1]!,
-        )!;
-      expect(names).toEqual([...listed[1]!.split(", "), listed[2]].sort());
-      const kernel = html.slice(
-        html.indexOf("function kernel("),
-        html.indexOf("\treturn {\n\t\timports,"),
-      );
-      const defined = [...kernel.matchAll(/^\t\t(\w+)(?:\(|: \()/gm)].map((match) => match[1]);
-      expect(defined.sort(), "kernel() defines exactly the imported functions").toEqual(names);
-    },
-  );
+  test("the setup plugin imports exactly the kernel functions its comment lists and the page defines", () => {
+    const imports = WebAssembly.Module.imports(new WebAssembly.Module(new Uint8Array(pluginBytes)));
+    expect(imports.filter((entry) => entry.module !== "extism:host/env")).toEqual([]);
+    const names = imports.map((entry) => entry.name).sort();
+    const listed =
+      /refuses a module unless it imports exactly ([\w, ]+) and (\w+), which kernel\(\)/.exec(
+        html.match(/<div id="root"[^>]*data-comment="([^"]*)"/)![1]!,
+      )!;
+    expect(names).toEqual([...listed[1]!.split(", "), listed[2]].sort());
+    const kernel = html.slice(
+      html.indexOf("function kernel("),
+      html.indexOf("\treturn {\n\t\timports,"),
+    );
+    const defined = [...kernel.matchAll(/^\t\t(\w+)(?:\(|: \()/gm)].map((match) => match[1]);
+    expect(defined.sort(), "kernel() defines exactly the imported functions").toEqual(names);
+  });
 
-  test.skipIf(selfContained)("every class the pages name has a rule in a stylesheet", async () => {
+  test("every class the pages name has a rule in a stylesheet", async () => {
     const url = Object.keys(readCdnSource().assets)[0]!;
-    const uikitCss = reviewedStylesheet(url).css;
+    const npm = integritySource(url)!;
+    const bytes = readFileSync(join(installedPackage(npm.name).directory, npm.file));
+    expect(sri(bytes), "The installed UIkit matches the reviewed stylesheet").toBe(
+      cdn.assets[url]!.integrity,
+    );
+    const uikitCss = bytes.toString("utf8");
     for (const name of ["index.html", "files/unduo"]) {
       const document = await read(name);
       // Each page's own stylesheet: the setup files' or the home page's.
@@ -398,11 +329,7 @@ describe.runIf(enabled)("static output", () => {
     const attribute = (attributes: string, name: string) =>
       new RegExp(`\\b${name}="([^"]*)"`).exec(attributes)?.[1];
     const parts = elements.map(([, attributes]) => attribute(attributes!, "data-part"));
-    expect(parts).toEqual(
-      jsPlugin
-        ? ["vanjs", "plugin-checks", "setup-logic", "qr-codes", "steps", "duo-form", "page"]
-        : ["vanjs", "plugin-checks", "qr-codes", "steps", "duo-form", "page"],
-    );
+    expect(parts).toEqual(["vanjs", "plugin-checks", "qr-codes", "steps", "duo-form", "page"]);
     for (const [, attributes, code] of elements) {
       expect(attributes, "Each part is a classic script").not.toMatch(/\btype=/);
       expect(attribute(attributes!, "data-comment"), "Each part says what it holds").toBeTruthy();
@@ -472,10 +399,7 @@ describe.runIf(enabled)("static output", () => {
       ),
       "No other request, code or HTML APIs",
     ).toBe(0);
-    // The experimental build's QR decoder declares a local variable named location.
-    const navigation = jsPlugin
-      ? /(?<![\w.]|(?:const|let|var) )location\s*=|location\.(?:href\s*=|assign\(|reload\()/g
-      : /(?<![\w.])location\s*=|location\.(?:href\s*=|assign\(|reload\()/g;
+    const navigation = /(?<![\w.])location\s*=|location\.(?:href\s*=|assign\(|reload\()/g;
     expect(count(navigation)).toBe(0);
     // Elements are built in the script, so its properties name every URL they can hold.
     const urls = [
@@ -493,13 +417,9 @@ describe.runIf(enabled)("static output", () => {
       /\baddAndScheduleOnFirst\b[\s\S]*\bupdateDoms\b/,
     );
     if (entry === "setup") {
-      if (jsPlugin)
-        expect(count(/\bfetch\(/g), "Fetches of the screenshots and the CSP probe").toBe(2);
-      else
-        expect(
-          count(/\bfetch\(/g),
-          "Fetches of the plugin, the screenshots and the CSP probe",
-        ).toBe(3);
+      expect(count(/\bfetch\(/g), "Fetches of the plugin, the screenshots and the CSP probe").toBe(
+        3,
+      );
       expect(code).toContain('fetch("data:,")');
       expect(count(/createObjectURL\(/g), "blob: URLs only for screenshots").toBe(1);
       expect(count(/(?<![\w$])(?:window\.)?open\(/g), "One window.open, the portal popup").toBe(1);
@@ -551,9 +471,7 @@ describe.runIf(enabled)("static output", () => {
       /<div id="setup"[^>]*>/.exec(html)?.[0],
       "The #setup element pins the screenshot list and holds no institution's details",
     ).toMatch(
-      selfContained
-        ? /^<div id="setup" data-screenshots="[^"]+"(?![^>]*data-school)/
-        : /^<div id="setup" data-screenshots-url="[^"]+" data-screenshots-integrity="[^"]+"(?![^>]*data-school)/,
+      /^<div id="setup" data-screenshots-url="[^"]+" data-screenshots-integrity="[^"]+"(?![^>]*data-school)/,
     );
     // An AI reads the downloaded file, so it must not hold the question put to that AI.
     expect(await read("index.html")).toContain("Safe: yes");
@@ -707,7 +625,7 @@ describe.runIf(enabled)("browser", { timeout: 180_000 }, () => {
       location.href + JSON.stringify([history.state, { ...localStorage }, { ...sessionStorage }])))`;
     const pasteReply = `(() => {
       const data = new DataTransfer();
-      data.setData('text/plain', JSON.stringify({stat:'OK',response:{customer_name:'ACME University',hotp_secret:'supersecretkey'}}));
+      data.setData('text/plain', JSON.stringify({stat:'OK',response:{customer_name:'ACME University',hotp_secret:'supersecretkey',use_totp:true}}));
       document.dispatchEvent(new ClipboardEvent('paste',{clipboardData:data,bubbles:true}));
     })()`;
     browser("network", "requests", "--clear");
@@ -806,7 +724,7 @@ describe.runIf(enabled)("browser", { timeout: 180_000 }, () => {
           "In a wide window",
           "Duo's sign-in prompt in a wide window, with the device's name and number blurred",
         ],
-      ].map((figure) => [...figure, selfContained ? "data:" : "blob:"]),
+      ].map((figure) => [...figure, "blob:"]),
     );
     expect(evaluate("document.querySelector('#setup-card').textContent")).not.toMatch(
       /Choose a different university|Manage devices/,
@@ -838,7 +756,7 @@ describe.runIf(enabled)("browser", { timeout: 180_000 }, () => {
       ),
     ).toEqual([
       "Duo's My Settings & Devices page, with the devices' names and numbers blurred",
-      selfContained ? "data:" : "blob:",
+      "blob:",
     ]);
     browser("wait", "--fn", "document.activeElement.id === 'step-title'");
     click("button", "Continue");
@@ -850,20 +768,12 @@ describe.runIf(enabled)("browser", { timeout: 180_000 }, () => {
       "--fn",
       "[...document.querySelectorAll('[aria-label=\"Duo portal example screenshots\"] img')].every(img => img.naturalWidth > 0)",
     );
-    if (selfContained)
-      expect(
-        evaluate(
-          `[...document.querySelectorAll('[aria-label="Duo portal example screenshots"] img')].filter(img => img.src.startsWith('data:image/webp;base64,')).length`,
-        ),
-        "Each screenshot is in the file",
-      ).toBe(5);
-    else
-      expect(
-        evaluate(
-          `[...document.querySelectorAll('[aria-label="Duo portal example screenshots"] img')].filter(img => img.src.startsWith('blob:') && ${JSON.stringify(publishedFiles)}.includes(img.dataset.screenshot)).length`,
-        ),
-        "Each screenshot shows its fetched file",
-      ).toBe(5);
+    expect(
+      evaluate(
+        `[...document.querySelectorAll('[aria-label="Duo portal example screenshots"] img')].filter(img => img.src.startsWith('blob:') && ${JSON.stringify(publishedFiles)}.includes(img.dataset.screenshot)).length`,
+      ),
+      "Each screenshot shows its fetched file",
+    ).toBe(5);
     browser("upload", "input[type=file]", fixture);
     waitForHeading("Activate with Duo");
     expect(evaluate("document.querySelector('form').action")).toBe(
@@ -958,7 +868,11 @@ describe.runIf(enabled)("browser", { timeout: 180_000 }, () => {
       "#duo-reply",
       JSON.stringify({
         stat: "OK",
-        response: { customer_name: "ACME University", hotp_secret: "supersecretkey" },
+        response: {
+          customer_name: "ACME University",
+          hotp_secret: "supersecretkey",
+          use_totp: true,
+        },
       }),
     );
     click("button", "Create my authenticator");
@@ -968,11 +882,9 @@ describe.runIf(enabled)("browser", { timeout: 180_000 }, () => {
       "--fn",
       `document.querySelector('img[alt*="authenticator QR code"]')?.naturalWidth > 0`,
     );
-    click("radio", "Time-based");
-    browser("wait", "--fn", "document.querySelector('input[value=totp]').checked");
     expect(evaluate(keepsSecretsInMemory)).toBe(true);
     expectQrMatchesLink();
-    expect(evaluate(query), "Neither the step nor the code type reaches the address").toBe("");
+    expect(evaluate(query), "The step never reaches the address").toBe("");
     expect(evaluate("history.length"), "Setup adds no history entries").toBe(entries);
     click("button", "Show");
     expect(
@@ -1061,12 +973,6 @@ describe.runIf(enabled)("browser", { timeout: 180_000 }, () => {
     expect(JSON.stringify(requests), "No activation requests expected").not.toContain(
       "duosecurity.com",
     );
-    if (jsPlugin)
-      expect(
-        urls.filter((url) => url.endsWith(".wasm")),
-        "The experimental build fetches no WebAssembly",
-      ).toEqual([]);
-    if (selfContained) expect(urls, "The self-contained page requests nothing").toEqual([]);
   }
 
   test("home: a searchable dropdown, a dialog per institution, old links and unpublished institutions", async () => {
@@ -1694,11 +1600,10 @@ describe.runIf(enabled)("browser", { timeout: 180_000 }, () => {
     );
   }
   /**
-   * The set each example screenshot on the current step is from, by its file's
-   * name, which the self-contained experiment's data: URLs don't carry.
+   * The set each example screenshot on the current step is from, by its file's name.
    */
   const expectShown = (selector: string, sets: string[]) => {
-    if (!selfContained) expect(shownSets(selector)).toEqual(sets);
+    expect(shownSets(selector)).toEqual(sets);
   };
   const shownSets = (selector: string) =>
     evaluate(
@@ -1844,26 +1749,7 @@ describe.runIf(enabled)("browser", { timeout: 180_000 }, () => {
     );
   });
 
-  test.runIf(selfContained)("CSP rejects a changed style element", async () => {
-    for (const vendor of ["uikit", "app"]) {
-      await openVariant(
-        `tampered-${vendor}-style.html`,
-        localCopy(html).replace(
-          new RegExp(`(<style data-vendor="${vendor}"[^>]*>)`),
-          "$1html{color:red}",
-        ),
-      );
-      waitForHeading("Open your Duo device portal");
-      expect(evaluate(`document.querySelector('style[data-vendor=${vendor}]').sheet`)).toBeNull();
-      expect(
-        evaluate(
-          `!!document.querySelector('style[data-vendor=${vendor === "app" ? "uikit" : "app"}]').sheet`,
-        ),
-      ).toBe(true);
-    }
-  });
-
-  test.skipIf(selfContained)("SRI rejects a changed UIkit stylesheet", async () => {
+  test("SRI rejects a changed UIkit stylesheet", async () => {
     const uikit = Object.values(cdn.assets)[0]!;
     await openVariant(
       "tampered-uikit.html",
@@ -1873,7 +1759,7 @@ describe.runIf(enabled)("browser", { timeout: 180_000 }, () => {
     expect(evaluate("document.querySelector('link[data-vendor=uikit]').sheet")).toBeNull();
   });
 
-  test.skipIf(selfContained)("SRI rejects a changed published stylesheet", async () => {
+  test("SRI rejects a changed published stylesheet", async () => {
     const styleName = publishedFiles.find((name) => name.endsWith(".css"))!;
     await openVariant(
       "tampered-style.html",
@@ -1883,32 +1769,18 @@ describe.runIf(enabled)("browser", { timeout: 180_000 }, () => {
     expect(evaluate("document.querySelector('link[data-vendor=app]').sheet")).toBeNull();
   });
 
-  test.runIf(jsPlugin)("the experimental build's CSP refuses to compile WebAssembly", async () => {
-    browser("open", pathToFileURL(join(isolated, downloaded)).href);
-    waitForHeading("Open your Duo device portal");
-    browser(
-      "eval",
-      "WebAssembly.compile(new Uint8Array([0, 97, 115, 109, 1, 0, 0, 0])).then(() => { window.__unduoWasm = 'compiled'; }, (error) => { window.__unduoWasm = error.name; })",
+  test("the browser rejects a plugin whose bytes differ from its pinned SHA-256", async () => {
+    await openVariant(
+      "tampered-plugin.html",
+      localCopy(html).replace(
+        /data-plugin-integrity="sha256-[^"]+"/,
+        `data-plugin-integrity="sha256-${"A".repeat(43)}="`,
+      ),
     );
-    browser("wait", "--fn", "!!window.__unduoWasm");
-    expect(evaluate("window.__unduoWasm")).toBe("CompileError");
+    browser("wait", "--text", "couldn't load its setup code");
+    expect(
+      evaluate("!!document.querySelector('#setup-card')"),
+      "No step renders without the plugin",
+    ).toBe(false);
   });
-
-  test.skipIf(jsPlugin)(
-    "the browser rejects a plugin whose bytes differ from its pinned SHA-256",
-    async () => {
-      await openVariant(
-        "tampered-plugin.html",
-        localCopy(html).replace(
-          /data-plugin-integrity="sha256-[^"]+"/,
-          `data-plugin-integrity="sha256-${"A".repeat(43)}="`,
-        ),
-      );
-      browser("wait", "--text", "couldn't load its setup code");
-      expect(
-        evaluate("!!document.querySelector('#setup-card')"),
-        "No step renders without the plugin",
-      ).toBe(false);
-    },
-  );
 });

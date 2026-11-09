@@ -40,7 +40,7 @@ export function activateStep(page: SetupPage) {
       h3({ class: "ready-title" }, "Get your 2FA app ready"),
       p(
         { class: "ready-text" },
-        "After this step, you'll scan a QR code with your authenticator app. Use one that supports counter-based codes, such as Google Authenticator, 2FAS, Aegis or FreeOTP.",
+        "After this step, you'll scan a QR code with your authenticator app, such as Google Authenticator, 1Password, 2FAS or Aegis.",
       ),
     ),
     // The native form stays connected while the browser starts its POST.

@@ -20,7 +20,6 @@ export type SetupEvent =
   /** Back, Forward or an edited hash. */
   | { type: "navigate"; hash: string }
   | { type: "goTo"; step: number }
-  | { type: "changeType"; codeType: "hotp" | "totp" }
   | { type: "startOver"; step: number }
   /** A paste, drop or upload, or a submitted link or reply. `image` says the host holds an image file. */
   | { type: "input"; text?: string; html?: string; image?: boolean }
@@ -76,7 +75,7 @@ export interface SetupAccountView {
   /** The secret in groups of four once revealed, else dots. */
   key: string;
   revealed: boolean;
-  /** The `otpauth://` link for the selected code type. */
+  /** The time-based `otpauth://totp/` link. */
   uri: string;
   qrAlt: string;
 }
@@ -99,7 +98,6 @@ export interface SetupView {
   value: string;
   request: DuoRequest | null;
   submitted: boolean;
-  codeType: "hotp" | "totp";
   account: SetupAccountView | null;
   linkError: string;
   linkBusy: LinkBusy;

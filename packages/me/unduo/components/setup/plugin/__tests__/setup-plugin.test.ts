@@ -21,7 +21,7 @@ const url =
 const link = "https://m-12345678.duosecurity.com/activate/TESTCODE123";
 const pastedLink: SetupEvent = { type: "input", text: link };
 const secret = "ON2XAZLSONSWG4TFORVWK6I";
-const uri = `otpauth://hotp/Duo:ACME%20University?secret=${secret}&issuer=Duo&algorithm=SHA1&digits=6&counter=0`;
+const uri = `otpauth://totp/Duo:ACME%20University?secret=${secret}&issuer=Duo&algorithm=SHA1&digits=6&period=30`;
 
 // Duo Mobile's activation form, as the guard builds it around this page's key.
 const fields = (pubkey: string) => [
@@ -35,8 +35,8 @@ const fields = (pubkey: string) => [
     full_disk_encryption: "true",
     passcode_status: "true",
     platform: "Android",
-    app_version: "4.33.0",
-    app_build_number: "433000",
+    app_version: "4.124.0",
+    app_build_number: "4124000",
     version: "13",
     manufacturer: "Google",
     language: "en",
@@ -69,7 +69,6 @@ const view = (extra = {}) => ({
   value: "",
   request: null,
   submitted: false,
-  codeType: "hotp",
   account: null,
   linkError: "",
   linkBusy: "",
@@ -88,14 +87,13 @@ function account(link: string, key = secret) {
   try {
     name = decodeURIComponent(/\/Duo:([^?]*)\?/.exec(link)?.[1] ?? "") || "Duo";
   } catch {}
-  const kind = link.startsWith("otpauth://totp/") ? "Time-based" : "Counter-based";
   return {
     customer: name,
     secret: key,
     key: pageTexts.hiddenKey,
     revealed: false,
     uri: link,
-    qrAlt: `${kind} authenticator QR code for ${name}`,
+    qrAlt: `Time-based authenticator QR code for ${name}`,
   };
 }
 /** A fake plugin call that returns `output` as JSON. */
@@ -130,23 +128,16 @@ await newPublicKey();
 /** Duo's reply for `uri`, as the user pastes it. */
 const reply = JSON.stringify({
   stat: "OK",
-  response: { customer_name: "ACME University", hotp_secret: "supersecretkey" },
+  response: { customer_name: "ACME University", hotp_secret: "supersecretkey", use_totp: true },
 });
 const pastedReply: SetupEvent = { type: "input", text: reply };
 
 test("passes honest updates", async () => {
-  for (const [current, codeType] of [
-    [0, "hotp"],
-    [1, "hotp"],
-    [2, "hotp"],
-    [3, "totp"],
-    [0, "totp"],
-  ]) {
-    const honest = output({ current, codeType }, [{ type: "setText", text: "" }]);
+  for (const current of [0, 1, 2, 3]) {
+    const honest = output({ current }, [{ type: "setText", text: "" }]);
     await expect(run(honest)).resolves.toEqual(honest);
   }
-  const totp = uri.replace("hotp", "totp").replace("counter=0", "period=30");
-  for (const link of [uri, totp, uri.replace("ACME%20University", "")])
+  for (const link of [uri, uri.replace("ACME%20University", "")])
     await expect(run(output({ account: account(link) }), pastedReply)).resolves.toBeTruthy();
   const effects = [
     { type: "prepare", value: "TESTCODE123-YXBp" },
@@ -333,6 +324,9 @@ test("caps strings, effects and the output's size", async () => {
 });
 
 test.each([
+  account(uri.replace("totp", "hotp")),
+  account(uri.replace("period=30", "counter=0")),
+  account(uri.replace("totp", "hotp").replace("period=30", "counter=0")),
   account("javascript:alert(1)"),
   account(`https://evil.example/?secret=${secret}`),
   account(`${uri}&image=https://evil.example/?s=${secret}`),
@@ -428,18 +422,60 @@ test("passes every output of the real plugin through a whole setup", async () =>
   await send({ type: "submitted", value });
   const reply = JSON.stringify({
     stat: "OK",
-    response: { customer_name: "ACME University", hotp_secret: "supersecretkey" },
+    response: { customer_name: "ACME University", hotp_secret: "supersecretkey", use_totp: true },
   });
   const added = await send({ type: "input", text: reply });
-  expect(added.view.account?.uri).toMatch(/^otpauth:\/\/hotp\//);
+  expect(added.view.account?.uri).toMatch(/^otpauth:\/\/totp\//);
   await send({ type: "reveal" });
-  await send({ type: "changeType", codeType: "totp" });
   const copied = await send({ type: "copied", kind: "uri" });
   const later = copied.effects.find((effect) => effect.type === "later")!;
   await send((later as { event: SetupEvent }).event);
   await send({ type: "navigate", hash: "#step=qr" });
   await send({ type: "startOver", step: 0 });
 });
+
+test.each([true, false, undefined])(
+  "the real plugin makes only time-based accounts, for use_totp=%s",
+  async (flag) => {
+    const module = await freshModule();
+    const plugin = readSetupPlugin();
+    const send = await module.loadSetupPlugin(
+      `data:application/wasm;base64,${plugin.bytes.toString("base64")}`,
+      `sha256-${createHash("sha256").update(plugin.bytes).digest("base64")}`,
+    );
+    await send({
+      type: "load",
+      hash: "#step=qr&type=totp",
+      legacy: "",
+      platform: "MacIntel",
+      scan: false,
+    });
+    const output = await send({
+      type: "input",
+      text: JSON.stringify({
+        stat: "OK",
+        response: {
+          customer_name: "ACME",
+          hotp_secret: "secret",
+          use_totp: flag,
+        },
+      }),
+    });
+    if (flag) {
+      expect(output.view.current).toBe(4);
+      expect(output.view.problem).toBeNull();
+      const uri = output.view.account!.uri;
+      expect(uri.startsWith("otpauth://totp/")).toBe(true);
+      expect(uri.endsWith("&period=30")).toBe(true);
+    } else {
+      expect(output.view.current).not.toBe(4);
+      expect(output.view.account).toBeNull();
+      expect(output.view.linkError).toBe(
+        "Your organization's Duo is using an unsupported setting :(",
+      );
+    }
+  },
+);
 
 test("accepts an account only from Duo's pasted reply", async () => {
   const run = await freshPage();
@@ -454,7 +490,7 @@ test("accepts an account only from Duo's pasted reply", async () => {
     pastedReply,
     {
       type: "input",
-      text: "customer_name: ACME University\nhotp_secret: supersecretkey\nstat: OK",
+      text: "customer_name: ACME University\nhotp_secret: supersecretkey\nuse_totp: true\nstat: OK",
     },
     { type: "input", html: `<pre>${reply}</pre>` },
   ] as SetupEvent[]) {
@@ -465,7 +501,7 @@ test("accepts an account only from Duo's pasted reply", async () => {
   const quoted = await freshPage();
   const escaped = JSON.stringify({
     stat: "OK",
-    response: { customer_name: 'ACME "U"', hotp_secret: "supersecretkey" },
+    response: { customer_name: 'ACME "U"', hotp_secret: "supersecretkey", use_totp: true },
   });
   const link = uri.replace("ACME%20University", encodeURIComponent('ACME "U"'));
   await expect(
@@ -549,7 +585,12 @@ test("doesn't quote text from anything but a reply that failed as Duo's refusal"
   await expect(quoted("supersecretkey", reply)).rejects.toThrow("at view.problem.message");
   await expect(quoted("TESTCODE123", link)).rejects.toThrow("at view.problem.message");
   // A reply with both can't be Duo's, so it can't supply the words either.
-  const both = JSON.stringify({ stat: "FAIL", message: "x", hotp_secret: "supersecretkey" });
+  const both = JSON.stringify({
+    stat: "FAIL",
+    message: "x",
+    hotp_secret: "supersecretkey",
+    use_totp: true,
+  });
   await expect(quoted("supersecretkey", both)).rejects.toThrow("at view.problem.message");
   // Firefox's viewer shows a reply as lines of text.
   await expect(quoted("Device limit", "message: Device limit\nstat: FAIL")).resolves.toBeTruthy();

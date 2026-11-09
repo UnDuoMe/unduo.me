@@ -1,4 +1,3 @@
-export { createSetupLogic, loadJsSetupPlugin } from "#js-plugin";
 export { defaultPluginLimits, guard, loadSetupPlugin, newPublicKey } from "#setup-plugin";
 export type {
   DuoRequest,

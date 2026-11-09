@@ -109,6 +109,9 @@
         "@-/me.unduo.components.setup.entities": "workspace:*",
         "@-/me.unduo.lib.dom": "workspace:*",
       },
+      "devDependencies": {
+        "vite-plus": "catalog:",
+      },
     },
     "packages/me/unduo/components/setup": {
       "name": "@-/me.unduo.components.setup",
@@ -286,7 +289,6 @@
         "@-/me.unduo.data.universities": "workspace:*",
         "es-module-lexer": "catalog:",
         "parse5": "catalog:",
-        "postcss": "catalog:",
         "vite": "catalog:",
       },
       "devDependencies": {
@@ -349,7 +351,6 @@
     "jsqr": "^1.4.0",
     "mprocs": "0.9.6",
     "parse5": "^8.0.1",
-    "postcss": "^8.5.32",
     "qr": "0.7.2",
     "qrcode": "^1.5.4",
     "tailwindcss": "^4.3.3",

@@ -1,6 +1,5 @@
 export {
   auditableBuild,
-  pageDefines,
   type PageEntry,
   type PageResources,
   type SitePage,

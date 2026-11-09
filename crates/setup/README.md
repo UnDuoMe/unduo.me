@@ -9,7 +9,7 @@ plugin keeps the page's state in its own memory between calls.
 | Module          | Does                                                                          |
 | --------------- | ----------------------------------------------------------------------------- |
 | `core.rs`       | The step state machine and scan loop: browser events in, view and effects out |
-| `state.rs`      | Reads the URL hash (step and code type only), validated field by field        |
+| `state.rs`      | Reads the URL hash (step only), validated field by field                      |
 | `activation.rs` | Duo activation links, QR image addresses and `CODE-BASE64HOST` values         |
 | `response.rs`   | Duo's pasted reply and errors, the base32 secret and the `otpauth://` link    |
 | `request.rs`    | The Duo Mobile activation URL; the host adds the device fields and its key    |
