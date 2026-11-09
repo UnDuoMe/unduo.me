@@ -44,6 +44,10 @@ has no page that runs it.
    passcode on any Duo sign-in. Switch to **Time-based** only if your
    organization uses time-based Duo passcodes.
 
+**Keep your existing Duo Mobile device registered as a backup, even after your
+new authenticator works.** If you lose your authenticator or its codes stop
+working, you'll still have another way to sign in.
+
 The current site publishes [University of Toronto](https://unduo.me/?university=IAU-020599),
 the institution confirmed supported so far, [University of Waterloo](https://unduo.me/?university=IAU-020623),
 whose file follows Duo's Universal Prompt from Waterloo's own instructions,
@@ -94,8 +98,7 @@ root element each carry a `data-comment` that describes them.
 plugin from source and checks it is byte-for-byte the published one. An
 internet connection is required to load these files.
 
-Adding devices and passcode sign-ins must be allowed by your organization. Keep
-an existing sign-in method until a code from your new authenticator works.
+Adding devices and passcode sign-ins must be allowed by your organization.
 
 ## Is it secure?
 
@@ -198,8 +201,9 @@ holds your key. You can rename the device in Duo if you like.
 
 If your organization switched Duo to time-based passcodes and the codes are
 rejected, change `hotp` to `totp` and `counter=0` to `period=30` in the link, or
-add the key as a time-based account. Test a passcode on a Duo sign-in before
-removing any other method.
+add the key as a time-based account. Test a passcode on a Duo sign-in, and keep
+your existing Duo Mobile device registered as a backup even after your new
+authenticator works.
 
 To generate passcodes in a terminal instead of an app, use
 [oath-toolkit](https://www.nongnu.org/oath-toolkit/)'s `oathtool`. Duo accepts

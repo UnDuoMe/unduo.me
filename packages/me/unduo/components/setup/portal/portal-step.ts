@@ -137,6 +137,10 @@ export function portalStep(
       { class: "intro" },
       "Sign in to your organization's Duo device portal, where you manage the phones and tablets on your account. You'll add unduo there as a new device.",
     ),
+    p(
+      { class: "note" },
+      "Keep your existing Duo Mobile device registered as a backup so you can still sign in if you lose access to your new authenticator.",
+    ),
     schoolPicker(school, choices),
     () => schoolCard(school.val, page),
     p({ class: "signed-in-text" }, "Press ", strong("Continue"), " when you see a page like this:"),

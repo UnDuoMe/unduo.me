@@ -155,7 +155,7 @@ export function authenticatorResult({ view, qr, send }: SetupPage) {
       h3({ class: "warning-title" }, "Add it now — unduo forgets the key when you close this tab"),
       p(
         { class: "warning-text" },
-        "Keep your current Duo sign-in method until a code from your authenticator works.",
+        "Keep your existing Duo Mobile device registered as a backup, even after a code from your new authenticator works. If you lose your authenticator or its codes stop working, use your Duo device to sign in.",
       ),
     ),
   );

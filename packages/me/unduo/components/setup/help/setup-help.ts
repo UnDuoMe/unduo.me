@@ -30,9 +30,13 @@ function guide() {
     p(
       "Duo checks this device's passcodes with a counter (HOTP), so use an app that supports counter-based codes: Google Authenticator, 2FAS, Aegis and FreeOTP all do. Some organizations have switched Duo to time-based codes (TOTP); if counter-based codes are rejected, switch the result to time-based and add it again.",
     ),
+    h3({ class: "dialog-heading" }, "Keep a backup"),
+    p(
+      "Keep your existing Duo Mobile device registered as a backup, even after your new authenticator works. It gives you another way to sign in if you lose your authenticator or its codes stop working.",
+    ),
     h3({ class: "dialog-heading" }, "What it can't do"),
     p(
-      "Duo Push approvals aren't supported, only passcodes. Your organization must allow adding devices and passcode sign-ins. Keep an existing sign-in method until a code from your new app works.",
+      "Duo Push approvals aren't supported, only passcodes. Your organization must allow adding devices and passcode sign-ins.",
     ),
   );
 }
@@ -116,6 +120,9 @@ function terminal() {
       ". Close the terminal when you're done.",
     ),
     pre({ class: "command" }, terminalCommands.account),
+    p(
+      "Test a passcode on a Duo sign-in, and keep your existing Duo Mobile device registered as a backup even after your new authenticator works. It gives you another way to sign in if you lose access to your authenticator.",
+    ),
   );
 }
 
