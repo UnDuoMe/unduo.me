@@ -130,7 +130,7 @@
   .reply-shot-hint {
     @apply absolute! right-2.5! bottom-2.5! rounded-full! border! border-separator! bg-white/95! px-3! py-1! text-xs! font-medium! text-foreground! shadow-sm!;
   }
-  /* The whole reply. A SHA-256 is one 64-character word, so any word may break. */
+  /* The whole reply. A long word, such as a file name, may break anywhere. */
   .reply-text {
     @apply flex! flex-col! gap-3! text-[0.9375rem]! leading-[1.6]! text-foreground! [overflow-wrap:anywhere]! [&_h3]:text-base! [&_h3]:font-semibold! [&_li]:mt-1.5! [&_ol]:list-decimal! [&_ol]:pl-5! [&_strong]:font-semibold! [&_ul]:list-disc! [&_ul]:pl-5!;
   }

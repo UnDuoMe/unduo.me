@@ -9,8 +9,8 @@ vp run capture:ai --site claude            # one site; repeat --site for more
 vp run capture:ai --focus                  # also set ChatGPT to Pro and use Claude's file picker
 ```
 
-It drives your own Chrome, signed in to the three sites, through `orca computer`, in a
-window of its own. Each site gets a new chat it doesn't keep: ChatGPT's temporary chat
+It drives your own Chrome, in `Profile 2`, the profile signed in to the three sites,
+through `orca computer`, in a window of its own. Each site gets a new chat it doesn't keep: ChatGPT's temporary chat
 (which is also unpersonalized), Gemini's temporary chat and Claude's incognito chat. The
 file is pasted in as an attachment, as a file copied in Finder pastes, and the prompt
 (`aiPrompt` from `@-/me.unduo.components.home/server`) is pasted from the clipboard into

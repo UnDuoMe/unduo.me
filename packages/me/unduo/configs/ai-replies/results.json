@@ -1,23 +1,19 @@
 {
-  "prompt": "The attached file is from a website for setting up Duo two-factor authentication with my own authenticator app instead of Duo Mobile.\n\nPlease read its code, including everything it loads and runs. Judge each part by what the code allows it to do or restricts it from doing.\n\nWill this file keep my Duo activation code and secret key safe, so they stay between me, Duo and my authenticator app?\n\nAnswer “Safe: no” only if you can point to how UnDuo's file itself would let them reach anyone else. Judge UnDuo only, not other services it can't control, such as a clipboard or browser that syncs to the cloud. Start your reply with “Safe: yes” or “Safe: no”, then explain why in a few short sentences to someone who may not be technical.\n\nP.S. UnDuo has screenshots of other AIs responding to this exact prompt, but the file isn't visible. If you have the ability to, attach the file's SHA256 hash at the end of your response (compute it by running code, not by guessing), and briefly explain why if the hashes match, it means the files are the same.",
+  "prompt": "This file sets up Duo two-factor authentication with my own authenticator app. Read its code and everything it loads, and judge each part by what the code allows it to do.\n\nWill it keep my Duo activation code and secret key between me, Duo and my authenticator app?\n\nAnswer “Safe: no” only if you can point to how UnDuo's file itself would let them reach anyone else, not services it can't control, such as a clipboard or browser that syncs to the cloud. Start your reply with “Safe: yes” or “Safe: no”, then explain why in a few short sentences for a non-technical reader.",
   "replies": [
     {
       "site": "chatgpt",
       "name": "ChatGPT",
-      "model": "the model chosen last (not checked)",
+      "model": "Pro",
       "verdict": "yes",
-      "reply": "Safe: yes — I found no path in this file that sends your activation code or secret key to a third party. Activation is restricted to Duo, and your authenticator QR code is created locally in your browser.\n\nThe downloaded setup code has no direct internet access and its outputs are checked; requests for styles and example images do not include your secrets.\n\nI couldn’t retrieve every external file\n\n, so my assessment of those parts relies on the restrictions this HTML enforces, not a complete inspection of their contents.\n\nSHA-256, computed from your attachment: Matching hashes are extremely strong evidence that the files are byte-for-byte i...\n\nPlain text",
-      "whole": false,
+      "reply": "Safe: yes. The file restricts your activation code to a checked Duo address and creates your authenticator’s QR code locally, without sending the key to a QR-code service. UnDuo - University of Toronto UnDuo - University of Toronto Its downloaded setup module cannot contact servers independently, and the file checks its results before allowing a Duo request or authenticator link. UnDuo - University of Toronto UnDuo - University of Toronto UnDuo - University of Toronto The downloaded styles and example pictures likewise have no permitted route to transmit your secrets. UnDuo - University of Toronto UnDuo - University of Toronto I couldn’t retrieve every external file, so this verdict rests on the restrictions enforced by this file—not a complete inspection of every downloaded byte.",
+      "whole": true,
       "screenshot": "ai-reply-chatgpt.webp",
-      "zoom": 50,
-      "hash": {
-        "found": "62029f7a0d6d8d47e32a7e06f88c9a17b482d79a3e82a1c15c52614eb0d9dacd",
-        "matches": true
-      },
-      "capturedAt": "2026-11-08T01:47:02.152Z",
+      "zoom": 90,
+      "capturedAt": "2026-11-09T03:37:41.978Z",
       "file": {
         "name": "UnDuo - University of Toronto.html",
-        "sha256": "62029f7a0d6d8d47e32a7e06f88c9a17b482d79a3e82a1c15c52614eb0d9dacd"
+        "sha256": "b885701bec3fd3273712425ebe1f13488f7db19ce679934b480b9bfe306713c3"
       }
     },
     {
@@ -25,17 +21,14 @@
       "name": "Gemini",
       "model": "3.1 Pro",
       "verdict": "yes",
-      "reply": "Safe: yes.\n\nThe file contains a strict Content Security Policy that forces your web browser to only send data directly to Duo's official servers (https://*.duosecurity.com). The script that scans the QR code and manages your secret key runs entirely on your local device, and the page is explicitly blocked from sending your information to any other external website. Additionally, the external logic files it loads are locked using cryptographic hashes, which guarantees your browser will reject them if they are ever altered.\n\nWhile I cannot compute the SHA256 hash of the file because I lack a code execution tool in this environment, a SHA256 hash serves as a unique mathematical fingerprint for a file's exact contents. If the hash of your file matches the known hash of the official file, it guarantees that the files are identical byte-for-byte and have not been tampered with.",
+      "reply": "Safe: yes.\n\nThe \"UnDuo - University of Toronto. html\" file uses a strict built-in browser rule called a Content Security Policy to act as a digital bouncer. This rule physically blocks the webpage from sending your information anywhere except directly to Duo's official servers. Additionally, the internal code that handles your setup is heavily locked down and checked for tampering, restricting it to only showing the secret key on your screen or preparing it for your clipboard. Because all the actual processing happens locally on your device and the page is blocked from contacting unauthorized outside networks, your data remains safely restricted to you, Duo, and your authenticator app.",
       "whole": true,
       "screenshot": "ai-reply-gemini.webp",
-      "zoom": 50,
-      "hash": {
-        "matches": false
-      },
-      "capturedAt": "2026-11-08T02:10:22.450Z",
+      "zoom": 90,
+      "capturedAt": "2026-11-09T04:37:36.080Z",
       "file": {
         "name": "UnDuo - University of Toronto.html",
-        "sha256": "62029f7a0d6d8d47e32a7e06f88c9a17b482d79a3e82a1c15c52614eb0d9dacd"
+        "sha256": "b885701bec3fd3273712425ebe1f13488f7db19ce679934b480b9bfe306713c3"
       }
     },
     {
@@ -43,17 +36,14 @@
       "name": "Claude",
       "model": "Fable 5.1 High",
       "verdict": "yes",
-      "reply": "Safe: yes.\n\nI read the whole file: its security policy, the five inline scripts, and the rules it applies to the three things it downloads (a stylesheet, a WebAssembly “setup plugin” and some screenshots). Nothing in it gives your activation code or your key a path to anyone but Duo and your authenticator app.\n\nHere is why, in plain terms. The page’s browser security policy is a strict allow-list: the only place it may send anything is a Duo address of the form api-xxxxxxxx.duosecurity.com, and the only place it may download from is one fixed, hash-pinned folder on jsDelivr. The one request that carries your activation code is the form that posts it straight to the Duo host taken from your own QR code; the page checks that the code and host actually appeared in what you pasted, locks that host for the rest of the session, and the form’s other fields are fixed text with no room for anything else. Duo’s reply, which contains your key, lands in a sealed box (a sandboxed frame) that the page’s own code cannot read; you copy it out by hand. From then on the key only turns into a QR image built locally as a data: URL, an otpauth://link for your authenticator app, and the key text shown on screen. The page never writes it to the address bar, browser storage, cookies, or the clipboard (the only “Copy” button copies the portal link). The downloaded plugin is treated as untrusted: it can only read the text the page hands it and return a result, and every result is checked against a fixed schema before use, so even a malicious plugin could at worst break the setup, not leak it. Pasted images and screen-share frames are decoded locally and only the QR text is kept. Nothing in the page uses innerHTML, eval, or inline event handlers.\n\nWhat I could not inspect: the actual bytes of the plugin, stylesheet and screenshots, since they are not in the file. But the file pins each to a SHA-256 and constrains what they can do, so that doesn’t change the verdict. The usual residual risks are outside UnDuo’s control: the Duo host name is visible to your network (as with any Duo login), and your clipboard or authenticator app handle the key after that.\n\nOn the hash: this conversation has no shell or code execution, so I can’t compute the file’s SHA-256, and I won’t guess one. If you compute it yourself (e.g. shasum -a 256 \"UnDuo - University of Toronto.html\" on a Mac, certutil -hashfile <file> SHA256 on Windows) and it matches the hash shown in UnDuo’s screenshots, the files are byte-for-byte identical: SHA-256 turns a file into a 64-character fingerprint, and changing even one character of the file produces a completely different fingerprint, so a match means the file those AIs reviewed is the same one you have.",
+      "reply": "I'll check the page's code against the files it pulls from jsDelivr, then give you the verdict.\n\n**Safe: yes.**\n\nNothing in this file gives your activation code or secret key a way to reach anyone except Duo and your authenticator app. The page locks down the browser so that it can only send a form to your organization's Duo server (the activation, which is the whole point), show Duo's reply in a sealed box, and download its own fixed support files from jsDelivr. Those downloads are \"pinned\": the browser refuses any file whose fingerprint doesn't match the one written in the page, and the fingerprints in the page match what jsDelivr publishes for that exact version. The downloads carry no information of yours either way, since their addresses are fixed and never change based on what you paste.\n\nThe one piece of code I couldn't read line by line is the small setup module it downloads, but the page is built so that it doesn't have to be trusted. That module is given no way to talk to the network, and every result it produces is checked by the page before use: the only server address it can name must be a Duo server whose host and code appeared in what you pasted, and the key it hands to your authenticator must come from the Duo reply you pasted. At worst it could make setup fail; it couldn't redirect your code or key anywhere.\n\nThe key itself appears only in the QR code and link the page draws for your authenticator app and never goes into the page's address, browser storage, or the clipboard (the page copies only the portal link). I'll note the things outside the file's control, as you asked me to: you copy Duo's reply by hand, so a clipboard that syncs or keeps a history would see it; jsDelivr sees your IP address but none of your codes; and Duo, of course, receives the activation as it would from the real Duo Mobile app. One honest limitation of the tool rather than a safety issue: it only produces passcodes, not Duo Push approvals, so keep your existing Duo method until a code from your new app works.",
       "whole": true,
       "screenshot": "ai-reply-claude.webp",
-      "zoom": 50,
-      "hash": {
-        "matches": false
-      },
-      "capturedAt": "2026-11-08T02:13:15.706Z",
+      "zoom": 75,
+      "capturedAt": "2026-11-09T03:41:28.777Z",
       "file": {
         "name": "UnDuo - University of Toronto.html",
-        "sha256": "62029f7a0d6d8d47e32a7e06f88c9a17b482d79a3e82a1c15c52614eb0d9dacd"
+        "sha256": "b885701bec3fd3273712425ebe1f13488f7db19ce679934b480b9bfe306713c3"
       }
     }
   ]

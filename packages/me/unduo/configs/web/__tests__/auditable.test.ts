@@ -1166,9 +1166,10 @@ describe.runIf(enabled)("browser", { timeout: 180_000 }, () => {
     // Each card shows the whole reply, nothing cut off or scrolled, and the whole screenshot.
     expect(
       evaluate(
-        "[...document.querySelectorAll('.reply-card')].map((card) => card.querySelector('.reply-text').textContent.startsWith('Safe: yes'))",
+        "[...document.querySelectorAll('.reply-card')].map((card) => card.querySelector('.reply-text').textContent.match(/Safe: (yes|no)/)?.[1])",
       ),
-    ).toEqual([true, true, true]);
+      "Each reply's first verdict, which may follow a sentence the AI wrote first",
+    ).toEqual(["yes", "yes", "yes"]);
     expect(
       evaluate(
         "[...document.querySelectorAll('.reply-text')].map((text) => [getComputedStyle(text).overflowY, getComputedStyle(text).maxHeight, text.scrollHeight <= text.clientHeight + 1])",

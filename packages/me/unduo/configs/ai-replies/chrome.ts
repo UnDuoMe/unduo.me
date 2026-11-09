@@ -75,13 +75,24 @@ export class ChromeWindow {
   /**
    * Open `url` in a new window of your Chrome. Chrome comes to the front when it
    * opens a window, so the app you were using goes back in front as soon as the
-   * window appears, and again if Chrome takes the front back.
+   * window appears, and again if Chrome takes the front back. It's always the
+   * profile signed in to the three sites; left to itself, Chrome uses whichever
+   * profile was active last.
    */
   static async open(url: string) {
     const before = new Set(windowIds());
     const scriptsBefore = new Set(scriptIds());
     const front = frontApp();
-    execFileSync("open", ["-g", "-n", "-a", "Google Chrome", "--args", "--new-window", url]);
+    execFileSync("open", [
+      "-g",
+      "-n",
+      "-a",
+      "Google Chrome",
+      "--args",
+      "--profile-directory=Profile 2",
+      "--new-window",
+      url,
+    ]);
     for (let attempt = 0; attempt < 100; attempt++) {
       const id = windowIds().find((id) => !before.has(id));
       const scriptId = scriptIds().find((id) => !scriptsBefore.has(id));
