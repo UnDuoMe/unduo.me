@@ -85,6 +85,16 @@ const fileBadge = (name: string) =>
 const fileName = (school: University) =>
   `UnDuo - ${school.name.replace(/[\\/:*?"<>|]+/g, "-")}.html`;
 
+/** What makes a link save an institution's file. */
+const fileLink = (school: University) => ({
+  // The one setup file; its saved name tells it which institution to show.
+  href: "./files/unduo",
+  download: fileName(school),
+});
+
+/** Start saving an institution's file, as its link on the first step does. */
+export const downloadFile = (school: University) => a(fileLink(school)).click();
+
 /**
  * Step 1: the institution's file, which the student downloads but mustn't open
  * yet, because the next step has them audit it first. A drawing beside the
@@ -106,15 +116,7 @@ export function downloadStep(school: University) {
       // The link is the file's name, on a line of its own.
       p(
         { class: "home-step-text" },
-        a(
-          {
-            class: "home-download",
-            // The one setup file; its saved name tells it which institution to show.
-            href: "./files/unduo",
-            download: fileName(school),
-          },
-          fileName(school),
-        ),
+        a({ class: "home-download", ...fileLink(school) }, fileName(school)),
       ),
       p({ class: "home-step-text" }, "Next, we'll show you how to verify it's safe to use."),
     ),

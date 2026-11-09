@@ -1243,6 +1243,36 @@ describe.runIf(enabled)("browser", { timeout: 180_000 }, () => {
     browser("wait", "--fn", "document.querySelector('#university').ariaExpanded === 'false'");
     expect(dropdownOpen()).toBe(false);
 
+    // Under the AI replies, a button drawn as a link saves Other's file and opens its dialog at the prompt.
+    expect(evaluate("document.querySelector('.landing-check').textContent")).toBe(
+      "Think the screenshots might be fake? You can check for yourself.",
+    );
+    expect(
+      evaluate(
+        "((link, style) => [link.tagName, link.type, style.textDecorationLine, style.backgroundColor])(document.querySelector('.check-link'), getComputedStyle(document.querySelector('.check-link')))",
+      ),
+    ).toEqual(["BUTTON", "button", "underline", "rgba(0, 0, 0, 0)"]);
+    expect(
+      evaluate(`(() => {
+        const click = HTMLAnchorElement.prototype.click;
+        const saved = [];
+        HTMLAnchorElement.prototype.click = function () { saved.push([this.href, this.download]); };
+        document.querySelector('.check-link').click();
+        HTMLAnchorElement.prototype.click = click;
+        return saved;
+      })()`),
+      "The file is saved once, under Other's name",
+    ).toEqual([[`${hosted}/files/unduo`, "UnDuo - Other.html"]]);
+    waitForStep("Copy prompt");
+    expect(address()).toBe("/?university=other#step=prompt");
+    expect(evaluate("document.querySelector('.dialog-school').textContent")).toBe("Other");
+    evaluate("document.querySelector('.landing-check').scrollIntoView({ behavior: 'instant' })");
+    const scrolled = evaluate("Math.round(scrollY)");
+    evaluate("document.querySelector('#home-dialog').close()");
+    waitForClosed();
+    expect(focused(), "Focus goes back to the button").toBe("check for yourself.");
+    expect(evaluate("Math.round(scrollY)"), "The page stays where it was").toBe(scrolled);
+
     // A click on the field opens the list under it, and Escape closes it.
     browser("click", "#university");
     browser("wait", "--fn", "document.activeElement.id === 'university'");

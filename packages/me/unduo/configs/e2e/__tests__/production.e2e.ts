@@ -602,6 +602,17 @@ test.describe("what else the pages offer", () => {
     expect(duo.posts).toEqual([]);
   });
 
+  test("check for yourself saves Other's file and opens its prompt", async ({ page: home }) => {
+    await home.goto(site);
+    const [download] = await Promise.all([
+      home.waitForEvent("download"),
+      home.getByRole("button", { name: "check for yourself." }).click(),
+    ]);
+    expect(download.suggestedFilename()).toBe("UnDuo - Other.html");
+    await expect(stepTitle(home)).toHaveText("Copy prompt");
+    await expect(home).toHaveURL(/\?university=other#step=prompt$/);
+  });
+
   test("a used QR code leads to a new one", async ({ context, page: home, world: { duo } }) => {
     const path = await fileFromSharedLink(home);
     const { setup, code } = await toQrStep(context, path);

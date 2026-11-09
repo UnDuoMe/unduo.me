@@ -263,6 +263,17 @@ export function aiTestimonials() {
   );
 }
 
+/** Under the AI replies, for anyone who doubts them: a button that reads as a link. */
+export function checkYourself(check: (event: MouseEvent) => void) {
+  return section(
+    { class: "landing-check" },
+    p(
+      "Think the screenshots might be fake? You can ",
+      button({ type: "button", class: "check-link", onclick: check }, "check for yourself."),
+    ),
+  );
+}
+
 /** What each step involves, under its line, and its illustration. */
 const stepDetails = [
   {

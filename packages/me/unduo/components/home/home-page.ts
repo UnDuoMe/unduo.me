@@ -3,8 +3,8 @@ import type { University } from "@-/me.unduo.data.universities.entities";
 import { button, dialog, div, h2, main, p, path, section, svg } from "@-/me.unduo.lib.dom";
 import { findUniversity, otherInstitution } from "@-/me.unduo.lib.universities";
 import { homeFooter, homeHeader, homeStart } from "#home-intro";
-import { aiTestimonials, getStarted, howItWorks } from "#home-landing";
-import { continueStep, downloadStep, promptStep, verifyStep } from "#home-steps";
+import { aiTestimonials, checkYourself, getStarted, howItWorks } from "#home-landing";
+import { continueStep, downloadFile, downloadStep, promptStep, verifyStep } from "#home-steps";
 
 /** The dialog's steps once an institution is chosen. `id` names a step in the URL. */
 const steps = [
@@ -52,6 +52,8 @@ export function startHomePage() {
   const current = van.state(start.current);
   /** The search field, which takes focus back when the dialog closes. */
   const focusSearch = () => document.getElementById("university")?.focus();
+  /** Where focus goes when the dialog closes: the search, unless something else opened it. */
+  let focusAfterClose = focusSearch;
   /**
    * Jump the search to the middle of the screen at once, without the page's
    * smooth scrolling, then focus it and open its list, as a click on it does.
@@ -91,6 +93,15 @@ export function startHomePage() {
   };
   /** Choosing an institution opens its dialog at the download. */
   const choose = (school: University) => goTo(0, school);
+  /**
+   * "Check for yourself" saves Other's file at once, so its dialog opens on the
+   * step after the download. Closing it leaves the page where it was, far below the search.
+   */
+  const checkForYourself = ({ currentTarget }: MouseEvent) => {
+    focusAfterClose = () => (currentTarget as HTMLElement).focus({ preventScroll: true });
+    downloadFile(otherInstitution);
+    goTo(1, otherInstitution);
+  };
 
   const homeDialog = dialog(
     {
@@ -102,7 +113,8 @@ export function startHomePage() {
       // Escape, the close button and Done all leave the dialog for the page, and the address follows.
       onclose: () => {
         if (fromUrl().school) navigate(window.location.pathname);
-        focusSearch();
+        focusAfterClose();
+        focusAfterClose = focusSearch;
       },
     },
     button(
@@ -171,6 +183,7 @@ export function startHomePage() {
           div({ class: "home-center" }, homeHeader(), homeStart(universityPicker(choose))),
         ),
         aiTestimonials(),
+        checkYourself(checkForYourself),
         howItWorks(),
         getStarted(toSearch),
       ),
