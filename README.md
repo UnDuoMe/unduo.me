@@ -23,6 +23,11 @@ that file, never on the website: students shouldn't get used to doing something
 this sensitive through a website, so the site serves the file as a download and
 has no page that runs it.
 
+If your network blocks unduo.me, as the University of Toronto's wifi blocks newly
+registered domains, use **[unduome.github.io](https://unduome.github.io/)** instead.
+It serves the same files, byte for byte, copied from unduo.me by
+[UnDuoMe/unduome.github.io](https://github.com/UnDuoMe/unduome.github.io).
+
 1. **Open your Duo device portal.** Sign in where you manage your Duo devices.
    Your university's file links to its verified enrollment portal if it has one,
    and shows what Duo's prompt looks like once you're signed in.
@@ -274,6 +279,12 @@ GitHub Pages Actions builds and publishes `www/` at [unduo.me](https://unduo.me)
 In **Settings → Pages**, select **GitHub Actions** as the source. The build copies
 `.nojekyll` and `CNAME` into `www/`. Cloudflare is used only for DNS; see
 [GitHub's custom-domain instructions](https://docs.github.com/en/pages/configuring-a-custom-domain-for-your-github-pages-site/managing-a-custom-domain-for-your-github-pages-site).
+
+[UnDuoMe/unduome.github.io](https://github.com/UnDuoMe/unduome.github.io) copies `www/` to
+[unduome.github.io](https://unduome.github.io/) for networks that block unduo.me. Every ten
+minutes its workflow checks out `www/` from `main` and deploys it once unduo.me serves those
+exact bytes, without `CNAME`. It copies the committed files rather than building them, so
+commit `www/` with the change that built it.
 
 Commit source changes and push to `main` to publish. Generated HTML is kept in `www/` for inspection and downloads. The home page contains the university picker; every choice downloads the same file,
 `www/files/unduo`, saved as `UnDuo - <institution>.html`, with no extension so that
