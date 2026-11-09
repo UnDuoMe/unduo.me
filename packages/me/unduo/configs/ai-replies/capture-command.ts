@@ -9,7 +9,7 @@ const { values } = parseArgs({
   options: {
     site: { type: "string", multiple: true },
     file: { type: "string", default: join(root, "www/files/unduo") },
-    name: { type: "string", default: "UnDuo - University of Toronto.html" },
+    name: { type: "string", default: "UnDuo - Other.html" },
     images: { type: "string", default: join(root, "apps/unduo-web/src/assets") },
     results: { type: "string", default: fileURLToPath(new URL("results.json", import.meta.url)) },
     focus: { type: "boolean", default: false },

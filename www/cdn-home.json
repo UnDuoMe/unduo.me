@@ -1,10 +1,10 @@
 {
-  "commit": "ffe22b60b2ed598dbdfb2a5a7e15103b6cfcaee6",
-  "base": "https://cdn.jsdelivr.net/gh/UnDuoMe/unduo.me@ffe22b60b2ed598dbdfb2a5a7e15103b6cfcaee6/",
+  "commit": "b6b6e2fe8599d7e7dc9a713e8fab72bbc246db82",
+  "base": "https://cdn.jsdelivr.net/gh/UnDuoMe/unduo.me@b6b6e2fe8599d7e7dc9a713e8fab72bbc246db82/",
   "files": {
     "home-styles.UBxstx7D.css": "sha256-UBxstx7DS0PTN3XVNpsO4KYnCHiJFvZoHs1kZMydk+E=",
-    "ai-reply-chatgpt.TNwtOK41.webp": "sha256-TNwtOK418xyTEkP1IUwYZDpFVVYXHm6Spf5LtQhhyng=",
-    "ai-reply-claude.aQm_zrPR.webp": "sha256-aQm/zrPRw44WVZajxNfYsp4arV/SJTYMk7q1Eczce78=",
-    "ai-reply-gemini.uSsRjHt3.webp": "sha256-uSsRjHt3HiiafX10UZ4rUjgerZpIaFTy/4Ya2NGsTIc="
+    "ai-reply-chatgpt.OF1MfEww.webp": "sha256-OF1MfEwwjzWIHSim6wU0K5lN+juMgpquMgYcLx781lk=",
+    "ai-reply-claude.ll_cCOfy.webp": "sha256-ll/cCOfyqrkifQ4l1+SydGC9Ee/QKxmXHo6LOlDAXQA=",
+    "ai-reply-gemini.MmEZ45nQ.webp": "sha256-MmEZ45nQUkbWMMlyZ7VNiYNQ/NCRp8GnnZAbh5oHUtU="
   }
 }

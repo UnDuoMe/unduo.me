@@ -4,7 +4,7 @@ Asks ChatGPT, Gemini and Claude the home page's prompt about a setup file, the w
 student would, and saves a screenshot of each reply for the home page.
 
 ```sh
-vp run capture:ai                          # all three, www/files/unduo saved as UofT's
+vp run capture:ai                          # all three, www/files/unduo saved as Other's
 vp run capture:ai --site claude            # one site; repeat --site for more
 vp run capture:ai --focus                  # also set ChatGPT to Pro and use Claude's file picker
 ```
@@ -20,7 +20,7 @@ By default everything runs in the background: the window stays behind the app yo
 using and the pointer doesn't move. Chrome comes forward on its own for a moment when it
 opens the window, and the app you were using goes back in front as soon as the window
 appears. ChatGPT keeps the model chosen last, recorded as not checked, and Claude names a
-pasted file with a timestamp in front (`1793919068903_University of Toronto.html`).
+pasted file with a timestamp in front of its name (`1793919068903_…`).
 
 `--focus` brings Chrome to the front twice: for a moment to set ChatGPT's model slider to
 its last stop, Pro, whose menu opens only for a foreground click, and for a few

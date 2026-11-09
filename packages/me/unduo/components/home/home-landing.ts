@@ -108,7 +108,7 @@ function replyText(markdown: string) {
 }
 
 /**
- * What ChatGPT, Claude and Gemini said about the University of Toronto file, in
+ * What ChatGPT, Claude and Gemini said about the setup file saved as Other's, in
  * a carousel that shows one at a time: a screenshot of the conversation that
  * opens larger, and beside it the AI's verdict and its whole reply. Arrows and a button per AI
  * above the card, and a swipe, move between them.
