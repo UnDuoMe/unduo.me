@@ -111,8 +111,10 @@ jobs:
           site="$RUNNER_TEMP/site"
           mkdir "$site"
           tar -xf "$RUNNER_TEMP/pages/artifact.tar" -C "$site"
-          # unduome.github.io has no custom domain.
+          # unduome.github.io has no custom domain. Pages builds it from the branch, and the
+          # artifact leaves out hidden files, so .nojekyll is added to skip Jekyll there.
           rm -f "$site/CNAME"
+          : > "$site/.nojekyll"
 
           ssh="$RUNNER_TEMP/ssh"
           mkdir -m 700 "$ssh"
