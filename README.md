@@ -25,7 +25,7 @@ has no page that runs it.
 
 If your network blocks unduo.me, as the University of Toronto's wifi blocks newly
 registered domains, use **[unduome.github.io](https://unduome.github.io/)** instead.
-It serves the same files, byte for byte, copied from unduo.me by
+It serves the same files, byte for byte: each unduo.me deploy also publishes them to
 [UnDuoMe/unduome.github.io](https://github.com/UnDuoMe/unduome.github.io).
 
 1. **Open your Duo device portal.** Sign in where you manage your Duo devices.
@@ -280,11 +280,10 @@ In **Settings → Pages**, select **GitHub Actions** as the source. The build co
 `.nojekyll` and `CNAME` into `www/`. Cloudflare is used only for DNS; see
 [GitHub's custom-domain instructions](https://docs.github.com/en/pages/configuring-a-custom-domain-for-your-github-pages-site/managing-a-custom-domain-for-your-github-pages-site).
 
-[UnDuoMe/unduome.github.io](https://github.com/UnDuoMe/unduome.github.io) copies `www/` to
-[unduome.github.io](https://unduome.github.io/) for networks that block unduo.me. Every ten
-minutes its workflow checks out `www/` from `main` and deploys it once unduo.me serves those
-exact bytes, without `CNAME`. It copies the committed files rather than building them, so
-commit `www/` with the change that built it.
+After Pages deploys, the workflow's `mirror` job pushes the same build, without `CNAME`, to
+the `site` branch of [UnDuoMe/unduome.github.io](https://github.com/UnDuoMe/unduome.github.io),
+which publishes it at [unduome.github.io](https://unduome.github.io/) for networks that block
+unduo.me. It then waits until that site serves the same bytes.
 
 Commit source changes and push to `main` to publish. Generated HTML is kept in `www/` for inspection and downloads. The home page contains the university picker; every choice downloads the same file,
 `www/files/unduo`, saved as `UnDuo - <institution>.html`, with no extension so that

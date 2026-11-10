@@ -379,14 +379,17 @@ deployment.
 In **Settings → Pages**, set **Source** to **GitHub Actions**. The deploy workflow
 builds the website and publishes `www/`. The root `CNAME` contains `unduo.me`;
 Cloudflare remains the DNS provider. Commit source changes and push to `main`.
-Commit `www/` with the change that built it, with its assets published:
-[UnDuoMe/unduome.github.io](https://github.com/UnDuoMe/unduome.github.io) mirrors the
-committed `www/` at https://unduome.github.io/ for networks that block unduo.me, as UofT's
-wifi does. Every ten minutes its workflow compares the mirror with `main`'s `www/`, and
-deploys only once unduo.me serves every file byte for byte, leaving out `CNAME`. If unduo.me
-has deployed `main` but serves different bytes, the mirror run fails and keeps the last copy.
-`UNDUO_E2E_URL=https://unduome.github.io/ vp run test:e2e` runs the e2e test against it. No
-deployment CLI or separate publishing branch is needed.
+Generated HTML does not need to be committed, but the committed `www/` must have
+its assets published too. No deployment CLI is needed, and unduo.me has no publishing branch.
+
+https://unduome.github.io/ serves the same files for networks that block unduo.me, as UofT's
+wifi does. After Pages deploys, the deploy workflow's `mirror` job unpacks the Pages artifact,
+drops `CNAME` and pushes it to the `site` branch of
+[UnDuoMe/unduome.github.io](https://github.com/UnDuoMe/unduome.github.io), which Pages
+publishes from that branch, then waits until the mirror serves the same bytes. The job runs
+no project code. Its deploy key (`MIRROR_DEPLOY_KEY`, a secret of the `unduome.github.io`
+environment, `main` only) can write to that one repository.
+`UNDUO_E2E_URL=https://unduome.github.io/ vp run test:e2e` runs the e2e test against it.
 
 The check workflow runs `vp check`, `vp test` and
 `vp run build:web`, and in a second job the Rust tests and the reproducible

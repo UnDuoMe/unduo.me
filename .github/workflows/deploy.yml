@@ -27,12 +27,17 @@ jobs:
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
+    outputs:
+      commit: ${{ steps.source.outputs.commit }}
     steps:
       - uses: actions/checkout@v7
         with:
           # Queued or manually rerun jobs must publish the current main.
           ref: main
           fetch-depth: 0
+
+      - id: source
+        run: echo "commit=$(git rev-parse HEAD)" >> "$GITHUB_OUTPUT"
 
       - uses: voidzero-dev/setup-vp@v1.21.2
         with:
@@ -77,3 +82,89 @@ jobs:
             curl -fsSI --retry 5 --retry-all-errors --retry-delay 10 "${PAGE_URL}files/${file}" |
               grep -qi '^content-type: application/octet-stream'
           done
+
+  # unduome.github.io serves the same files for networks that block newly registered
+  # domains, as UofT's wifi blocks unduo.me. This job runs no project code: it unpacks
+  # the Pages artifact the deploy job published and pushes it, without CNAME, to the
+  # site branch of UnDuoMe/unduome.github.io, which Pages publishes from that branch.
+  # Only this job gets the deploy key, which can write to that one repository.
+  mirror:
+    needs: deploy
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    environment:
+      name: unduome.github.io
+      url: https://unduome.github.io/
+    steps:
+      - uses: actions/download-artifact@v8
+        with:
+          name: github-pages
+          path: ${{ runner.temp }}/pages
+
+      - name: Push the site to unduome.github.io
+        env:
+          COMMIT: ${{ needs.deploy.outputs.commit }}
+          MIRROR_DEPLOY_KEY: ${{ secrets.MIRROR_DEPLOY_KEY }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          site="$RUNNER_TEMP/site"
+          mkdir "$site"
+          tar -xf "$RUNNER_TEMP/pages/artifact.tar" -C "$site"
+          # unduome.github.io has no custom domain.
+          rm -f "$site/CNAME"
+
+          ssh="$RUNNER_TEMP/ssh"
+          mkdir -m 700 "$ssh"
+          printf '%s\n' "$MIRROR_DEPLOY_KEY" > "$ssh/key"
+          chmod 600 "$ssh/key"
+          # GitHub's published SSH host key, from https://api.github.com/meta.
+          echo 'github.com ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIOMqqnkVzrm0SdG6UOoqKLsabgH5C9okWi0dh2l9GKJl' > "$ssh/known_hosts"
+          export GIT_SSH_COMMAND="ssh -i $ssh/key -o IdentitiesOnly=yes -o UserKnownHostsFile=$ssh/known_hosts -o StrictHostKeyChecking=yes"
+
+          git -C "$site" init -q -b site
+          git -C "$site" remote add origin git@github.com:UnDuoMe/unduome.github.io.git
+          # Builds the next commit on the branch, so its history shows each change.
+          if git -C "$site" fetch -q --depth 1 origin site 2>/dev/null; then
+            git -C "$site" reset -q --soft FETCH_HEAD
+          fi
+          git -C "$site" add -A
+          if git -C "$site" diff --cached --quiet HEAD 2>/dev/null; then
+            echo "unduome.github.io already has this build."
+          else
+            git -C "$site" -c user.name="github-actions[bot]" \
+              -c user.email="41898282+github-actions[bot]@users.noreply.github.com" \
+              commit -q -m "Mirror UnDuoMe/unduo.me@${COMMIT}" \
+              -m "${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}"
+            git -C "$site" push -q origin site
+          fi
+          rm -rf "$ssh"
+
+      - name: Check unduome.github.io serves the same files
+        shell: bash
+        run: |
+          set -euo pipefail
+          cd "$RUNNER_TEMP/site"
+          # Pages takes a minute or two to publish a push.
+          for attempt in $(seq 1 40); do
+            same=true
+            while IFS= read -r -d '' path; do
+              path=${path#./}
+              live=$(curl -fsS "https://unduome.github.io/${path}?run=${GITHUB_RUN_ID}-${attempt}" | sha256sum | cut -d' ' -f1) || live=missing
+              if [ "$live" != "$(sha256sum < "$path" | cut -d' ' -f1)" ]; then
+                same=false
+                break
+              fi
+            done < <(find . -path ./.git -prune -o -type f ! -name .nojekyll ! -path './cdn*/*' -print0)
+            if [ "$same" = true ]; then
+              for file in files/*; do
+                curl -fsSI "https://unduome.github.io/${file}?run=${GITHUB_RUN_ID}" |
+                  grep -qi '^content-type: application/octet-stream'
+              done
+              echo "unduome.github.io serves this build."
+              exit 0
+            fi
+            sleep 15
+          done
+          echo "::error::unduome.github.io still serves a different ${path} after 10 minutes."
+          exit 1
