@@ -19,23 +19,36 @@ one in the enrollment portal you use with unduo.
 
 ## Install
 
-Build it, from the repository root:
+UnDuo Autofill isn't in any extension store. Install it from its release zip:
+
+1. Download [**unduo-autofill.zip**](https://github.com/UnDuoMe/unduo.me/releases/latest/download/unduo-autofill.zip)
+   from the [latest release](https://github.com/UnDuoMe/unduo.me/releases/latest) and unzip it.
+   Keep the folder somewhere it can stay: the browser runs the extension from it.
+2. Add it to your browser:
+   - **Chrome, Edge, Brave, Arc:** open `chrome://extensions` (`edge://extensions` in Edge),
+     turn on **Developer mode**, click **Load unpacked** and choose the unzipped folder, the
+     one holding `manifest.json`.
+   - **Firefox:** open `about:debugging#/runtime/this-firefox`, click **Load Temporary
+     Add-on…** and choose `unduo-autofill.zip`. Firefox removes it when it quits.
+3. Let 1Password match Duo's page. 1Password stops filling when a sign-in moves to another
+   domain, and Duo's prompt is on `duosecurity.com`, not your school's site. Edit the login
+   that holds your unduo one-time password and add the prompt's address as a website, for
+   example `https://api-XXXXXXXX.duosecurity.com` (copy the host from the address bar).
+
+To update, unzip the new release over the same folder and click the extension's reload
+button in `chrome://extensions`.
+
+Each release lists its zip's SHA-256. The zip is reproducible: at the release's tag,
+`vp install && vp run pack:extension` builds the same bytes and prints their SHA-256.
+
+### Build it yourself
 
 ```sh
 vp install
 vp run build:extension   # writes apps/unduo-extension/dist
 ```
 
-- **Chrome, Edge, Brave, Arc:** open `chrome://extensions`, turn on **Developer mode**,
-  click **Load unpacked** and choose `apps/unduo-extension/dist`.
-- **Firefox:** open `about:debugging#/runtime/this-firefox`, click **Load Temporary
-  Add-on…** and choose `apps/unduo-extension/dist/manifest.json`. Firefox removes it
-  when it quits.
-
-Then let 1Password match Duo's page. 1Password stops filling when a sign-in moves to
-another domain, and Duo's prompt is on `duosecurity.com`, not your school's site. Edit the
-login that holds your unduo one-time password and add the prompt's address as a website,
-for example `https://api-XXXXXXXX.duosecurity.com` (copy the host from the address bar).
+Load `apps/unduo-extension/dist` the same way, or its `manifest.json` in Firefox.
 
 ## Code
 

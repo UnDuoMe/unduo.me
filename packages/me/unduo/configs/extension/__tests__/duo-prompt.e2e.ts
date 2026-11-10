@@ -1,15 +1,15 @@
 /**
  * The built extension in Chromium, on a mock of Duo's Universal Prompt. Run
- * `vp run test:extension`, which builds the extension first.
+ * `vp run test:extension`, which builds the extension first. `UNDUO_EXTENSION_DIR`
+ * tests another copy, such as a release's zip unzipped.
  */
-import { fileURLToPath } from "node:url";
 import { expect, test as base } from "@playwright/test";
 import type { BrowserContext, Page } from "@playwright/test";
+import { extensionDir } from "#extension-zip";
 import { mockPrompt, promptUrl } from "#mock-prompt";
 
-const extension = fileURLToPath(
-  new URL("../../../../../../apps/unduo-extension/dist", import.meta.url),
-);
+/** The built extension, or another copy of it, such as a release zip unzipped. */
+const extension = process.env.UNDUO_EXTENSION_DIR ?? extensionDir;
 
 type Fixture = { screens: string[]; focuses: { ignored: boolean }[] };
 

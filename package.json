@@ -66,6 +66,8 @@
     "test:web": "vp run --filter @-/me.unduo.configs.web test:auditable",
     "test:e2e": "vp run --filter @-/me.unduo.configs.e2e test:e2e",
     "test:extension": "vp run build:extension && vp run --filter @-/me.unduo.configs.extension test:extension",
+    "pack:extension": "vp run build:extension && vpx packages/me/unduo/configs/extension/pack-command.ts",
+    "release:extension": "vp run build:extension && vpx packages/me/unduo/configs/extension/release-command.ts",
     "install:e2e": "vp run --filter @-/me.unduo.configs.e2e install:e2e",
     "update:universities": "vp run --filter @-/me.unduo.configs.web update:universities",
     "update:cdn": "vp run --filter @-/me.unduo.configs.web update:cdn",

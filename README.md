@@ -110,9 +110,13 @@ Adding devices and passcode sign-ins must be allowed by your organization.
 Duo's prompt usually opens on a push, and it marks its passcode field so 1Password skips it.
 **UnDuo Autofill**, a small browser extension in [`apps/unduo-extension`](apps/unduo-extension/README.md),
 takes each Duo sign-in to **Other options → Duo Mobile passcode** and lets 1Password fill the
-code. Build it with `vp run build:extension`, load `apps/unduo-extension/dist` as an unpacked
-extension, and add your prompt's `https://api-XXXXXXXX.duosecurity.com` address as a website
-on the 1Password login that holds your code.
+code. It isn't in any extension store: download
+[**unduo-autofill.zip**](https://github.com/UnDuoMe/unduo.me/releases/latest/download/unduo-autofill.zip)
+from the [latest release](https://github.com/UnDuoMe/unduo.me/releases/latest), unzip it, and
+load the folder with **Load unpacked** in `chrome://extensions` (Developer mode on). Then add
+your prompt's `https://api-XXXXXXXX.duosecurity.com` address as a website on the 1Password
+login that holds your code. [Its README](apps/unduo-extension/README.md#install) covers Firefox
+and building it yourself.
 
 ## Is it secure?
 

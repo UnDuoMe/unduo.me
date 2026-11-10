@@ -289,9 +289,11 @@
     "packages/me/unduo/configs/extension": {
       "name": "@-/me.unduo.configs.extension",
       "dependencies": {
+        "@-/me.unduo.configs.git": "workspace:*",
         "@playwright/test": "catalog:",
       },
       "devDependencies": {
+        "@types/node": "catalog:",
         "vite": "catalog:",
         "vite-plus": "catalog:",
       },

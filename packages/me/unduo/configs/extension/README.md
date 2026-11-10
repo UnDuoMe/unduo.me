@@ -1,6 +1,6 @@
 # @-/me.unduo.configs.extension
 
-A Playwright test of UnDuo Autofill ([`apps/unduo-extension`](../../../../../apps/unduo-extension/README.md)):
+Packs and releases UnDuo Autofill, and tests it. The test is a Playwright test of UnDuo Autofill ([`apps/unduo-extension`](../../../../../apps/unduo-extension/README.md)):
 the built extension, loaded into Playwright's Chromium, on a mock of Duo's Universal Prompt.
 
 ```sh
@@ -19,3 +19,21 @@ The test checks that a push screen ends on a fillable, focused passcode field; t
 last focus came after it became fillable; that a new field gets fixed again; that the extension
 leaves the method list alone after you click **Other options**; and that it waits on a list
 with no Duo Mobile passcode. Its files end in `.e2e.ts`, so plain `vp test` doesn't run it.
+
+`UNDUO_EXTENSION_DIR=<folder> vpx playwright test` (from this package) runs the same test on
+another copy, such as a release zip unzipped.
+
+## Releases
+
+```sh
+vp run pack:extension      # builds, then writes .output/unduo-autofill.zip and its SHA-256
+vp run release:extension   # builds, then publishes that zip as a GitHub release
+```
+
+`extension-zip.ts` zips the build without compression, sorted, with every entry dated
+1980-01-01 and mode 0644, so the same build always gives the same bytes. `release-command.ts`
+refuses uncommitted extension changes and commits that aren't on `origin/main`, then creates
+the release `autofill-v<version>` at that commit as the UnDuoMe Automation App, with install
+steps and the zip's SHA-256, and uploads `unduo-autofill.zip`. It never replaces a release: bump
+`version` in `apps/unduo-extension/public/manifest.json` first. The asset keeps one name, so
+`releases/latest/download/unduo-autofill.zip` always gets the newest.

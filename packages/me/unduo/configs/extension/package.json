@@ -3,6 +3,7 @@
   "private": true,
   "type": "module",
   "imports": {
+    "#extension-zip": "./extension-zip.ts",
     "#mock-prompt": "./mock-prompt.ts"
   },
   "exports": {
@@ -12,9 +13,11 @@
     "test:extension": "playwright test"
   },
   "dependencies": {
+    "@-/me.unduo.configs.git": "workspace:*",
     "@playwright/test": "catalog:"
   },
   "devDependencies": {
+    "@types/node": "catalog:",
     "vite": "catalog:",
     "vite-plus": "catalog:"
   }

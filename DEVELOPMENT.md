@@ -89,6 +89,8 @@ vp run test:web          # headless browser checks of www/
 vp run test:e2e          # a student's whole path on https://unduo.me/, with a mock Duo
 vp run build:extension   # UnDuo Autofill, into apps/unduo-extension/dist
 vp run test:extension    # the built extension in Chromium, on a mock Duo prompt
+vp run pack:extension    # its reproducible release zip and SHA-256
+vp run release:extension # publish that zip as a GitHub release, as the App
 vp run test:plugin       # Rust tests for crates/setup
 vp run build:plugin      # after changing crates/setup
 vp run check:plugin      # rebuild and compare with the committed setup.wasm
