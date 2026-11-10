@@ -18,12 +18,15 @@
         "@-/me.unduo.configs.ai-replies": "workspace:*",
         "@-/me.unduo.configs.dev": "workspace:*",
         "@-/me.unduo.configs.e2e": "workspace:*",
+        "@-/me.unduo.configs.extension": "workspace:*",
         "@-/me.unduo.configs.git": "workspace:*",
         "@-/me.unduo.configs.web": "workspace:*",
         "@-/me.unduo.data.universities": "workspace:*",
         "@-/me.unduo.data.universities.entities": "workspace:*",
         "@-/me.unduo.lib.dom": "workspace:*",
+        "@-/me.unduo.lib.duo-prompt": "workspace:*",
         "@-/me.unduo.lib.universities": "workspace:*",
+        "@-apps/unduo-extension": "workspace:*",
         "@-apps/unduo-web": "workspace:*",
         "@tailwindcss/postcss": "catalog:",
         "@types/node": "catalog:",
@@ -35,6 +38,16 @@
         "tailwindcss": "catalog:",
         "typescript": "catalog:",
         "uikit": "catalog:",
+        "vite": "catalog:",
+        "vite-plus": "catalog:",
+      },
+    },
+    "apps/unduo-extension": {
+      "name": "@-apps/unduo-extension",
+      "dependencies": {
+        "@-/me.unduo.lib.duo-prompt": "workspace:*",
+      },
+      "devDependencies": {
         "vite": "catalog:",
         "vite-plus": "catalog:",
       },
@@ -273,6 +286,16 @@
         "vite-plus": "catalog:",
       },
     },
+    "packages/me/unduo/configs/extension": {
+      "name": "@-/me.unduo.configs.extension",
+      "dependencies": {
+        "@playwright/test": "catalog:",
+      },
+      "devDependencies": {
+        "vite": "catalog:",
+        "vite-plus": "catalog:",
+      },
+    },
     "packages/me/unduo/configs/git": {
       "name": "@-/me.unduo.configs.git",
       "devDependencies": {
@@ -314,6 +337,13 @@
       "name": "@-/me.unduo.lib.dom",
       "dependencies": {
         "@-/com.npmjs.vanjs-core": "workspace:*",
+      },
+    },
+    "packages/me/unduo/lib/duo-prompt": {
+      "name": "@-/me.unduo.lib.duo-prompt",
+      "devDependencies": {
+        "vite": "catalog:",
+        "vite-plus": "catalog:",
       },
     },
     "packages/me/unduo/lib/qr-reader": {
@@ -414,6 +444,8 @@
 
     "@-/me.unduo.configs.e2e": ["@-/me.unduo.configs.e2e@workspace:packages/me/unduo/configs/e2e"],
 
+    "@-/me.unduo.configs.extension": ["@-/me.unduo.configs.extension@workspace:packages/me/unduo/configs/extension"],
+
     "@-/me.unduo.configs.git": ["@-/me.unduo.configs.git@workspace:packages/me/unduo/configs/git"],
 
     "@-/me.unduo.configs.web": ["@-/me.unduo.configs.web@workspace:packages/me/unduo/configs/web"],
@@ -424,9 +456,13 @@
 
     "@-/me.unduo.lib.dom": ["@-/me.unduo.lib.dom@workspace:packages/me/unduo/lib/dom"],
 
+    "@-/me.unduo.lib.duo-prompt": ["@-/me.unduo.lib.duo-prompt@workspace:packages/me/unduo/lib/duo-prompt"],
+
     "@-/me.unduo.lib.qr-reader": ["@-/me.unduo.lib.qr-reader@workspace:packages/me/unduo/lib/qr-reader"],
 
     "@-/me.unduo.lib.universities": ["@-/me.unduo.lib.universities@workspace:packages/me/unduo/lib/universities"],
+
+    "@-apps/unduo-extension": ["@-apps/unduo-extension@workspace:apps/unduo-extension"],
 
     "@-apps/unduo-web": ["@-apps/unduo-web@workspace:apps/unduo-web"],
 

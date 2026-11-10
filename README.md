@@ -105,6 +105,15 @@ internet connection is required to load these files.
 
 Adding devices and passcode sign-ins must be allowed by your organization.
 
+### Autofill with 1Password
+
+Duo's prompt usually opens on a push, and it marks its passcode field so 1Password skips it.
+**UnDuo Autofill**, a small browser extension in [`apps/unduo-extension`](apps/unduo-extension/README.md),
+takes each Duo sign-in to **Other options → Duo Mobile passcode** and lets 1Password fill the
+code. Build it with `vp run build:extension`, load `apps/unduo-extension/dist` as an unpacked
+extension, and add your prompt's `https://api-XXXXXXXX.duosecurity.com` address as a website
+on the 1Password login that holds your code.
+
 ## Is it secure?
 
 Yes. Duo uses the same OTP standards as every other 2FA app in the security

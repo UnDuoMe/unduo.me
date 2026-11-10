@@ -1,0 +1,16 @@
+{
+  "name": "@-apps/unduo-extension",
+  "private": true,
+  "type": "module",
+  "imports": {},
+  "scripts": {
+    "build": "vp build"
+  },
+  "dependencies": {
+    "@-/me.unduo.lib.duo-prompt": "workspace:*"
+  },
+  "devDependencies": {
+    "vite": "catalog:",
+    "vite-plus": "catalog:"
+  }
+}

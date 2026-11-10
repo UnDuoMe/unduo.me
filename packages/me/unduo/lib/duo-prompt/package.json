@@ -1,0 +1,16 @@
+{
+  "name": "@-/me.unduo.lib.duo-prompt",
+  "private": true,
+  "type": "module",
+  "sideEffects": false,
+  "imports": {
+    "#duo-prompt": "./duo-prompt.ts"
+  },
+  "exports": {
+    ".": "./+.ts"
+  },
+  "devDependencies": {
+    "vite": "catalog:",
+    "vite-plus": "catalog:"
+  }
+}

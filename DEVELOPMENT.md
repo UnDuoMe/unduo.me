@@ -8,6 +8,7 @@ This repository follows the Flatcap conventions used in ImproveLabs/Haniverse, s
 - `packages/me/unduo/configs/web`: the Vite plugin that writes the site, the preview command, CDN and WHED updaters, and browser verification. Keep command scripts here rather than in the web adapter.
 - `packages/me/unduo/configs/dev`: the `_dev` mprocs launcher for Vite, with per-session control ports and pane logs.
 - `packages/me/unduo/configs/e2e`: a Playwright test of a student's whole path on the live site, with a mock Duo.
+- `apps/unduo-extension` and `packages/me/unduo/lib/duo-prompt`: UnDuo Autofill, a browser extension that takes Duo's Universal Prompt to the Duo Mobile passcode and lets 1Password fill it. `packages/me/unduo/configs/extension` tests the built extension in Chromium on a mock prompt (`vp run test:extension`).
 - `packages/me/unduo/data/universities`: canonical WHED catalog snapshot with domain enrichment and optional verified enrollment URLs.
 - `packages/me/unduo/lib/universities`: local search and shared-link validation.
 - `crates/setup`: the setup flow's logic in Rust (state machine, URL hash, activation and reply parsing, Duo request, `otpauth://` link and the screen-scan loop), and its QR code reader, compiled to a WebAssembly module with Extism's plugin interface.
@@ -86,6 +87,8 @@ vp run build:web
 vp run preview
 vp run test:web          # headless browser checks of www/
 vp run test:e2e          # a student's whole path on https://unduo.me/, with a mock Duo
+vp run build:extension   # UnDuo Autofill, into apps/unduo-extension/dist
+vp run test:extension    # the built extension in Chromium, on a mock Duo prompt
 vp run test:plugin       # Rust tests for crates/setup
 vp run build:plugin      # after changing crates/setup
 vp run check:plugin      # rebuild and compare with the committed setup.wasm

@@ -1,0 +1,21 @@
+{
+  "name": "@-/me.unduo.configs.extension",
+  "private": true,
+  "type": "module",
+  "imports": {
+    "#mock-prompt": "./mock-prompt.ts"
+  },
+  "exports": {
+    ".": "./+.ts"
+  },
+  "scripts": {
+    "test:extension": "playwright test"
+  },
+  "dependencies": {
+    "@playwright/test": "catalog:"
+  },
+  "devDependencies": {
+    "vite": "catalog:",
+    "vite-plus": "catalog:"
+  }
+}

@@ -1,0 +1,23 @@
+{
+  "manifest_version": 3,
+  "name": "UnDuo Autofill",
+  "version": "1.0.0",
+  "description": "Takes Duo's sign-in prompt straight to the Duo Mobile passcode and marks its field as a one-time code, so 1Password can fill it.",
+  "homepage_url": "https://unduo.me/",
+  "icons": {
+    "16": "icon-16.png",
+    "32": "icon-32.png",
+    "48": "icon-48.png",
+    "128": "icon-128.png"
+  },
+  "content_scripts": [
+    {
+      "matches": [
+        "https://*.duosecurity.com/frame/v4/*",
+        "https://*.duosecurity.com/frame/frameless/v4/*"
+      ],
+      "js": ["content.js"],
+      "run_at": "document_idle"
+    }
+  ]
+}
